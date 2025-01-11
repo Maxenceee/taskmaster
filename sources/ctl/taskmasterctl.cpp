@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/11 13:14:36 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/11 18:52:56 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ main(int argc, char *const *argv)
 	// Set server address
 	memset(&servaddr, 0, sizeof(servaddr));
 	servaddr.sun_family = AF_UNIX;
-	strncpy(servaddr.sun_path, WBS_SOCKET_PATH, sizeof(servaddr.sun_path) - 1);
+	strncpy(servaddr.sun_path, TM_SOCKET_PATH, sizeof(servaddr.sun_path) - 1);
 
 	// Connect to server
 	if (connect(sockfd, (struct sockaddr*)&servaddr, sizeof(servaddr)) < 0) {
