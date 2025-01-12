@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/12 19:12:50 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/12 19:18:42 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ create_child(tm_child_process_t *child, char *const *argv, char *const *envp)
 	child->log_file_fd = open("child_stdout.log", O_WRONLY | O_CREAT | O_APPEND, 0644);
 	if (child->log_file_fd == -1) {
 		perror("Failed to open log file");
-		return 1;
+		return (1);
 	}
 
 	// write(child->log_file_fd, "Starting...\n", 12);
@@ -95,6 +95,8 @@ int main(int argc, char *const *argv, char *const *envp)
 		return (1);
 	}
 
+	std::cout << "Child started with pid " << child.pid << std::endl;
+
 	size_t i = 0;
 	do
 	{
@@ -103,7 +105,7 @@ int main(int argc, char *const *argv, char *const *envp)
 		if (waitpid(child.pid, &status, WNOHANG) == child.pid) {
 			child.status = WEXITSTATUS(status);
 
-			std::cout << "status: " << WIFEXITED(status) << " signal: " << WIFSIGNALED(status) << std::endl;
+			std::cout << "signaled: " << WIFSIGNALED(status) << " exited: " << WIFEXITED(status) << std::endl;
 
 			if (WIFSIGNALED(status)) {
 				child.signal = WTERMSIG(status);
@@ -112,11 +114,13 @@ int main(int argc, char *const *argv, char *const *envp)
 				std::cout << "Child process " << child.pid << " terminated with code " << child.status << ", restarting..." << std::endl;
 			}
 
-			if (create_child(&child, argv, envp) != 0) {
-				std::cerr << "Failed to restart child process" << std::endl;
-				break;
-			} else {
-				std::cout << "Child process " << child.pid << " restarted" << std::endl;
+			if (child.auto_restart) {
+				if (create_child(&child, argv, envp) != 0) {
+					std::cerr << "Failed to restart child process" << std::endl;
+					break;
+				} else {
+					std::cout << "Child restarted with pid " << child.pid << std::endl;
+				}
 			}
 		}
 
