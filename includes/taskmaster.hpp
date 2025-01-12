@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:13:48 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/11 19:47:47 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/12 19:03:27 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,8 +51,11 @@ typedef struct s_child_process {
 	int		stdin_pipe_fd[2];
 	int		stdout_pipe_fd[2];
 	int		stderr_pipe_fd[2];
+	int		log_file_fd;
 	int		exit_code;
 	int 	status;
+	int		signal;
+	bool	auto_restart;
 } tm_child_process_t;
 
 struct s_taskmaster {
