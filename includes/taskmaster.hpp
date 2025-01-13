@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:13:48 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/12 19:03:27 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/13 14:52:01 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,9 @@
 
 #define TM_PIPE_READ_END 0
 #define TM_PIPE_WRITE_END 1
+
+// config
+int	read_config_file(const char *path);
 
 // spawn
 int	spawn_child(char *const *argv, char *const *envp, int stdin_fd, int stdout_fd, int stderr_fd);

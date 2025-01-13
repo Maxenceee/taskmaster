@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/12 19:18:42 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/13 14:55:51 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,16 +78,19 @@ attach_child(tm_child_process_t *child)
 	return (0);
 }
 
-int main(int argc, char *const *argv, char *const *envp)
+int
+main(int argc, char *const *argv, char *const *envp)
 {
 	if (argc < 2) {
 		std::cerr << "Usage: " << argv[0] << " <command> [args...]" << std::endl;
 		return (1);
 	}
 
+	// read_config_file("/etc/taskmaster/taskmaster.conf");
+
 	tm_child_process_t child;
 
-	child.auto_restart = true;
+	child.auto_restart = false;
 	taskmaster.child = &child;
 
 	if (create_child(&child, argv, envp) != 0) {
@@ -111,7 +114,7 @@ int main(int argc, char *const *argv, char *const *envp)
 				child.signal = WTERMSIG(status);
         		std::cout << "Child process " << child.pid << " terminated by signal " << strsignal(child.signal) << std::endl;
 			} else {
-				std::cout << "Child process " << child.pid << " terminated with code " << child.status << ", restarting..." << std::endl;
+				std::cout << "Child process " << child.pid << " terminated with code " << child.status << std::endl;
 			}
 
 			if (child.auto_restart) {
