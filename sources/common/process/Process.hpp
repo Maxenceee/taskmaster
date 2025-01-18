@@ -6,14 +6,14 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/18 23:09:01 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/18 23:24:16 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PROCESS_HPP
 #define PROCESS_HPP
 
-#include "libs.hpp"
+#include "tm.hpp"
 
 typedef struct tm_process_config {
 	bool	auto_restart;

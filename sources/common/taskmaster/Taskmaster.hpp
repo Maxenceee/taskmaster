@@ -6,14 +6,14 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:51 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/18 22:02:12 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/18 23:24:16 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef TASKMASTER_HPP
 #define TASKMASTER_HPP
 
-#include "libs.hpp"
+#include "tm.hpp"
 #include "process/Process.hpp"
 
 class Taskmaster
