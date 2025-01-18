@@ -1,28 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   config.cpp                                         :+:      :+:    :+:   */
+/*   time.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/18 18:59:46 by mgama            ###   ########.fr       */
+/*   Created: 2024/02/26 13:25:34 by mgama             #+#    #+#             */
+/*   Updated: 2025/01/18 19:30:04 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libs.hpp"
+#include "utils.hpp"
 
-int
-read_config_file(const char *path)
+int64_t	getTimestamp()
 {
-	int fd = open(path, O_RDONLY);
-	if (fd == -1) {
-		perror("open");
-		return (1);
-	}
-
-	printf("successfully opened %s\n", path);
-	close(fd);
-
-	return (0);
+	struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (int64_t)(ts.tv_sec * 1000) + (ts.tv_nsec / 1000000);
 }

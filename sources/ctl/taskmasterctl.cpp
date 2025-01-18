@@ -6,14 +6,14 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/11 18:52:56 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/18 19:04:36 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "taskmaster.hpp"
 
 int
-main(int argc, char *const *argv)
+main(int argc, char* const* argv)
 {
 	if (argc < 2 || argc > 3) {
 		std::cerr << "Usage: " << argv[0] << " <message>" << std::endl;

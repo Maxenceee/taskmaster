@@ -6,11 +6,34 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/13 14:55:51 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/18 20:00:34 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "taskmaster.hpp"
+#include "libs.hpp"
+#include "spawn.hpp"
+#include "taskmaster/Taskmaster.hpp"
+
+typedef struct s_child_process {
+	pid_t	pid;
+	int		stdin_pipe_fd[2];
+	int		stdout_pipe_fd[2];
+	int		stderr_pipe_fd[2];
+	int		log_file_fd;
+	int		exit_code;
+	int 	status;
+	int		signal;
+	bool	auto_restart;
+} tm_child_process_t;
+
+struct s_taskmaster {
+	tm_child_process_t *child;
+
+	bool attach_output;
+	int save_stdin;
+	int save_stdout;
+	int save_stderr;
+};
 
 struct s_taskmaster taskmaster = {
 	.attach_output = false,
@@ -20,7 +43,7 @@ struct s_taskmaster taskmaster = {
 };
 
 int
-create_child(tm_child_process_t *child, char *const *argv, char *const *envp)
+create_child(tm_child_process_t *child, char* const* argv, char* const* envp)
 {
 	if (pipe(child->stdout_pipe_fd) == -1) {
 		perror("pipe failed");
@@ -79,7 +102,7 @@ attach_child(tm_child_process_t *child)
 }
 
 int
-main(int argc, char *const *argv, char *const *envp)
+main(int argc, char* const* argv, char* const* envp)
 {
 	if (argc < 2) {
 		std::cerr << "Usage: " << argv[0] << " <command> [args...]" << std::endl;
@@ -88,46 +111,50 @@ main(int argc, char *const *argv, char *const *envp)
 
 	// read_config_file("/etc/taskmaster/taskmaster.conf");
 
-	tm_child_process_t child;
+	// tm_child_process_t child;
 
-	child.auto_restart = false;
-	taskmaster.child = &child;
+	// child.auto_restart = false;
+	// taskmaster.child = &child;
 
-	if (create_child(&child, argv, envp) != 0) {
-		std::cerr << "Failed to create child process" << std::endl;
-		return (1);
-	}
+	// if (create_child(&child, argv, envp) != 0) {
+	// 	std::cerr << "Failed to create child process" << std::endl;
+	// 	return (1);
+	// }
 
-	std::cout << "Child started with pid " << child.pid << std::endl;
+	// std::cout << "Child started with pid " << child.pid << std::endl;
 
-	size_t i = 0;
-	do
-	{
-		int status;
+	// size_t i = 0;
+	// do
+	// {
+	// 	int status;
 
-		if (waitpid(child.pid, &status, WNOHANG) == child.pid) {
-			child.status = WEXITSTATUS(status);
+	// 	if (waitpid(child.pid, &status, WNOHANG) == child.pid) {
+	// 		child.status = WEXITSTATUS(status);
 
-			std::cout << "signaled: " << WIFSIGNALED(status) << " exited: " << WIFEXITED(status) << std::endl;
+	// 		std::cout << "signaled: " << WIFSIGNALED(status) << " exited: " << WIFEXITED(status) << std::endl;
 
-			if (WIFSIGNALED(status)) {
-				child.signal = WTERMSIG(status);
-        		std::cout << "Child process " << child.pid << " terminated by signal " << strsignal(child.signal) << std::endl;
-			} else {
-				std::cout << "Child process " << child.pid << " terminated with code " << child.status << std::endl;
-			}
+	// 		if (WIFSIGNALED(status)) {
+	// 			child.signal = WTERMSIG(status);
+    //     		std::cout << "Child process " << child.pid << " terminated by signal " << strsignal(child.signal) << std::endl;
+	// 		} else {
+	// 			std::cout << "Child process " << child.pid << " terminated with code " << child.status << std::endl;
+	// 		}
 
-			if (child.auto_restart) {
-				if (create_child(&child, argv, envp) != 0) {
-					std::cerr << "Failed to restart child process" << std::endl;
-					break;
-				} else {
-					std::cout << "Child restarted with pid " << child.pid << std::endl;
-				}
-			}
-		}
+	// 		if (child.auto_restart) {
+	// 			if (create_child(&child, argv, envp) != 0) {
+	// 				std::cerr << "Failed to restart child process" << std::endl;
+	// 				break;
+	// 			} else {
+	// 				std::cout << "Child restarted with pid " << child.pid << std::endl;
+	// 			}
+	// 		}
+	// 	}
 
-	} while (1);
+	// } while (1);
 
-	kill(child.pid, SIGTERM);
+	// kill(child.pid, SIGTERM);
+	Taskmaster master(envp);
+
+	master.addChild(argv + 1);
+	master.start();
 }

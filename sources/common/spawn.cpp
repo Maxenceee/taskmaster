@@ -6,15 +6,15 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:15:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/12 19:14:21 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/18 19:16:53 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "taskmaster.hpp"
+#include "libs.hpp"
 
-#if 1
+#ifndef TM_SPAWN_CHILD_USE_FORK
 int
-spawn_child(char *const *argv, char *const *envp, int stdin_fd, int stdout_fd, int stderr_fd)
+spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, int stderr_fd)
 {
 	pid_t pid;
 	int status;
@@ -49,7 +49,7 @@ spawn_child(char *const *argv, char *const *envp, int stdin_fd, int stdout_fd, i
 }
 #else
 int
-spawn_child(char *const *argv, char *const *envp, int stdin_fd, int stdout_fd, int stderr_fd)
+spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, int stderr_fd)
 {
 	pid_t pid = fork();
 

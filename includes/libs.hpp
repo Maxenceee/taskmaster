@@ -1,18 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   taskmaster.hpp                                     :+:      :+:    :+:   */
+/*   libs.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/11 13:13:48 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/13 14:52:01 by mgama            ###   ########.fr       */
+/*   Created: 2025/01/18 18:56:02 by mgama             #+#    #+#             */
+/*   Updated: 2025/01/18 19:36:37 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef TASKMASTER_HPP
-#define TASKMASTER_HPP
+#ifndef LIBS_HPP
+#define LIBS_HPP
 
+// Std
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -21,6 +22,7 @@
 #include <spawn.h>
 #include <signal.h>
 
+// Sys
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -30,44 +32,48 @@
 #include <sys/un.h>
 #include <sys/resource.h>
 
+// Net
 #include <netinet/in.h>
 #include <netinet/ip.h> 
 #include <netdb.h>
 #include <poll.h>
 #include <arpa/inet.h>
 
+// CPP Includes
 #include <iostream>
+#include <iomanip>
+#include <sstream>
+#include <fstream>
+#include <string>
+#include <cstring>
+#include <ctime>
+#include <limits>
+#include <cstdio>
+#include <cstdarg>
+#include <filesystem>
+#include <numeric>
+#include <chrono>
+
+// CPP Containers
+#include <map>
+#include <set>
+#include <vector>
+#include <algorithm>
+#include <iterator>
+#include <list>
+#include <utility>
+#include <queue>
+#include <deque>
+
+// 
 
 #define TM_SOCKET_PATH "./taskmaster.sock"
 
 #define TM_PIPE_READ_END 0
 #define TM_PIPE_WRITE_END 1
 
-// config
-int	read_config_file(const char *path);
+// Global types
 
-// spawn
-int	spawn_child(char *const *argv, char *const *envp, int stdin_fd, int stdout_fd, int stderr_fd);
+typedef std::chrono::steady_clock::time_point time_point;
 
-typedef struct s_child_process {
-	pid_t	pid;
-	int		stdin_pipe_fd[2];
-	int		stdout_pipe_fd[2];
-	int		stderr_pipe_fd[2];
-	int		log_file_fd;
-	int		exit_code;
-	int 	status;
-	int		signal;
-	bool	auto_restart;
-} tm_child_process_t;
-
-struct s_taskmaster {
-	tm_child_process_t *child;
-
-	bool attach_output;
-	int save_stdin;
-	int save_stdout;
-	int save_stderr;
-};
-
-#endif /* TASKMASTER_HPP */
+#endif /* LIBS_HPP */

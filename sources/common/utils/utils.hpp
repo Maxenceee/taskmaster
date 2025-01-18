@@ -1,28 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   config.cpp                                         :+:      :+:    :+:   */
+/*   utils.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/18 18:59:46 by mgama            ###   ########.fr       */
+/*   Created: 2024/01/05 11:38:42 by mgama             #+#    #+#             */
+/*   Updated: 2025/01/18 19:30:10 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#ifndef UTILS_HPP
+#define UTILS_HPP
+
 #include "libs.hpp"
 
-int
-read_config_file(const char *path)
-{
-	int fd = open(path, O_RDONLY);
-	if (fd == -1) {
-		perror("open");
-		return (1);
-	}
+/* time */
 
-	printf("successfully opened %s\n", path);
-	close(fd);
+int64_t	getTimestamp();
 
-	return (0);
-}
+#endif /* UTILS_HPP */
