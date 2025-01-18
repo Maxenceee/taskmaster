@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:51 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/18 20:01:34 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/18 22:02:12 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,8 @@ private:
 public:
 	Taskmaster(char* const* envp);
 	~Taskmaster(void);
+
+	static bool		should_stop;
 
 	int		addChild(char* const* exec);
 

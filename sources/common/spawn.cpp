@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:15:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/18 19:16:53 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/18 23:08:25 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,14 +36,28 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 		// posix_spawn_file_actions_addclose(&actions, stderr_fd);
 	}
 
+	posix_spawnattr_t attr;
+    posix_spawnattr_init(&attr);
+
+	sigset_t signal_set;
+	sigemptyset(&signal_set);
+	// Since the parent is handling these signals we need to reset their default behavior
+	sigaddset(&signal_set, SIGINT);
+	sigaddset(&signal_set, SIGQUIT);
+	sigaddset(&signal_set, SIGTERM);
+
+	posix_spawnattr_setsigmask(&attr, &signal_set);
+
 	// Spawn the child process
-	if (posix_spawn(&pid, argv[0], &actions, NULL, argv, envp) != 0) {
+	if (posix_spawn(&pid, argv[0], &actions, &attr, argv, envp) != 0) {
 		perror("posix_spawn failed");
 		posix_spawn_file_actions_destroy(&actions);
+		posix_spawnattr_destroy(&attr);
 		return -1;
 	}
 
 	posix_spawn_file_actions_destroy(&actions);
+	posix_spawnattr_destroy(&attr);
 
 	return pid;
 }
@@ -61,6 +75,11 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 
 	if (pid == 0) {
 		// In child process
+
+		// Since the parent is handling these signals we need to reset their default behavior
+		signal(SIGINT, SIG_DFL);
+		signal(SIGQUIT, SIG_DFL);
+		signal(SIGTERM, SIG_DFL);
 
 		// Redirect stdin
 		if (stdin_fd != -1) {

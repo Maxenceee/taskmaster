@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/18 19:58:33 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/18 23:09:39 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,25 +17,27 @@
 Process::Process(char* const* exec, int std_in_fd, int std_out_fd, int std_err_fd, tm_process_config &config)
 {
 	this->pid = -1;
-	this->status = 0;
-	this->signal = 0;
-	this->exit_code = 0;
-	this->exited = false;
+	this->_status = 0;
+	this->_signal = 0;
+	this->_exit_code = 0;
+	this->_exited = false;
 
 	this->std_in_fd = std_in_fd;
 	this->std_out_fd = std_out_fd;
 	this->std_err_fd = std_err_fd;
 
 	this->auto_restart = config.auto_restart;
+	this->stop_sig = SIGTERM;
 
 	this->exec = exec;
 }
 
 Process::~Process(void)
 {
-	if (false == this->exited)
+	if (false == this->_exited && this->pid != -1)
 	{
-		kill(this->pid, SIGTERM);
+		std::cout << "Killing child " << this->pid << std::endl;
+		this->stop();
 	}
 }
 
@@ -45,25 +47,45 @@ int	Process::spawn(char* const* envp)
 	{
 		return (1);
 	}
+	std::cout << "Child spawned with pid " << this->pid << std::endl;
 	this->start_time = std::chrono::steady_clock::now();
 	return (0);
 }
 
+int	Process::stop(void)
+{
+	if (this->_exited)
+	{
+		return (0);
+	}
+	return (::kill(this->pid, this->stop_sig));
+}
+
+int	Process::kill(void)
+{
+	if (this->_exited)
+	{
+		return (0);
+	}
+	return (::kill(this->pid, SIGKILL));
+}
+
 int	Process::monitor(void)
 {
-	if (waitpid(this->pid, &this->status, WNOHANG) == this->pid)
+	if (waitpid(this->pid, &this->_status, WNOHANG) == this->pid)
 	{
-		if (WIFSIGNALED(this->status))
+		if (WIFSIGNALED(this->_status))
 		{
-			this->signal = WTERMSIG(this->status);
-			std::cout << "Child process " << this->pid << " terminated by signal " << strsignal(this->signal) << std::endl;
+			this->_signal = WTERMSIG(this->_status);
+			std::cout << "Child process " << this->pid << " terminated by signal " << strsignal(this->_signal) << std::endl;
 		}
-		else if (WIFEXITED(this->status))
+		else if (WIFEXITED(this->_status))
 		{
-			this->exit_code = WEXITSTATUS(this->status);
-			std::cout << "Child process " << this->pid << " terminated with code " << this->exit_code << std::endl;
+			this->_exit_code = WEXITSTATUS(this->_status);
+			std::cout << "Child process " << this->pid << " terminated with code " << this->_exit_code << std::endl;
 		}
-		this->exited = true;
+		this->stop_time = std::chrono::steady_clock::now();
+		this->_exited = true;
 		return (1);
 	}
 	return (0);

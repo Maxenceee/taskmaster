@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 19:44:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/18 19:45:21 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/18 21:35:15 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,4 +15,9 @@
 pid_t	Process::getPid(void) const
 {
 	return (this->pid);
+}
+
+bool	Process::exited(void) const
+{
+	return (this->_exited);
 }

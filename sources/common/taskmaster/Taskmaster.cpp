@@ -6,11 +6,18 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/18 20:01:30 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/18 23:07:17 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "taskmaster/Taskmaster.hpp"
+
+static void interruptHandler(int sig_int) {
+	(void)sig_int;
+	std::cout << "\b\b"; // rm ^C from tty
+	std::cout << "interrupt caught!" << std::endl;
+	Taskmaster::should_stop = true;
+}
 
 Taskmaster::Taskmaster(char* const* envp)
 {
@@ -21,7 +28,6 @@ Taskmaster::Taskmaster(char* const* envp)
 
 Taskmaster::~Taskmaster(void)
 {
-	
 }
 
 int	Taskmaster::addChild(char* const* exec)
@@ -54,19 +60,79 @@ int	Taskmaster::launch(void)
 	return (0);
 }
 
+bool stdinHasData()
+{
+    // using a timeout of 0 so we aren't waiting:
+    struct timespec timeout{ 0l, 0l };
+
+    // create a file descriptor set
+    fd_set fds{};
+
+    // initialize the fd_set to 0
+    FD_ZERO(&fds);
+    // set the fd_set to target file descriptor 0 (STDIN)
+    FD_SET(STDIN_FILENO, &fds);
+
+    // pselect the number of file descriptors that are ready, since
+    //  we're only passing in 1 file descriptor, it will return either
+    //  a 0 if STDIN isn't ready, or a 1 if it is.
+    return pselect(0 + 1, &fds, nullptr, nullptr, &timeout, nullptr) == 1;
+}
+
 int	Taskmaster::start(void)
 {
 	this->launch();
 
+	signal(SIGINT, interruptHandler);
+	// signal(SIGQUIT, interruptHandler);
+	// signal(SIGTERM, interruptHandler);
+
+	signal(SIGPIPE, SIG_IGN);
+
+	bool	handling_stop = false;
+
+	std::string input;
 	do
 	{
+		if (this->should_stop && !handling_stop)
+		{
+			for(const auto& process : this->_processes)
+			{
+				std::cout << "Stopping child " << process->getPid() << std::endl;
+				if (process->stop())
+					perror("Could not stop");
+			}
+			handling_stop = true;
+		}
+
+		if (!this->should_stop && stdinHasData())
+		{
+			std::cin >> input;
+			if ("rs" == input) {
+				for(const auto& process : this->_processes)
+				{
+					if (process->exited())
+					{
+						if (process->spawn(this->envp))
+						{
+							std::cout << "Could not spawn child" << std::endl;
+						}
+					}
+				}
+			}
+		}
+
+		bool all_stopped = true;
 		for(const auto& process : this->_processes)
 		{
 			if (process->monitor())
 			{
-				break;
+				all_stopped = false;
 			}
 		}
+
+		if (this->should_stop && handling_stop && all_stopped)
+			break;
 	} while (false == this->exit);
 	
 	return (0);
