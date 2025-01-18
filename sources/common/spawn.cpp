@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:15:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/18 23:24:16 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/18 23:34:06 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 	sigaddset(&signal_set, SIGINT);
 	sigaddset(&signal_set, SIGQUIT);
 	sigaddset(&signal_set, SIGTERM);
+	sigaddset(&signal_set, SIGPIPE);
 
 	posix_spawnattr_setsigmask(&attr, &signal_set);
 
@@ -80,6 +81,7 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 		signal(SIGINT, SIG_DFL);
 		signal(SIGQUIT, SIG_DFL);
 		signal(SIGTERM, SIG_DFL);
+		signal(SIGPIPE, SIG_DFL);
 
 		// Redirect stdin
 		if (stdin_fd != -1) {
