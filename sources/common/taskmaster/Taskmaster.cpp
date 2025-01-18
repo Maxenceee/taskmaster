@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/18 23:20:04 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/18 23:23:12 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,8 +85,8 @@ int	Taskmaster::start(void)
 	this->launch();
 
 	signal(SIGINT, interruptHandler);
-	// signal(SIGQUIT, interruptHandler);
-	// signal(SIGTERM, interruptHandler);
+	signal(SIGQUIT, interruptHandler);
+	signal(SIGTERM, interruptHandler);
 
 	signal(SIGPIPE, SIG_IGN);
 
