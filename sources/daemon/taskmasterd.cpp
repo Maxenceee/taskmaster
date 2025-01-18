@@ -6,13 +6,14 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/18 23:03:34 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/18 23:18:23 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libs.hpp"
 #include "spawn.hpp"
 #include "taskmaster/Taskmaster.hpp"
+#include "logger/Logger.hpp"
 
 typedef struct s_child_process {
 	pid_t	pid;
@@ -114,6 +115,8 @@ main(int argc, char* const* argv, char* const* envp)
 	signal(SIGINT, SIG_IGN);
 	signal(SIGQUIT, SIG_IGN);
 	signal(SIGTERM, SIG_IGN);
+
+	Logger::init();
 
 	// read_config_file("/etc/taskmaster/taskmaster.conf");
 

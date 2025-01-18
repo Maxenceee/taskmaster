@@ -6,11 +6,12 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/18 23:07:17 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/18 23:20:04 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "taskmaster/Taskmaster.hpp"
+#include "logger/Logger.hpp"
 
 static void interruptHandler(int sig_int) {
 	(void)sig_int;
@@ -62,21 +63,21 @@ int	Taskmaster::launch(void)
 
 bool stdinHasData()
 {
-    // using a timeout of 0 so we aren't waiting:
-    struct timespec timeout{ 0l, 0l };
+	// using a timeout of 0 so we aren't waiting:
+	struct timespec timeout{ 0l, 0l };
 
-    // create a file descriptor set
-    fd_set fds{};
+	// create a file descriptor set
+	fd_set fds{};
 
-    // initialize the fd_set to 0
-    FD_ZERO(&fds);
-    // set the fd_set to target file descriptor 0 (STDIN)
-    FD_SET(STDIN_FILENO, &fds);
+	// initialize the fd_set to 0
+	FD_ZERO(&fds);
+	// set the fd_set to target file descriptor 0 (STDIN)
+	FD_SET(STDIN_FILENO, &fds);
 
-    // pselect the number of file descriptors that are ready, since
-    //  we're only passing in 1 file descriptor, it will return either
-    //  a 0 if STDIN isn't ready, or a 1 if it is.
-    return pselect(0 + 1, &fds, nullptr, nullptr, &timeout, nullptr) == 1;
+	// pselect the number of file descriptors that are ready, since
+	//  we're only passing in 1 file descriptor, it will return either
+	//  a 0 if STDIN isn't ready, or a 1 if it is.
+	return pselect(0 + 1, &fds, nullptr, nullptr, &timeout, nullptr) == 1;
 }
 
 int	Taskmaster::start(void)

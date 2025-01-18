@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:56:02 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/18 19:36:37 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/18 23:19:24 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,11 @@
 #include <deque>
 
 // 
+
+#define TM_VERSION "1.0"
+#define TM_AUTHOR "mgama"
+
+#define TM_PREFIX "taskmaster: "
 
 #define TM_SOCKET_PATH "./taskmaster.sock"
 

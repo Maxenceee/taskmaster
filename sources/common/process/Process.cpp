@@ -6,13 +6,14 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/18 23:09:39 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/18 23:18:40 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "process/Process.hpp"
 #include "spawn.hpp"
 #include "utils/utils.hpp"
+#include "logger/Logger.hpp"
 
 Process::Process(char* const* exec, int std_in_fd, int std_out_fd, int std_err_fd, tm_process_config &config)
 {
