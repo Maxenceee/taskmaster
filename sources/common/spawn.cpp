@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:15:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/19 15:20:05 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/19 15:26:36 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,7 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 {
 	pid_t pid;
 
-// #ifndef TM_SPAWN_CHILD_USE_FORK
-#if 1
+#ifndef TM_SPAWN_CHILD_USE_FORK
 
 	posix_spawn_file_actions_t actions;
 	posix_spawn_file_actions_init(&actions);
@@ -55,7 +54,9 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 
 	/**
 	 * INFO:
+	 * On many POSIX systems, this function is not working as expected and might not working without returning an error.
 	 * 
+	 * If the child process must be leader of a new process group, build with `TM_SPAWN_CHILD_USE_FORK` instead.
 	 */
 	if (posix_spawnattr_setpgroup(&attr, 0) != 0)
 	{
@@ -64,13 +65,6 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 		posix_spawnattr_destroy(&attr);
 		return -1;
 	}
-	// if (posix_spawnattr_setpgroup(&attr, 0) != 0)
-	// {
-	// 	perror("posix_spawnattr_setpgroup failed");
-	// 	posix_spawn_file_actions_destroy(&actions);
-	// 	posix_spawnattr_destroy(&attr);
-	// 	return -1;
-	// }
 
 	// Spawn the child process
 	if (posix_spawn(&pid, argv[0], &actions, &attr, argv, envp) != 0)
