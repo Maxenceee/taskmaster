@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:15:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/19 15:26:36 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/19 16:07:26 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,8 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 {
 	pid_t pid;
 
-#ifndef TM_SPAWN_CHILD_USE_FORK
+// #ifndef TM_SPAWN_CHILD_USE_FORK
+#if 1
 
 	posix_spawn_file_actions_t actions;
 	posix_spawn_file_actions_init(&actions);
@@ -50,14 +51,16 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 	sigaddset(&signal_set, SIGTERM);
 	sigaddset(&signal_set, SIGPIPE);
 
-	posix_spawnattr_setsigmask(&attr, &signal_set);
+	posix_spawnattr_setflags(&attr, POSIX_SPAWN_SETSIGMASK);
+	if (posix_spawnattr_setsigmask(&attr, &signal_set) != 0)
+	{
+		perror("posix_spawnattr_setsigmask failed");
+		posix_spawn_file_actions_destroy(&actions);
+		posix_spawnattr_destroy(&attr);
+		return -1;
+	}
 
-	/**
-	 * INFO:
-	 * On many POSIX systems, this function is not working as expected and might not working without returning an error.
-	 * 
-	 * If the child process must be leader of a new process group, build with `TM_SPAWN_CHILD_USE_FORK` instead.
-	 */
+	posix_spawnattr_setflags(&attr, POSIX_SPAWN_SETPGROUP);
 	if (posix_spawnattr_setpgroup(&attr, 0) != 0)
 	{
 		perror("posix_spawnattr_setpgroup failed");

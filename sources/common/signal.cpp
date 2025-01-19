@@ -1,19 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   spawn.hpp                                          :+:      :+:    :+:   */
+/*   signal.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/18 18:58:56 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/19 16:01:13 by mgama            ###   ########.fr       */
+/*   Created: 2025/01/19 15:58:37 by mgama             #+#    #+#             */
+/*   Updated: 2025/01/19 16:04:24 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SPAWN_HPP
-#define SPAWN_HPP
+#include "tm.hpp"
 
-// spawn
-int	spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, int stderr_fd);
+void
+setup_signal(int sig, void (*handler)(int))
+{
+	struct sigaction	sa;
 
-#endif /* SPAWN_HPP */
+	sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+	sa.sa_handler = handler;
+	sigaction(sig, &sa, NULL);
+}

@@ -6,10 +6,11 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/19 15:13:09 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/19 16:07:42 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "signal.hpp"
 #include "taskmaster/Taskmaster.hpp"
 #include "logger/Logger.hpp"
 
@@ -88,13 +89,11 @@ int	Taskmaster::start(void)
 {
 	Logger::print("taskmasterd started with pid "+std::to_string(this->pid));
 
-	signal(SIGINT, interruptHandler);
-	signal(SIGQUIT, interruptHandler);
-	signal(SIGTERM, interruptHandler);
+	setup_signal(SIGINT, interruptHandler);
+	setup_signal(SIGQUIT, interruptHandler);
+	setup_signal(SIGTERM, interruptHandler);
 
-	// signal(SIGCHLD, interruptHandler);
-
-	signal(SIGPIPE, SIG_IGN);
+	setup_signal(SIGPIPE, SIG_IGN);
 
 	this->launch();
 
