@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/19 21:58:55 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/19 22:02:14 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -212,6 +212,7 @@ process_input(const std::string &prompt, std::vector<char>& input_buffer, int& c
 		std::cout << std::endl;
 		return 0;
 	case '\t':
+		// TODO: Implement tab completion
 		break;
 	default:
 		add_char(prompt, input_buffer, cursor_pos, ch);
