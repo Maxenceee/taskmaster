@@ -5,5 +5,5 @@ taskmasterd
 taskmasterctl
 output.txt
 super.conf
-/bin
+# /bin
 *.log
