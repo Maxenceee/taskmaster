@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:51 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/18 23:24:16 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/19 12:13:15 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 class Taskmaster
 {
 private:
+	pid_t	pid;
 	bool	exit;
 
 	char* const*					envp;

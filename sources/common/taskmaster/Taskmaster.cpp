@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/18 23:29:18 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/19 12:26:36 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 static void interruptHandler(int sig_int) {
 	(void)sig_int;
 	std::cout << "\b\b"; // rm ^C from tty
-	std::cout << "interrupt caught!" << std::endl;
+	Logger::print("Signal received: " + std::string(strsignal(sig_int)), B_GREEN);
 	Taskmaster::should_stop = true;
 }
 
@@ -25,6 +25,8 @@ Taskmaster::Taskmaster(char* const* envp)
 	this->exit = false;
 
 	this->envp = envp;
+
+	this->pid = getpid();
 }
 
 Taskmaster::~Taskmaster(void)
@@ -82,6 +84,8 @@ bool stdinHasData()
 
 int	Taskmaster::start(void)
 {
+	Logger::print("taskmasterd started with pid "+std::to_string(this->pid));
+
 	signal(SIGINT, interruptHandler);
 	signal(SIGQUIT, interruptHandler);
 	signal(SIGTERM, interruptHandler);
