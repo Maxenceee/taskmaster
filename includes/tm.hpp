@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 23:24:24 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/19 13:11:47 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/19 22:49:43 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,7 @@
 #include <cctype>
 #include <cstdlib>
 #include <cstddef>
+#include <optional>
 
 // CPP Containers
 #include <map>

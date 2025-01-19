@@ -6,13 +6,19 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/19 22:02:14 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/19 23:01:18 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "readline.hpp"
 
 int tty_fd = open("/dev/ttys007", O_RDWR);
+
+std::deque<std::string>		history;
+size_t						history_index = 0;
+std::string					global_prompt;
+int							global_cursor_pos = 0;
+std::vector<char>			global_input_buffer;
 
 char
 getch()
@@ -46,6 +52,18 @@ draw_line(const std::string &prompt, const std::vector<char>& input_buffer, int 
 
 	// Déplacer le curseur à la position actuelle
 	std::cout << "\033[" << prompt.size() + 1 + cursor_pos << "G";
+}
+
+void
+draw_from_history(const std::string &prompt, std::vector<char>& input_buffer, int& cursor_pos)
+{
+	// History start at 1 because 0 is the current input
+	if (history_index > 0 && history_index < history.size() + 1)
+	{
+		input_buffer.assign(history[history_index - 1].begin(), history[history_index - 1].end());
+		cursor_pos = input_buffer.size();
+		draw_line(prompt, input_buffer, cursor_pos);
+	}
 }
 
 void
@@ -139,13 +157,13 @@ escape_sequence(const std::string &prompt, std::vector<char>& input_buffer, int&
 {
 	switch (getch())
 	{
-	case 'b':
+	case 'b': // Alt + Left arrow
 		move_cursor_by_word(input_buffer, cursor_pos, false);
 		return;
-	case 'f':
+	case 'f': // Alt + Right arrow
 		move_cursor_by_word(input_buffer, cursor_pos, true);
 		return;
-	case 100:
+	case 100: // Alt + Suppr
 		delete_word(input_buffer, cursor_pos, true);
 		draw_line(prompt, input_buffer, cursor_pos);
 		return;
@@ -157,19 +175,35 @@ escape_sequence(const std::string &prompt, std::vector<char>& input_buffer, int&
 
 	switch (getch())
 	{
-	case 'C':
+	case 'A': // Up arrow
+		history_index = std::min(history_index + 1, history.size());
+		dprintf(tty_fd, "history_index: %zu\n", history_index);
+		draw_from_history(prompt, input_buffer, cursor_pos);
+		break;
+	case 'B': // Down arrow
+		history_index = history_index > 0 ? history_index - 1 : 0;
+		dprintf(tty_fd, "history_index: %zu\n", history_index);
+		if (history_index == 0) {
+			input_buffer.clear();
+			cursor_pos = 0;
+			draw_line(prompt, input_buffer, cursor_pos);
+			break;
+		}
+		draw_from_history(prompt, input_buffer, cursor_pos);
+		break;
+	case 'C': // Right arrow
 		if (cursor_pos < input_buffer.size()) {
 			cursor_pos++;
 			std::cout << "\033[C";  // Déplacer le curseur à droite
 		}
 		break;
-	case 'D':
+	case 'D': // Left arrow
 		if (cursor_pos > 0) {
 			cursor_pos--;
 			std::cout << "\033[D";  // Déplacer le curseur à gauche
 		}
 		break;
-	case 51:
+	case 51: // Suppr
 		switch (getch())
 		{
 		case '~':
@@ -188,20 +222,26 @@ process_input(const std::string &prompt, std::vector<char>& input_buffer, int& c
 
 	switch (ch)
 	{
-	case 21:
+	case 4: // Ctrl + D
+		if (input_buffer.empty()) {
+			std::cout << "^D" << std::endl;
+		    return 2;
+		}
+		break;
+	case 21: // Ctrl + U
 		input_buffer.clear();
 		cursor_pos = 0;
 		draw_line(prompt, input_buffer, cursor_pos);
 		break;
-	case 23:
+	case 23: // Ctrl + W
 		delete_word(input_buffer, cursor_pos, false);
 		draw_line(prompt, input_buffer, cursor_pos);
 		break;
-	case 27:
+	case 27: // Escape sequence
 		escape_sequence(prompt, input_buffer, cursor_pos);
 		break;
-	case 8:
-	case 127:
+	case 8: // Backspace
+	case 127: // Suppr
 		left_suppr(prompt, input_buffer, cursor_pos);
 		break;
 	case '\r':
@@ -210,6 +250,7 @@ process_input(const std::string &prompt, std::vector<char>& input_buffer, int& c
 	case 3:
 	case '\n':
 		std::cout << std::endl;
+		history_index = 0;
 		return 0;
 	case '\t':
 		// TODO: Implement tab completion
@@ -221,17 +262,56 @@ process_input(const std::string &prompt, std::vector<char>& input_buffer, int& c
 	return 1;
 }
 
-std::string
-readline(const std::string& prompt)
+std::optional<std::string>
+tm_readline(const std::string& prompt)
 {
-	std::vector<char> input_buffer;
-	int cursor_pos = 0;
+	global_prompt = prompt;
+    global_input_buffer.clear();
+    global_cursor_pos = 0;
 
-	draw_line(prompt, input_buffer, cursor_pos);
+	draw_line(global_prompt, global_input_buffer, global_cursor_pos);
 
-	while (process_input(prompt, input_buffer, cursor_pos)) {
-		;
+	int status;
+	while ((status = process_input(global_prompt, global_input_buffer, global_cursor_pos)) != 0) {
+		if (status == 2) {
+			return std::nullopt;
+		}
 	}
 
-	return std::string(input_buffer.begin(), input_buffer.end());
+	return std::string(global_input_buffer.begin(), global_input_buffer.end());
+}
+
+void
+tm_rl_add_history(const std::string& line)
+{
+	if (line.empty()) {
+		return;
+	}
+	if (history.size() > 0 && history.front() == line) {
+		return;
+	}
+	history.push_front(line);
+	dprintf(tty_fd, "history: %zu\n", history.size());
+	history_index = 0;
+}
+
+void
+tm_rl_clear_history(void)
+{
+	history.clear();
+	history_index = 0;
+}
+
+void
+tm_rl_new_line()
+{
+	// Print a newline character to move to the next line
+	std::cout << std::endl;
+
+	// Clear the input buffer and reset the cursor position
+	global_input_buffer.clear();
+	global_cursor_pos = 0;
+
+	// Draw the new prompt line
+	draw_line(global_prompt, global_input_buffer, global_cursor_pos);
 }

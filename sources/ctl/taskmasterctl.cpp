@@ -6,12 +6,15 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/19 20:11:48 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/19 22:54:49 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "tm.hpp"
+#include <optional>
 #include "readline.hpp"
+#include "utils/utils.hpp"
+#include "signal.hpp"
 
 void
 send_message(int sockfd, const char* message)
@@ -21,6 +24,12 @@ send_message(int sockfd, const char* message)
 		close(sockfd);
 		exit(EXIT_FAILURE);
 	}
+}
+
+static void interruptHandler(int sig_int)
+{
+	(void)sig_int;
+	tm_rl_new_line();
 }
 
 int
@@ -52,9 +61,19 @@ main(int argc, char* const* argv)
 	// 	exit(EXIT_FAILURE);
 	// }
 
-	std::string input = readline("taskmasterctl> ");
+	do
+	{
+		setup_signal(SIGINT, interruptHandler);
 
-	std::cout << "Input: " << input << std::endl;
+		auto input = tm_readline("taskmasterctl> ");
+		if (!input) {
+			break;
+		}
+
+		tm_rl_add_history(*input);
+
+		std::cout << "Input: (" << trim(*input) << ")" << std::endl;
+	} while (true);
 	// send_message(sockfd, argv[1]);
 
 	// Receive a message from the server
