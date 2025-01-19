@@ -6,12 +6,12 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 23:24:24 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/19 12:16:47 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/19 12:50:03 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LIBS_HPP
-#define LIBS_HPP
+#ifndef TM_HPP
+#define TM_HPP
 
 // Std
 #include <fcntl.h>
@@ -84,4 +84,4 @@
 
 typedef std::chrono::steady_clock::time_point time_point;
 
-#endif /* LIBS_HPP */
+#endif /* TM_HPP */
