@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/19 23:11:56 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/19 23:13:01 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,8 @@ enum tm_rl_ev {
 	TM_RL_EOF = 2
 };
 
-std::deque<std::string>		history;
-size_t						history_index = 0;
+std::deque<std::string>		global_history;
+size_t						global_history_index = 0;
 std::string					global_prompt;
 int							global_cursor_pos = 0;
 std::vector<char>			global_input_buffer;
@@ -65,9 +65,9 @@ void
 draw_from_history(const std::string &prompt, std::vector<char>& input_buffer, int& cursor_pos)
 {
 	// History start at 1 because 0 is the current input
-	if (history_index > 0 && history_index < history.size() + 1)
+	if (global_history_index > 0 && global_history_index < global_history.size() + 1)
 	{
-		input_buffer.assign(history[history_index - 1].begin(), history[history_index - 1].end());
+		input_buffer.assign(global_history[global_history_index - 1].begin(), global_history[global_history_index - 1].end());
 		cursor_pos = input_buffer.size();
 		draw_line(prompt, input_buffer, cursor_pos);
 	}
@@ -183,14 +183,14 @@ escape_sequence(const std::string &prompt, std::vector<char>& input_buffer, int&
 	switch (getch())
 	{
 	case 'A': // Up arrow
-		history_index = std::min(history_index + 1, history.size());
-		dprintf(tty_fd, "history_index: %zu\n", history_index);
+		global_history_index = std::min(global_history_index + 1, global_history.size());
+		dprintf(tty_fd, "global_history_index: %zu\n", global_history_index);
 		draw_from_history(prompt, input_buffer, cursor_pos);
 		break;
 	case 'B': // Down arrow
-		history_index = history_index > 0 ? history_index - 1 : 0;
-		dprintf(tty_fd, "history_index: %zu\n", history_index);
-		if (history_index == 0) {
+		global_history_index = global_history_index > 0 ? global_history_index - 1 : 0;
+		dprintf(tty_fd, "global_history_index: %zu\n", global_history_index);
+		if (global_history_index == 0) {
 			input_buffer.clear();
 			cursor_pos = 0;
 			draw_line(prompt, input_buffer, cursor_pos);
@@ -257,7 +257,7 @@ process_input(const std::string &prompt, std::vector<char>& input_buffer, int& c
 	case 3:
 	case '\n':
 		std::cout << std::endl;
-		history_index = 0;
+		global_history_index = 0;
 		return TM_RL_NEW_LINE;
 	case '\t':
 		// TODO: Implement tab completion
@@ -305,12 +305,12 @@ tm_rl_add_history(const std::string& line)
 	if (line.empty()) {
 		return;
 	}
-	if (history.size() > 0 && history.front() == line) {
+	if (global_history.size() > 0 && global_history.front() == line) {
 		return;
 	}
-	history.push_front(line);
-	dprintf(tty_fd, "history: %zu\n", history.size());
-	history_index = 0;
+	global_history.push_front(line);
+	dprintf(tty_fd, "global_history: %zu\n", global_history.size());
+	global_history_index = 0;
 }
 
 /**
@@ -320,8 +320,8 @@ tm_rl_add_history(const std::string& line)
 void
 tm_rl_clear_history(void)
 {
-	history.clear();
-	history_index = 0;
+	global_history.clear();
+	global_history_index = 0;
 }
 
 /**
