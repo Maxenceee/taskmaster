@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:15:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/19 15:19:49 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/19 15:20:05 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,13 +57,13 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 	 * INFO:
 	 * 
 	 */
-	// if (posix_spawnattr_setpgroup(&attr, 0) != 0)
-	// {
-	// 	perror("posix_spawnattr_setpgroup failed");
-	// 	posix_spawn_file_actions_destroy(&actions);
-	// 	posix_spawnattr_destroy(&attr);
-	// 	return -1;
-	// }
+	if (posix_spawnattr_setpgroup(&attr, 0) != 0)
+	{
+		perror("posix_spawnattr_setpgroup failed");
+		posix_spawn_file_actions_destroy(&actions);
+		posix_spawnattr_destroy(&attr);
+		return -1;
+	}
 	// if (posix_spawnattr_setpgroup(&attr, 0) != 0)
 	// {
 	// 	perror("posix_spawnattr_setpgroup failed");
