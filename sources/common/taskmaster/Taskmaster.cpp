@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/19 13:13:18 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/19 14:21:25 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,8 @@ int	Taskmaster::start(void)
 	signal(SIGQUIT, interruptHandler);
 	signal(SIGTERM, interruptHandler);
 
+	// signal(SIGCHLD, interruptHandler);
+
 	signal(SIGPIPE, SIG_IGN);
 
 	this->launch();
@@ -99,17 +101,6 @@ int	Taskmaster::start(void)
 	std::string input;
 	do
 	{
-		if (this->should_stop && !handling_stop)
-		{
-			for(const auto& process : this->_processes)
-			{
-				std::cout << "Stopping child " << process->getPid() << std::endl;
-				if (process->stop())
-					perror("Could not stop");
-			}
-			handling_stop = true;
-		}
-
 		if (!this->should_stop && stdinHasData())
 		{
 			std::cin >> input;
@@ -128,16 +119,30 @@ int	Taskmaster::start(void)
 		}
 
 		bool all_stopped = true;
+		int s;
 		for(const auto& process : this->_processes)
 		{
-			if (process->monitor())
+			if (!(s = process->monitor()))
 			{
 				all_stopped = false;
 			}
+			std::cout << "Child " << process->getPid() << " monitor status: " << s << std::endl;
+		}
+
+		if (this->should_stop && !handling_stop)
+		{
+			for(const auto& process : this->_processes)
+			{
+				std::cout << "Stopping child " << process->getPid() << std::endl;
+				if (process->stop())
+					perror("Could not stop");
+			}
+			handling_stop = true;
 		}
 
 		if (this->should_stop && handling_stop && all_stopped)
 			break;
+		sleep(1);
 	} while (false == this->exit);
 	
 	return (0);

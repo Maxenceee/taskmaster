@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/18 23:24:16 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/19 14:15:07 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,14 +19,20 @@ typedef struct tm_process_config {
 	bool	auto_restart;
 } tm_process_config;
 
+enum tm_process_status {
+	TM_P_IDLE		= 0,
+	TM_P_STARTED	= 1,
+	TM_P_EXITED		= 2,
+};
+
 class Process
 {
 private:
 	pid_t	pid;
-	int		_status;
+	int		_wpstatus;
 	int		_signal;
 	int		_exit_code;
-	bool	_exited;
+	int		_status;
 
 	time_point	start_time;
 	time_point	stop_time;
@@ -51,6 +57,7 @@ public:
 
 	pid_t	getPid() const;
 
+	bool	started(void) const;
 	bool	exited(void) const;
 };
 
