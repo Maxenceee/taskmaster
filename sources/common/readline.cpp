@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/19 20:24:29 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/19 21:58:55 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,21 +49,21 @@ draw_line(const std::string &prompt, const std::vector<char>& input_buffer, int 
 }
 
 void
-left_suppr(const std::string &prompt, std::vector<char>& input_buffer, int& cursor_pos)
+left_suppr(const std::string &prompt, std::vector<char>& input_buffer, int& cursor_pos, int count = 1)
 {
 	if (cursor_pos > 0) {
-		input_buffer.erase(input_buffer.begin() + cursor_pos - 1);
+		input_buffer.erase(input_buffer.begin() + cursor_pos - count, input_buffer.begin() + cursor_pos);
 
-		cursor_pos--;
+		cursor_pos -= count;
 		draw_line(prompt, input_buffer, cursor_pos);
 	}
 }
 
 void
-right_suppr(const std::string &prompt, std::vector<char>& input_buffer, int& cursor_pos)
+right_suppr(const std::string &prompt, std::vector<char>& input_buffer, int& cursor_pos, int count = 1)
 {
 	if (cursor_pos < input_buffer.size()) {
-		input_buffer.erase(input_buffer.begin() + cursor_pos);
+		input_buffer.erase(input_buffer.begin() + cursor_pos, input_buffer.begin() + cursor_pos + count);
 
 		draw_line(prompt, input_buffer, cursor_pos);
 	}
@@ -72,18 +72,88 @@ right_suppr(const std::string &prompt, std::vector<char>& input_buffer, int& cur
 void
 add_char(const std::string &prompt, std::vector<char>& input_buffer, int& cursor_pos, char ch)
 {
+	if (ch < 32 || ch > 126) {
+		return;
+	}
 	input_buffer.insert(input_buffer.begin() + cursor_pos, ch);
 	cursor_pos++;
 	draw_line(prompt, input_buffer, cursor_pos);
 }
 
 void
+move_cursor_by_word(const std::vector<char>& input_buffer, int& cursor_pos, bool forward)
+{
+	if (forward) {
+		// Skip any spaces first
+		while (cursor_pos < input_buffer.size() && input_buffer[cursor_pos] == ' ') {
+			cursor_pos++;
+			std::cout << "\033[C";
+		}
+		// Then move to the end of the word
+		while (cursor_pos < input_buffer.size() && input_buffer[cursor_pos] != ' ') {
+			cursor_pos++;
+			std::cout << "\033[C";
+		}
+	} else {
+		// Skip any spaces first
+		while (cursor_pos > 0 && input_buffer[cursor_pos - 1] == ' ') {
+			cursor_pos--;
+			std::cout << "\033[D";
+		}
+		// Then move to the beginning of the word
+		while (cursor_pos > 0 && input_buffer[cursor_pos - 1] != ' ') {
+			cursor_pos--;
+			std::cout << "\033[D";
+		}
+	}
+}
+
+void
+delete_word(std::vector<char>& input_buffer, int& cursor_pos, bool forward)
+{
+	if (forward) {
+		// Skip any spaces first
+		while (cursor_pos < input_buffer.size() && input_buffer[cursor_pos] == ' ') {
+			input_buffer.erase(input_buffer.begin() + cursor_pos);
+		}
+		// Then delete the word
+		while (cursor_pos < input_buffer.size() && input_buffer[cursor_pos] != ' ') {
+			input_buffer.erase(input_buffer.begin() + cursor_pos);
+		}
+	} else {
+		// Skip any spaces first
+		while (cursor_pos > 0 && input_buffer[cursor_pos - 1] == ' ') {
+			input_buffer.erase(input_buffer.begin() + cursor_pos - 1);
+			cursor_pos--;
+		}
+		// Then delete the word
+		while (cursor_pos > 0 && input_buffer[cursor_pos - 1] != ' ') {
+			input_buffer.erase(input_buffer.begin() + cursor_pos - 1);
+			cursor_pos--;
+		}
+	}
+}
+
+void
 escape_sequence(const std::string &prompt, std::vector<char>& input_buffer, int& cursor_pos)
 {
-	char ch = getch();
-	dprintf(tty_fd, "es ch: %d\n", ch);
-	if (ch != '[')
+	switch (getch())
+	{
+	case 'b':
+		move_cursor_by_word(input_buffer, cursor_pos, false);
+		return;
+	case 'f':
+		move_cursor_by_word(input_buffer, cursor_pos, true);
+		return;
+	case 100:
+		delete_word(input_buffer, cursor_pos, true);
+		draw_line(prompt, input_buffer, cursor_pos);
+		return;
+	case '[':
+		break;
+	default:
 		return; // Invalid escape sequence
+	}
 
 	switch (getch())
 	{
@@ -116,20 +186,29 @@ process_input(const std::string &prompt, std::vector<char>& input_buffer, int& c
 	char ch = getch();
 	dprintf(tty_fd, "ch: %d\n", ch);
 
-	if (ch < 32 && ch != 27) {
-		return 1;
-	}
-
 	switch (ch)
 	{
+	case 21:
+		input_buffer.clear();
+		cursor_pos = 0;
+		draw_line(prompt, input_buffer, cursor_pos);
+		break;
+	case 23:
+		delete_word(input_buffer, cursor_pos, false);
+		draw_line(prompt, input_buffer, cursor_pos);
+		break;
 	case 27:
 		escape_sequence(prompt, input_buffer, cursor_pos);
 		break;
+	case 8:
 	case 127:
 		left_suppr(prompt, input_buffer, cursor_pos);
 		break;
-	case '\n':
 	case '\r':
+		cursor_pos = 0;
+		break;
+	case 3:
+	case '\n':
 		std::cout << std::endl;
 		return 0;
 	case '\t':
