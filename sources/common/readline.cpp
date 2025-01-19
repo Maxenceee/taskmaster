@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/19 23:06:30 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/19 23:11:56 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,12 @@
 #include <termios.h>
 
 int tty_fd = open("/dev/ttys007", O_RDWR);
+
+enum tm_rl_ev {
+	TM_RL_NEW_LINE = 0,
+	TM_RL_CONTINUE = 1,
+	TM_RL_EOF = 2
+};
 
 std::deque<std::string>		history;
 size_t						history_index = 0;
@@ -226,7 +232,7 @@ process_input(const std::string &prompt, std::vector<char>& input_buffer, int& c
 	case 4: // Ctrl + D
 		if (input_buffer.empty()) {
 			std::cout << "^D" << std::endl;
-		    return 2;
+		    return TM_RL_EOF;
 		}
 		break;
 	case 21: // Ctrl + U
@@ -252,7 +258,7 @@ process_input(const std::string &prompt, std::vector<char>& input_buffer, int& c
 	case '\n':
 		std::cout << std::endl;
 		history_index = 0;
-		return 0;
+		return TM_RL_NEW_LINE;
 	case '\t':
 		// TODO: Implement tab completion
 		break;
@@ -260,14 +266,14 @@ process_input(const std::string &prompt, std::vector<char>& input_buffer, int& c
 		add_char(prompt, input_buffer, cursor_pos, ch);
 		break;
 	}
-	return 1;
+	return TM_RL_CONTINUE;
 }
 
 /**
  * @brief Read a line from the terminal
  * 
  * @param prompt A string to display as the prompt
- * @return std::optional<std::string> 
+ * @return An optional string that should be checked before use (std::nullopt if EOF)
  */
 std::optional<std::string>
 tm_readline(const std::string& prompt)
@@ -279,8 +285,8 @@ tm_readline(const std::string& prompt)
 	draw_line(global_prompt, global_input_buffer, global_cursor_pos);
 
 	int status;
-	while ((status = process_input(global_prompt, global_input_buffer, global_cursor_pos)) != 0) {
-		if (status == 2) {
+	while ((status = process_input(global_prompt, global_input_buffer, global_cursor_pos)) != TM_RL_NEW_LINE) {
+		if (status == TM_RL_EOF) {
 			return std::nullopt;
 		}
 	}
