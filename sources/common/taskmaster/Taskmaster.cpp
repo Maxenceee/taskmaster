@@ -6,12 +6,14 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/19 14:21:25 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/19 15:13:09 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "taskmaster/Taskmaster.hpp"
 #include "logger/Logger.hpp"
+
+bool Taskmaster::should_stop = false;
 
 static void interruptHandler(int sig_int) {
 	(void)sig_int;

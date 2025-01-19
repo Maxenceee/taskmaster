@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/18 23:24:16 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/19 15:13:04 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,8 +101,6 @@ attach_child(tm_child_process_t *child)
 	}
 	return (0);
 }
-
-bool Taskmaster::should_stop = false;
 
 int
 main(int argc, char* const* argv, char* const* envp)
