@@ -6,11 +6,12 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/19 23:01:18 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/19 23:06:30 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "readline.hpp"
+#include <termios.h>
 
 int tty_fd = open("/dev/ttys007", O_RDWR);
 
@@ -262,6 +263,12 @@ process_input(const std::string &prompt, std::vector<char>& input_buffer, int& c
 	return 1;
 }
 
+/**
+ * @brief Read a line from the terminal
+ * 
+ * @param prompt A string to display as the prompt
+ * @return std::optional<std::string> 
+ */
 std::optional<std::string>
 tm_readline(const std::string& prompt)
 {
@@ -281,6 +288,11 @@ tm_readline(const std::string& prompt)
 	return std::string(global_input_buffer.begin(), global_input_buffer.end());
 }
 
+/**
+ * @brief Add a line to the history
+ * 
+ * @param line The line to add
+ */
 void
 tm_rl_add_history(const std::string& line)
 {
@@ -295,6 +307,10 @@ tm_rl_add_history(const std::string& line)
 	history_index = 0;
 }
 
+/**
+ * @brief Clear the history
+ * 
+ */
 void
 tm_rl_clear_history(void)
 {
@@ -302,6 +318,10 @@ tm_rl_clear_history(void)
 	history_index = 0;
 }
 
+/**
+ * @brief Display a new entry line
+ * 
+ */
 void
 tm_rl_new_line()
 {

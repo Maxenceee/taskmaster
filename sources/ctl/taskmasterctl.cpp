@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/19 22:54:49 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/19 23:05:06 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,14 +65,19 @@ main(int argc, char* const* argv)
 	{
 		setup_signal(SIGINT, interruptHandler);
 
-		auto input = tm_readline("taskmasterctl> ");
-		if (!input) {
+		auto rl_in = tm_readline("taskmasterctl> ");
+		if (!rl_in) {
+			break;
+		}
+		auto input = rl_in.value();
+
+		tm_rl_add_history(input);
+		trim(input);
+		if (input == "exit") {
 			break;
 		}
 
-		tm_rl_add_history(*input);
-
-		std::cout << "Input: (" << trim(*input) << ")" << std::endl;
+		std::cout << "Input: (" << input << ")" << std::endl;
 	} while (true);
 	// send_message(sockfd, argv[1]);
 

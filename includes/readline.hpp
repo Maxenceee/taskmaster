@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:08:18 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/19 22:49:36 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/19 23:06:18 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 #define READLINE_HPP
 
 #include "tm.hpp"
-#include <termios.h>
 
 std::optional<std::string>	tm_readline(const std::string& prompt);
 
