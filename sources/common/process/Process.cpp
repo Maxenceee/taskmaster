@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/18 23:18:40 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/19 13:19:36 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,18 @@ Process::~Process(void)
 
 int	Process::spawn(char* const* envp)
 {
+	if (this->pid != -1)
+	{
+		Logger::error("Process already spawned");
+		return (1);
+	}
+
+	if (access(exec[0], F_OK | X_OK) == -1)
+	{
+		Logger::perror("could not spawn child");
+		return (1);
+	}
+
 	if ((this->pid = spawn_child(this->exec, envp, this->std_in_fd, this->std_out_fd, this->std_err_fd)) == -1)
 	{
 		return (1);
@@ -55,7 +67,7 @@ int	Process::spawn(char* const* envp)
 
 int	Process::stop(void)
 {
-	if (this->_exited)
+	if (this->_exited || this->pid == -1)
 	{
 		return (0);
 	}
@@ -64,7 +76,7 @@ int	Process::stop(void)
 
 int	Process::kill(void)
 {
-	if (this->_exited)
+	if (this->_exited || this->pid == -1)
 	{
 		return (0);
 	}
@@ -73,6 +85,9 @@ int	Process::kill(void)
 
 int	Process::monitor(void)
 {
+	if (this->pid == -1 || this->_exited)
+		return (1);
+
 	if (waitpid(this->pid, &this->_status, WNOHANG) == this->pid)
 	{
 		if (WIFSIGNALED(this->_status))

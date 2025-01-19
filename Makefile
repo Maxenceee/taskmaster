@@ -11,11 +11,11 @@ CTL_SRCS		=	$(shell find $(SOURCES_DIR)/ctl -name "*.cpp")
 CTL_OBJS		=	$(patsubst $(SOURCES_DIR)%.cpp, $(OBJ_DIR)%.o, $(CTL_SRCS))
 
 HEADERS_DIR		=	includes
-HEADERS			=	$(shell find $(HEADERS_DIR) -name "*.hpp")
+HEADERS			=	$(shell find $(HEADERS_DIR) -name "*.hpp") $(shell find $(SOURCES_DIR) -name "*.hpp")
 
 RM				=	rm -f
 CC				=	g++
-CFLAGS			=	-g3 -std=c++20 -I $(HEADERS_DIR) #-Wall -Wextra -Werror
+CFLAGS			=	-g3 -std=c++20 -I $(HEADERS_DIR) -I $(SOURCES_DIR)/common #-Wall -Wextra -Werror
 LIBS			=	-lpthread -lcrypto
 
 NAME_D			=	taskmasterd
