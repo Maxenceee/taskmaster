@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/21 16:43:11 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/21 16:44:49 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -258,10 +258,10 @@ process_escape_sequence(const std::string &prompt, std::vector<char>& input_buff
 	{
 	case '1': // Extended arrow sequence
 		if (getch() == ';') {
-            char mod = getch();
-            char direction = getch();
-            process_modified_arrow(prompt, input_buffer, cursor_pos, mod, direction);
-        }
+			char mod = getch();
+			char direction = getch();
+			process_modified_arrow(prompt, input_buffer, cursor_pos, mod, direction);
+		}
 		break;
 	case '3': // Right Suppr
 		getch();
