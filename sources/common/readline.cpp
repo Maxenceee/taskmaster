@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/21 16:44:49 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/21 16:46:35 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -264,7 +264,7 @@ process_escape_sequence(const std::string &prompt, std::vector<char>& input_buff
 		}
 		break;
 	case '3': // Right Suppr
-		getch();
+		getch(); // Get ~
 		right_suppr(prompt, input_buffer, cursor_pos);
 		break;
 	default:
