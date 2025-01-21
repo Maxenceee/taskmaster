@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/21 16:46:35 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/21 16:50:00 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ draw_line(const std::string &prompt, const std::vector<char>& input_buffer, int 
 	std::cout << "\033[2K";  // Effacer la ligne actuelle
 	std::cout << "\033[0G";  // Déplacer le curseur au début de la ligne
 
-	dprintf(tty_fd, "c: %zu, %d, %zu, (%s)\n", prompt.size(), cursor_pos, prompt.size() + 1 + cursor_pos, std::string(input_buffer.begin(), input_buffer.end()).c_str());
+dprintf(tty_fd, "c: %zu, %d, %zu, (%s)\n", prompt.size(), cursor_pos, prompt.size() + 1 + cursor_pos, std::string(input_buffer.begin(), input_buffer.end()).c_str());
 
 	// Afficher le prompt
 	std::cout << prompt;
@@ -167,12 +167,12 @@ process_escape_basic_arrows(const char ch, const std::string &prompt, std::vecto
 	{
 	case 'A': // Up arrow
 		global_history_index = std::min(global_history_index + 1, global_history.size());
-		dprintf(tty_fd, "global_history_index: %zu\n", global_history_index);
+dprintf(tty_fd, "global_history_index: %zu\n", global_history_index);
 		draw_from_history(prompt, input_buffer, cursor_pos);
 		break;
 	case 'B': // Down arrow
 		global_history_index = global_history_index > 0 ? global_history_index - 1 : 0;
-		dprintf(tty_fd, "global_history_index: %zu\n", global_history_index);
+dprintf(tty_fd, "global_history_index: %zu\n", global_history_index);
 		if (global_history_index == 0) {
 			input_buffer.clear();
 			cursor_pos = 0;
@@ -228,7 +228,7 @@ void
 process_escape_sequence(const std::string &prompt, std::vector<char>& input_buffer, int& cursor_pos)
 {
 	char ch = getch();
-	dprintf(tty_fd, "es ch: %c\n", ch);
+dprintf(tty_fd, "es ch: %c\n", ch);
 	switch (ch)
 	{
 #ifdef __APPLE__
@@ -251,7 +251,7 @@ process_escape_sequence(const std::string &prompt, std::vector<char>& input_buff
 	}
 
 	ch = getch();
-	dprintf(tty_fd, "es m ch: %c\n", ch);
+dprintf(tty_fd, "es m ch: %c\n", ch);
 
 	// Check if the character is a modifier
 	switch (ch)
@@ -277,7 +277,7 @@ int
 process_input(const std::string &prompt, std::vector<char>& input_buffer, int& cursor_pos)
 {
 	char ch = getch();
-	dprintf(tty_fd, "ch: %d\n", ch);
+dprintf(tty_fd, "ch: %d\n", ch);
 
 	switch (ch)
 	{
@@ -361,7 +361,7 @@ tm_rl_add_history(const std::string& line)
 		return;
 	}
 	global_history.push_front(line);
-	dprintf(tty_fd, "global_history: %zu\n", global_history.size());
+dprintf(tty_fd, "global_history: %zu\n", global_history.size());
 	global_history_index = 0;
 }
 
