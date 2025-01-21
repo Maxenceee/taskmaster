@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/21 16:50:00 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/21 18:19:45 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,9 @@ enum tm_rl_ev {
 std::deque<std::string>		global_history;
 size_t						global_history_index = 0;
 std::string					global_prompt;
-int							global_cursor_pos = 0;
+size_t						global_cursor_pos = 0;
 std::vector<char>			global_input_buffer;
+tm_rl_autocomple_handler_t	global_autocomplete_handler = nullptr;
 
 char
 getch()
@@ -63,7 +64,7 @@ dprintf(tty_fd, "c: %zu, %d, %zu, (%s)\n", prompt.size(), cursor_pos, prompt.siz
 }
 
 void
-draw_from_history(const std::string &prompt, std::vector<char>& input_buffer, int& cursor_pos)
+draw_from_history(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos)
 {
 	// History start at 1 because 0 is the current input
 	if (global_history_index > 0 && global_history_index < global_history.size() + 1)
@@ -75,7 +76,49 @@ draw_from_history(const std::string &prompt, std::vector<char>& input_buffer, in
 }
 
 void
-left_suppr(const std::string &prompt, std::vector<char>& input_buffer, int& cursor_pos, int count = 1)
+process_autocomplete(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos)
+{
+	if (!global_autocomplete_handler)
+		return;
+
+	std::string input(input_buffer.begin(), input_buffer.end());
+	dprintf(tty_fd, "input_buffer: %s\n", input.c_str());
+
+	// Récupérer les suggestions d'autocomplétion
+	std::vector<std::string> suggestions = global_autocomplete_handler(input, cursor_pos);
+
+	if (!suggestions.empty()) {
+		if (suggestions.size() == 1) {
+			// Une seule suggestion, compléter le dernier token
+			const std::string& suggestion = suggestions[0];
+
+			// Identifier le dernier token
+			size_t last_space = input.find_last_of(' ');
+			std::string prefix = (last_space == std::string::npos) ? "" : input.substr(0, last_space + 1);
+
+			// Reconstruire l'entrée avec la suggestion
+			std::string completed = prefix + suggestion;
+
+			// Mettre à jour le buffer d'entrée et le curseur
+			input_buffer = std::vector<char>(completed.begin(), completed.end());
+			cursor_pos = input_buffer.size(); // Positionner le curseur à la fin
+			draw_line(prompt, input_buffer, cursor_pos);
+		} else {
+			// Afficher les suggestions
+			std::cout << "\n";
+			for (const auto& suggestion : suggestions) {
+				std::cout << suggestion << " ";
+			}
+			std::cout << "\n";
+
+			// Réafficher la ligne actuelle
+			draw_line(prompt, input_buffer, cursor_pos);
+		}
+	}
+}
+
+void
+left_suppr(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos, int count = 1)
 {
 	if (cursor_pos > 0) {
 		input_buffer.erase(input_buffer.begin() + cursor_pos - count, input_buffer.begin() + cursor_pos);
@@ -86,7 +129,7 @@ left_suppr(const std::string &prompt, std::vector<char>& input_buffer, int& curs
 }
 
 void
-right_suppr(const std::string &prompt, std::vector<char>& input_buffer, int& cursor_pos, int count = 1)
+right_suppr(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos, int count = 1)
 {
 	if (cursor_pos < input_buffer.size()) {
 		input_buffer.erase(input_buffer.begin() + cursor_pos, input_buffer.begin() + cursor_pos + count);
@@ -96,7 +139,7 @@ right_suppr(const std::string &prompt, std::vector<char>& input_buffer, int& cur
 }
 
 void
-add_char(const std::string &prompt, std::vector<char>& input_buffer, int& cursor_pos, char ch)
+add_char(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos, char ch)
 {
 	if (ch < 32 || ch > 126) {
 		return;
@@ -107,7 +150,7 @@ add_char(const std::string &prompt, std::vector<char>& input_buffer, int& cursor
 }
 
 void
-move_cursor_by_word(const std::vector<char>& input_buffer, int& cursor_pos, bool forward)
+move_cursor_by_word(const std::vector<char>& input_buffer, size_t& cursor_pos, bool forward)
 {
 	if (forward) {
 		// Skip any spaces first
@@ -135,7 +178,7 @@ move_cursor_by_word(const std::vector<char>& input_buffer, int& cursor_pos, bool
 }
 
 void
-delete_word(std::vector<char>& input_buffer, int& cursor_pos, bool forward)
+delete_word(std::vector<char>& input_buffer, size_t& cursor_pos, bool forward)
 {
 	if (forward) {
 		// Skip any spaces first
@@ -161,7 +204,7 @@ delete_word(std::vector<char>& input_buffer, int& cursor_pos, bool forward)
 }
 
 void
-process_escape_basic_arrows(const char ch, const std::string &prompt, std::vector<char>& input_buffer, int& cursor_pos)
+process_escape_basic_arrows(const char ch, const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos)
 {
 	switch (ch)
 	{
@@ -197,7 +240,7 @@ dprintf(tty_fd, "global_history_index: %zu\n", global_history_index);
 }
 
 void
-process_escape_ctrl_arrows(const char ch, const std::string &prompt, std::vector<char>& input_buffer, int& cursor_pos)
+process_escape_ctrl_arrows(const char ch, const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos)
 {
 	switch (ch)
 	{
@@ -211,7 +254,7 @@ process_escape_ctrl_arrows(const char ch, const std::string &prompt, std::vector
 }
 
 void
-process_modified_arrow(const std::string& prompt, std::vector<char>& input_buffer, int& cursor_pos, int modifier, char direction)
+process_modified_arrow(const std::string& prompt, std::vector<char>& input_buffer, size_t& cursor_pos, int modifier, char direction)
 {
 	switch (modifier)
 	{
@@ -225,7 +268,7 @@ process_modified_arrow(const std::string& prompt, std::vector<char>& input_buffe
 }
 
 void
-process_escape_sequence(const std::string &prompt, std::vector<char>& input_buffer, int& cursor_pos)
+process_escape_sequence(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos)
 {
 	char ch = getch();
 dprintf(tty_fd, "es ch: %c\n", ch);
@@ -274,7 +317,7 @@ dprintf(tty_fd, "es m ch: %c\n", ch);
 }
 
 int
-process_input(const std::string &prompt, std::vector<char>& input_buffer, int& cursor_pos)
+process_input(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos)
 {
 	char ch = getch();
 dprintf(tty_fd, "ch: %d\n", ch);
@@ -312,7 +355,7 @@ dprintf(tty_fd, "ch: %d\n", ch);
 		global_history_index = 0;
 		return TM_RL_NEW_LINE;
 	case '\t':
-		// TODO: Implement tab completion
+		process_autocomplete(prompt, input_buffer, cursor_pos);
 		break;
 	default:
 		add_char(prompt, input_buffer, cursor_pos, ch);
@@ -392,4 +435,16 @@ tm_rl_new_line()
 
 	// Draw the new prompt line
 	draw_line(global_prompt, global_input_buffer, global_cursor_pos);
+}
+
+/**
+ * @brief Add an autocomplete handler
+ * 
+ * @param handler The handler to add
+ */
+void
+tm_rl_add_autocomplete_handler(tm_rl_autocomple_handler_t handler)
+{
+dprintf(tty_fd, "add handler %p\n", handler);
+	global_autocomplete_handler = handler;
 }
