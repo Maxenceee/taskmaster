@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/19 16:01:30 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/21 15:42:23 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,9 +111,6 @@ main(int argc, char* const* argv, char* const* envp)
 		return (1);
 	}
 
-	// signal(SIGINT, SIG_IGN);
-	// signal(SIGQUIT, SIG_IGN);
-	// signal(SIGTERM, SIG_IGN);
 	setup_signal(SIGINT, SIG_IGN);
 	setup_signal(SIGQUIT, SIG_IGN);
 	setup_signal(SIGTERM, SIG_IGN);

@@ -6,12 +6,13 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/19 23:13:01 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/21 16:43:11 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "readline.hpp"
 #include <termios.h>
+#include "utils/utils.hpp"
 
 int tty_fd = open("/dev/ttys007", O_RDWR);
 
@@ -160,27 +161,9 @@ delete_word(std::vector<char>& input_buffer, int& cursor_pos, bool forward)
 }
 
 void
-escape_sequence(const std::string &prompt, std::vector<char>& input_buffer, int& cursor_pos)
+process_escape_basic_arrows(const char ch, const std::string &prompt, std::vector<char>& input_buffer, int& cursor_pos)
 {
-	switch (getch())
-	{
-	case 'b': // Alt + Left arrow
-		move_cursor_by_word(input_buffer, cursor_pos, false);
-		return;
-	case 'f': // Alt + Right arrow
-		move_cursor_by_word(input_buffer, cursor_pos, true);
-		return;
-	case 100: // Alt + Suppr
-		delete_word(input_buffer, cursor_pos, true);
-		draw_line(prompt, input_buffer, cursor_pos);
-		return;
-	case '[':
-		break;
-	default:
-		return; // Invalid escape sequence
-	}
-
-	switch (getch())
+	switch (ch)
 	{
 	case 'A': // Up arrow
 		global_history_index = std::min(global_history_index + 1, global_history.size());
@@ -210,13 +193,82 @@ escape_sequence(const std::string &prompt, std::vector<char>& input_buffer, int&
 			std::cout << "\033[D";  // Déplacer le curseur à gauche
 		}
 		break;
-	case 51: // Suppr
-		switch (getch())
-		{
-		case '~':
-			right_suppr(prompt, input_buffer, cursor_pos);
-			break;
-		}
+	}
+}
+
+void
+process_escape_ctrl_arrows(const char ch, const std::string &prompt, std::vector<char>& input_buffer, int& cursor_pos)
+{
+	switch (ch)
+	{
+	case 'C': // Right arrow
+		move_cursor_by_word(input_buffer, cursor_pos, true);
+		break;
+	case 'D': // Left arrow
+		move_cursor_by_word(input_buffer, cursor_pos, false);
+		break;
+	}
+}
+
+void
+process_modified_arrow(const std::string& prompt, std::vector<char>& input_buffer, int& cursor_pos, int modifier, char direction)
+{
+	switch (modifier)
+	{
+	case '5': // CTRL
+	case '3': // ALT
+		process_escape_ctrl_arrows(direction, prompt, input_buffer, cursor_pos);
+		break;
+	default: // Unhandled modifier
+		add_char(prompt, input_buffer, cursor_pos, direction);
+	}
+}
+
+void
+process_escape_sequence(const std::string &prompt, std::vector<char>& input_buffer, int& cursor_pos)
+{
+	char ch = getch();
+	dprintf(tty_fd, "es ch: %c\n", ch);
+	switch (ch)
+	{
+#ifdef __APPLE__
+	case 'b': // Alt + Left arrow
+		move_cursor_by_word(input_buffer, cursor_pos, false);
+		return;
+	case 'f': // Alt + Right arrow
+		move_cursor_by_word(input_buffer, cursor_pos, true);
+		return;
+#endif /* __APPLE__ */
+	case 100: // Alt + Right Suppr
+		delete_word(input_buffer, cursor_pos, true);
+		draw_line(prompt, input_buffer, cursor_pos);
+		return;
+	case '[':
+		// If escape sequence break out of the statement
+		break;
+	default:
+		return; // Invalid escape sequence
+	}
+
+	ch = getch();
+	dprintf(tty_fd, "es m ch: %c\n", ch);
+
+	// Check if the character is a modifier
+	switch (ch)
+	{
+	case '1': // Extended arrow sequence
+		if (getch() == ';') {
+            char mod = getch();
+            char direction = getch();
+            process_modified_arrow(prompt, input_buffer, cursor_pos, mod, direction);
+        }
+		break;
+	case '3': // Right Suppr
+		getch();
+		right_suppr(prompt, input_buffer, cursor_pos);
+		break;
+	default:
+		process_escape_basic_arrows(ch, prompt, input_buffer, cursor_pos);
 		break;
 	}
 }
@@ -245,10 +297,10 @@ process_input(const std::string &prompt, std::vector<char>& input_buffer, int& c
 		draw_line(prompt, input_buffer, cursor_pos);
 		break;
 	case 27: // Escape sequence
-		escape_sequence(prompt, input_buffer, cursor_pos);
+		process_escape_sequence(prompt, input_buffer, cursor_pos);
 		break;
 	case 8: // Backspace
-	case 127: // Suppr
+	case 127: // Delete
 		left_suppr(prompt, input_buffer, cursor_pos);
 		break;
 	case '\r':
@@ -302,7 +354,7 @@ tm_readline(const std::string& prompt)
 void
 tm_rl_add_history(const std::string& line)
 {
-	if (line.empty()) {
+	if (line.empty() || is_spaces(line)) {
 		return;
 	}
 	if (global_history.size() > 0 && global_history.front() == line) {

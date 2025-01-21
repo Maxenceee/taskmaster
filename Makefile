@@ -29,7 +29,7 @@ DEFAULT			=	\033[0m
 UP				=	"\033[A"
 CUT				=	"\033[K"
 
-all: $(NAME_D) # $(NAME_CTL)
+all: $(NAME_D) $(NAME_CTL)
 
 $(OBJ_DIR)/%.o: $(SOURCES_DIR)/%.cpp $(HEADERS) Makefile
 	@mkdir -p $(@D)

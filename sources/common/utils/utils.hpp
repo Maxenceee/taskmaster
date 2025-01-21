@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 11:38:42 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/19 12:22:28 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/21 16:23:32 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ std::string					&replace(std::string &buffer, const std::string &searchValue, co
 std::string					&replaceAll(std::string &buffer, char searchValue, char replaceValue);
 
 bool						is_digits(const std::string &str);
+bool						is_spaces(const std::string &str);
 
 struct cropoutput {
 	const std::string &value;

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 13:18:00 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/19 12:22:15 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/21 16:23:20 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -365,4 +365,9 @@ std::string	cropoutputs(const std::string &input)
 bool is_digits(const std::string &str)
 {
     return std::all_of(str.begin(), str.end(), ::isdigit);
+}
+
+bool is_spaces(const std::string &str)
+{
+    return std::all_of(str.begin(), str.end(), ::isspace);
 }
