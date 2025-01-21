@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/21 18:19:45 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/21 20:35:25 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -306,8 +306,17 @@ dprintf(tty_fd, "es m ch: %c\n", ch);
 			process_modified_arrow(prompt, input_buffer, cursor_pos, mod, direction);
 		}
 		break;
-	case '3': // Right Suppr
-		getch(); // Get ~
+	case '3': // Alt/Cmd + Right Suppr
+#ifdef __APPLE__
+		if (getch() == ';') {
+			getch(); // Get modifier
+			getch(); // Get ~
+			input_buffer.clear();
+			cursor_pos = 0;
+			draw_line(prompt, input_buffer, cursor_pos);
+			break;
+		}
+#endif /* __APPLE__ */
 		right_suppr(prompt, input_buffer, cursor_pos);
 		break;
 	default:
@@ -329,6 +338,14 @@ dprintf(tty_fd, "ch: %d\n", ch);
 			std::cout << "^D" << std::endl;
 		    return TM_RL_EOF;
 		}
+		break;
+	case 1: // Ctrl + A
+		cursor_pos = 0;
+		draw_line(prompt, input_buffer, cursor_pos);
+		break;
+	case 5: // Ctrl + E
+		cursor_pos = input_buffer.size();
+		draw_line(prompt, input_buffer, cursor_pos);
 		break;
 	case 21: // Ctrl + U
 		input_buffer.clear();
