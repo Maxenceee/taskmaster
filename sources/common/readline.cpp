@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/21 20:35:25 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/22 10:36:31 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -307,7 +307,6 @@ dprintf(tty_fd, "es m ch: %c\n", ch);
 		}
 		break;
 	case '3': // Alt/Cmd + Right Suppr
-#ifdef __APPLE__
 		if (getch() == ';') {
 			getch(); // Get modifier
 			getch(); // Get ~
@@ -316,7 +315,6 @@ dprintf(tty_fd, "es m ch: %c\n", ch);
 			draw_line(prompt, input_buffer, cursor_pos);
 			break;
 		}
-#endif /* __APPLE__ */
 		right_suppr(prompt, input_buffer, cursor_pos);
 		break;
 	default:
