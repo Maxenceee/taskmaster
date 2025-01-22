@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/22 10:36:31 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/22 11:19:30 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,38 +82,49 @@ process_autocomplete(const std::string &prompt, std::vector<char>& input_buffer,
 		return;
 
 	std::string input(input_buffer.begin(), input_buffer.end());
-	dprintf(tty_fd, "input_buffer: %s\n", input.c_str());
+dprintf(tty_fd, "input_buffer: %s\n", input.c_str());
 
 	// Récupérer les suggestions d'autocomplétion
 	std::vector<std::string> suggestions = global_autocomplete_handler(input, cursor_pos);
 
-	if (!suggestions.empty()) {
-		if (suggestions.size() == 1) {
-			// Une seule suggestion, compléter le dernier token
-			const std::string& suggestion = suggestions[0];
+	if (suggestions.empty())
+		return;
 
-			// Identifier le dernier token
-			size_t last_space = input.find_last_of(' ');
-			std::string prefix = (last_space == std::string::npos) ? "" : input.substr(0, last_space + 1);
+	if (suggestions.size() == 1) {
+		size_t start_of_token = input.rfind(' ', cursor_pos > 0 ? cursor_pos - 1 : 0);
+		start_of_token = (start_of_token == std::string::npos) ? 0 : start_of_token + 1;
 
-			// Reconstruire l'entrée avec la suggestion
-			std::string completed = prefix + suggestion;
+		size_t end_of_token = input.find(' ', cursor_pos);
+		end_of_token = (end_of_token == std::string::npos) ? input.size() : end_of_token;
 
-			// Mettre à jour le buffer d'entrée et le curseur
-			input_buffer = std::vector<char>(completed.begin(), completed.end());
-			cursor_pos = input_buffer.size(); // Positionner le curseur à la fin
-			draw_line(prompt, input_buffer, cursor_pos);
-		} else {
-			// Afficher les suggestions
-			std::cout << "\n";
-			for (const auto& suggestion : suggestions) {
-				std::cout << suggestion << " ";
-			}
-			std::cout << "\n";
+		// Extraire les parties avant, après et le token actif
+		std::string prefix = input.substr(0, start_of_token);
+		std::string suffix = input.substr(end_of_token);
+		std::string active_token = input.substr(start_of_token, end_of_token - start_of_token);
 
-			// Réafficher la ligne actuelle
-			draw_line(prompt, input_buffer, cursor_pos);
+		// Construire la ligne complétée
+		const std::string& suggestion = suggestions[0];
+		std::string completed = prefix + suggestion;
+		if (cursor_pos == end_of_token && (end_of_token >= input.size() || input[end_of_token] != ' ')) { // Ajouter un espace si le curseur est à la fin du token
+			completed += ' ';
 		}
+		completed += suffix;
+
+		// Mettre à jour le buffer d'entrée et le curseur
+		input_buffer = std::vector<char>(completed.begin(), completed.end());
+		cursor_pos = prefix.size() + suggestion.size() + (cursor_pos == end_of_token ? 1 : 0);
+
+		draw_line(prompt, input_buffer, cursor_pos);
+	} else {
+		// Afficher les suggestions
+		std::cout << "\n";
+		for (const auto& suggestion : suggestions) {
+			std::cout << suggestion << " ";
+		}
+		std::cout << "\n";
+
+		// Réafficher la ligne actuelle
+		draw_line(prompt, input_buffer, cursor_pos);
 	}
 }
 
