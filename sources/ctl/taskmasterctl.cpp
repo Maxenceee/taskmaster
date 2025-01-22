@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/22 11:22:57 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/22 11:32:31 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,10 @@
 extern int tty_fd;
 
 struct CommandNode {
-	std::string name;  // Nom de la commande
-	std::string description;  // Description pour l'aide
-	std::vector<std::string> arguments;  // Liste des arguments valides
-	std::vector<CommandNode> children;  // Sous-commandes
+	std::string					name;			// Nom de la commande
+	std::string					description;	// Description pour l'aide
+	std::vector<std::string>	arguments;		// Liste des arguments valides
+	std::vector<CommandNode>	children;		// Sous-commandes
 };
 
 std::vector<CommandNode> commands = {
