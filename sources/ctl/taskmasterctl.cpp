@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/22 11:11:02 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/22 11:22:57 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,9 +55,18 @@ autocomplete(const std::vector<CommandNode>& commands, const std::vector<std::st
 {
 	std::vector<std::string> suggestions;
 
+	if (tokens.empty()) {
+		for (const auto& command : commands) {
+			suggestions.push_back(command.name);
+		}
+		return suggestions;
+	}
+
 	// Calculer la position du mot actuellement ciblé par le curseur
 	size_t word_start = 0, word_end = 0;
 	bool found_word = false;
+
+	size_t current_pos = 0;
 
 	// Déterminer le mot en cours d'édition
 	for (size_t i = 0, len = 0; i < tokens.size(); ++i) {
@@ -70,8 +79,9 @@ autocomplete(const std::vector<CommandNode>& commands, const std::vector<std::st
 		}
 	}
 
+	// Si aucun mot trouvé, on est sur un nouveau mot
 	if (!found_word) {
-		return {}; // Si aucun mot trouvé (par sécurité), retourner une liste vide.
+		return {};
 	}
 
 	// Le mot en cours d'édition
@@ -105,8 +115,8 @@ autocomplete(const std::vector<CommandNode>& commands, const std::vector<std::st
 		}
 	}
 
-	for (auto& command : commands) {
-		dprintf(tty_fd, "command: %s\n", command.name.c_str());
+	for (auto& command : *current_level) {
+dprintf(tty_fd, "command: %s\n", command.name.c_str());
 	}
 
 	return suggestions;
@@ -159,9 +169,6 @@ main(int argc, char* const* argv)
 
 	tm_rl_add_autocomplete_handler([](const std::string& input, size_t cursor_pos) {
 		auto tokens = tokenize(input);
-		if (tokens.empty()) {
-			return std::vector<std::string>();
-		}
 
 		return autocomplete(commands, tokens, cursor_pos);
 	});
