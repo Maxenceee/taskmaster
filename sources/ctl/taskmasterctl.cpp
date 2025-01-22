@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/21 18:19:08 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/22 11:11:02 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 #include "readline.hpp"
 #include "utils/utils.hpp"
 #include "signal.hpp"
+
+extern int tty_fd;
 
 struct CommandNode {
 	std::string name;  // Nom de la commande
@@ -53,33 +55,38 @@ autocomplete(const std::vector<CommandNode>& commands, const std::vector<std::st
 {
 	std::vector<std::string> suggestions;
 
-	// Trouver à quel mot correspond le curseur
-	size_t token_index = 0;
-	size_t char_count = 0;
+	// Calculer la position du mot actuellement ciblé par le curseur
+	size_t word_start = 0, word_end = 0;
+	bool found_word = false;
 
-	for (size_t i = 0; i < tokens.size(); ++i) {
-		char_count += tokens[i].size();
-		if (cursor_pos <= char_count) {
-			token_index = i;
+	// Déterminer le mot en cours d'édition
+	for (size_t i = 0, len = 0; i < tokens.size(); ++i) {
+		len += tokens[i].length();
+		if (cursor_pos <= len + i) { // Ajouter i pour les espaces séparateurs
+			word_start = i;
+			word_end = i;
+			found_word = true;
 			break;
 		}
-		char_count++; // Compte l'espace entre les tokens
 	}
 
-	// Si le curseur est après le dernier mot et après un espace, suggérer des sous-commandes
-	if (cursor_pos == char_count && cursor_pos > 0 && tokens.back().back() == ' ') {
-		token_index = tokens.size(); // Nouveau mot
+	if (!found_word) {
+		return {}; // Si aucun mot trouvé (par sécurité), retourner une liste vide.
 	}
 
-	// Commencer la recherche
+	// Le mot en cours d'édition
+	std::string current_word = tokens[word_start];
+	std::string prefix = current_word.substr(0, cursor_pos - word_start);
+
+	// Identifier le niveau de la commande à partir des tokens précédents
 	const std::vector<CommandNode>* current_level = &commands;
 
-	for (size_t i = 0; i < token_index; ++i) {
+	for (size_t i = 0; i < word_start; ++i) {
+		const std::string& token = tokens[i];
 		bool found = false;
 
 		for (const auto& command : *current_level) {
-			if (command.name == tokens[i]) {
-				// Descendre dans les sous-commandes si correspondance trouvée
+			if (command.name == token) {
 				current_level = &command.children;
 				found = true;
 				break;
@@ -87,24 +94,19 @@ autocomplete(const std::vector<CommandNode>& commands, const std::vector<std::st
 		}
 
 		if (!found) {
-			// Si un token ne correspond pas, retourner aucune suggestion
-			return {};
+			return {}; // Si un chemin invalide est trouvé, aucune suggestion possible
 		}
 	}
 
-	// Si le curseur est sur un mot existant, suggérer les complétions possibles
-	if (token_index < tokens.size()) {
-		const std::string& current_token = tokens[token_index];
-		for (const auto& command : *current_level) {
-			if (command.name.rfind(current_token, 0) == 0) { // Correspondance au début du mot
-				suggestions.push_back(command.name);
-			}
-		}
-	} else {
-		// Sinon, suggérer toutes les commandes à ce niveau
-		for (const auto& command : *current_level) {
+	// Ajouter les suggestions basées sur le préfixe
+	for (const auto& command : *current_level) {
+		if (command.name.compare(0, prefix.size(), prefix) == 0) {
 			suggestions.push_back(command.name);
 		}
+	}
+
+	for (auto& command : commands) {
+		dprintf(tty_fd, "command: %s\n", command.name.c_str());
 	}
 
 	return suggestions;
