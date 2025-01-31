@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/19 14:58:04 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/31 16:21:02 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,31 +47,31 @@ int	Process::spawn(char* const* envp)
 	if (this->_status == TM_P_STARTED)
 	{
 		Logger::error("Process already spawned");
-		return (1);
+		return (TM_FAILURE);
 	}
 
 	if (access(exec[0], F_OK | X_OK) == -1)
 	{
 		Logger::perror("could not spawn child");
-		return (1);
+		return (TM_FAILURE);
 	}
 
 	if ((this->pid = spawn_child(this->exec, envp, this->std_in_fd, this->std_out_fd, this->std_err_fd)) == -1)
 	{
-		return (1);
+		return (TM_FAILURE);
 	}
 	this->_status = TM_P_STARTED;
 	std::cout << "Child spawned with pid " << this->pid << std::endl;
 	this->start_time = std::chrono::steady_clock::now();
 	
-	return (0);
+	return (TM_SUCCESS);
 }
 
 int	Process::stop(void)
 {
 	if (this->_status == TM_P_EXITED || this->pid == -1)
 	{
-		return (0);
+		return (TM_SUCCESS);
 	}
 	Logger::print("Stopping child " + std::to_string(this->stop_sig));
 	return (::kill(this->pid, this->stop_sig));
@@ -81,7 +81,7 @@ int	Process::kill(void)
 {
 	if (this->_status == TM_P_EXITED || this->pid == -1)
 	{
-		return (0);
+		return (TM_SUCCESS);
 	}
 	return (::kill(this->pid, SIGKILL));
 }
@@ -89,7 +89,7 @@ int	Process::kill(void)
 int	Process::monitor(void)
 {
 	if (this->_status == TM_P_EXITED || this->pid == -1)
-		return (1);
+		return (TM_FAILURE);
 
 	if (this->_status == TM_P_STARTED && waitpid(this->pid, &this->_wpstatus, WNOHANG) == this->pid)
 	{
@@ -105,7 +105,7 @@ int	Process::monitor(void)
 		}
 		this->stop_time = std::chrono::steady_clock::now();
 		this->_status = TM_P_EXITED;
-		return (1);
+		return (TM_FAILURE);
 	}
-	return (0);
+	return (TM_SUCCESS);
 }

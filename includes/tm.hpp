@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 23:24:24 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/19 22:49:43 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/31 16:19:18 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,9 @@
 #define TM_PREFIX "taskmaster: "
 
 #define TM_SOCKET_PATH "./taskmaster.sock"
+
+#define TM_SUCCESS 0
+#define TM_FAILURE 1
 
 #define TM_PIPE_READ_END 0
 #define TM_PIPE_WRITE_END 1

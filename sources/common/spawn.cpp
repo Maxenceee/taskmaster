@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:15:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/19 16:07:26 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/31 16:21:58 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,8 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 {
 	pid_t pid;
 
-// #ifndef TM_SPAWN_CHILD_USE_FORK
-#if 1
+#ifndef TM_SPAWN_CHILD_USE_FORK
+// #if 1
 
 	posix_spawn_file_actions_t actions;
 	posix_spawn_file_actions_init(&actions);
@@ -57,7 +57,7 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 		perror("posix_spawnattr_setsigmask failed");
 		posix_spawn_file_actions_destroy(&actions);
 		posix_spawnattr_destroy(&attr);
-		return -1;
+		return (-1);
 	}
 
 	posix_spawnattr_setflags(&attr, POSIX_SPAWN_SETPGROUP);
@@ -66,7 +66,7 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 		perror("posix_spawnattr_setpgroup failed");
 		posix_spawn_file_actions_destroy(&actions);
 		posix_spawnattr_destroy(&attr);
-		return -1;
+		return (-1);
 	}
 
 	// Spawn the child process
@@ -75,7 +75,7 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 		perror("posix_spawn failed");
 		posix_spawn_file_actions_destroy(&actions);
 		posix_spawnattr_destroy(&attr);
-		return -1;
+		return (-1);
 	}
 
 	posix_spawn_file_actions_destroy(&actions);
@@ -85,7 +85,7 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 
 	if ((pid = fork()) < 0) {
 		perror("fork");
-		return -1;
+		return (-1);
 	}
 
 	if (pid == 0) {
@@ -95,7 +95,7 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 		if (stdin_fd != -1) {
 			if (dup2(stdin_fd, STDIN_FILENO) == -1) {
 				perror("dup2 stdin failed");
-				exit(EXIT_FAILURE);
+				exit(TM_FAILURE);
 			}
 			// close(stdin_fd);
 		}
@@ -104,7 +104,7 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 		if (stdout_fd != -1) {
 			if (dup2(stdout_fd, STDOUT_FILENO) == -1) {
 				perror("dup2 stdout failed");
-				exit(EXIT_FAILURE);
+				exit(TM_FAILURE);
 			}
 			// close(stdout_fd);
 		}
@@ -113,7 +113,7 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 		if (stderr_fd != -1) {
 			if (dup2(stderr_fd, STDERR_FILENO) == -1) {
 				perror("dup2 stderr failed");
-				exit(EXIT_FAILURE);
+				exit(TM_FAILURE);
 			}
 			// close(stderr_fd);
 		}
@@ -126,13 +126,13 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 
 		if (setpgid(0, 0) == -1) {
 			perror("setpgid");
-			exit(EXIT_FAILURE);
+			exit(TM_FAILURE);
 		}
 
 		// Execute the child process
 		if (execve(argv[0], argv, envp) == -1) {
 			perror("execve");
-			exit(EXIT_FAILURE);
+			exit(TM_FAILURE);
 		}
 	}
 

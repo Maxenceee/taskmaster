@@ -1,28 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   config.cpp                                         :+:      :+:    :+:   */
+/*   UnixSocketClient.hpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/31 16:20:52 by mgama            ###   ########.fr       */
+/*   Created: 2025/01/31 15:58:50 by mgama             #+#    #+#             */
+/*   Updated: 2025/01/31 16:11:15 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "tm.hpp"
+#ifndef UNIXSOCKETCLIENT_HPP
+#define UNIXSOCKETCLIENT_HPP
 
-int
-read_config_file(const char *path)
+#include "unix_socket/UnixSocket.hpp"
+
+class UnixSocketClient: public UnixSocket
 {
-	int fd = open(path, O_RDONLY);
-	if (fd == -1) {
-		perror("open");
-		return (TM_FAILURE);
-	}
+public:
+	UnixSocketClient(const char* socket_path);
+	~UnixSocketClient(void);
 
-	printf("successfully opened %s\n", path);
-	close(fd);
+	int send(const char* msg);
+	int send(const std::string& msg);
+};
 
-	return (TM_SUCCESS);
-}
+#endif /* UNIXSOCKETCLIENT_HPP */

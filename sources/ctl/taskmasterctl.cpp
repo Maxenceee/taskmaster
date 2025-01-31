@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/22 11:32:31 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/31 15:34:27 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,7 +132,8 @@ send_message(int sockfd, const char* message)
 	}
 }
 
-static void interruptHandler(int sig_int)
+static void
+interruptHandler(int sig_int)
 {
 	(void)sig_int;
 	tm_rl_new_line();

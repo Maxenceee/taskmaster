@@ -1,33 +1,109 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   unix_server.c                                      :+:      :+:    :+:   */
+/*   UnixSocketServer.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 17:43:04 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/11 18:52:56 by mgama            ###   ########.fr       */
+/*   Updated: 2025/01/31 16:41:10 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "taskmaster.hpp"
+#include "unix_socket/server/UnixSocketServer.hpp"
+#include "logger/Logger.hpp"
 
-void
-unix_server_sigint_handler(int signum)
+UnixSocketServer::UnixSocketServer(const char* socket_path): UnixSocket(socket_path)
 {
-	(void)signum;
-	unlink(TM_SOCKET_PATH);
+	this->sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
+	if (this->sockfd == -1)
+	{
+		Logger::perror("unix server: socket creation failed");
+		throw std::runtime_error("socket creation failed");
+	}
+
+	int option = 1;
+	if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(int)) == -1)
+	{
+		close(this->sockfd);
+		Logger::perror("unix server: setsockopt failed");
+		throw std::runtime_error("setsockopt failed");
+	}
+
+	bzero(&this->addr, sizeof(this->addr));
+	this->addr.sun_family = AF_UNIX;
+	strncpy(this->addr.sun_path, socket_path, sizeof(this->addr.sun_path) - 1);
+
+	if (bind(this->sockfd, (struct sockaddr *) &this->addr, sizeof(struct sockaddr_un)) == -1)
+	{
+		if (errno == EADDRINUSE)
+		{
+			Logger::error("unix server: bind error: Address already in use");
+		}
+		else
+		{
+			Logger::perror("unix server: bind error");
+		}
+		throw std::runtime_error("could not bind socket to address");
+	}
+}
+
+UnixSocketServer::~UnixSocketServer(void)
+{
+	close(this->sockfd);
+}
+
+int
+UnixSocketServer::listen(void)
+{
+	if (::listen(this->sockfd, TM_DEFAULT_MAX_WORKERS) == -1)
+	{
+		Logger::perror("unix server: listen failed");
+		return (TM_FAILURE);
+	}
+	this->poll_fds.push_back((pollfd){this->sockfd, POLLIN | POLLHUP | POLLERR, 0});
+	return (TM_SUCCESS);
+}
+
+int
+UnixSocketServer::poll(void)
+{
+	std::vector<int>	to_remove;
+
+	if (::poll(this->poll_fds.data(), this->poll_fds.size(), TM_POLL_TIMEOUT) == -1)
+	{
+		if (errno == EINTR) {
+			return (TM_SUCCESS);
+		}
+		Logger::perror("server error: an error occurred while poll'ing");
+		return (TM_FAILURE);
+	}
+
+	for (size_t i = 0; i < poll_fds.size(); ++i)
+	{
+		if (poll_fds[i].revents & POLLHUP)
+		{
+			Logger::debug("Connection closed by the client (event POLLHUP)");
+			to_remove.push_back(i);
+		}
+		else if (poll_fds[i].revents & POLLERR)
+		{
+			Logger::debug("Socket error (POLLERR detected)");
+			to_remove.push_back(i);
+		}
+		else if (poll_fds[i].revents & POLLIN)
+		{
+			// TODO: Gérer la connexion entrante
+		}
+	}
 }
 
 int
 init_and_start_unix_server()
 {
-	int sockfd;
 	struct sockaddr_un addr;
 
-	signal(SIGINT, unix_server_sigint_handler);
-
-	sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
+	int sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (sockfd == -1) {
 		perror("Erreur lors de la création de la socket");
 		return (1);

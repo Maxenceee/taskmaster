@@ -2,12 +2,14 @@
 #include <stdio.h>
 #include <signal.h>
 
-void handle_sigterm(int sig) {
+void
+handle_sigterm(int sig) {
     dprintf(2, "SIGTERM received, terminating program...\n");
 	_exit(0);
 }
 
-void handle_sigint(int sig) {
+void
+handle_sigint(int sig) {
     dprintf(2, "SIGINT received!!!\n");
 }
 
