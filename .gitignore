@@ -7,3 +7,5 @@ output.txt
 super.conf
 /bin
 *.log
+*.lock
+*.pid

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/01 01:01:31 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/01 12:42:01 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,55 +28,117 @@ interruptHandler(int sig_int)
 	running = false;
 }
 
-// bool
-// is_process_running(pid_t pid)
-// {
-// 	return (kill(pid, 0) == 0 || errno != ESRCH);
-// }
+int
+create_pid_file(void)
+{
+	int32_t	tm_pid;
+	int		pid_fd;
+	char	pid_str[TM_INT64_LEN + 2];
+	int		len;
 
-// int
-// create_pid_file(void)
-// {
-// 	int pid_fd = open(TM_PID_FILE, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-// 	if (pid_fd == -1) {
-// 		perror("open");
-// 		return (TM_FAILURE);
-// 	}
+	tm_pid = getpid();
 
-// 	if (flock(pid_fd, LOCK_EX | LOCK_NB) == -1) {
-// 		std::cerr << "Another instance is already running!" << std::endl;
-// 		return (TM_FAILURE);
-// 	}
+	pid_fd = open(TM_PID_FILE, O_WRONLY | O_CREAT | O_TRUNC, TM_DEFAULT_FILE_MODE);
+	if (pid_fd == -1)
+	{
+		Logger::perror("open");
+		return (TM_FAILURE);
+	}
 
-// 	// Écrire le PID dans le fichier
-// 	char pid_str[10];
-// 	snprintf(pid_str, sizeof(pid_str), "%d\n", getpid());
-// 	write(pid_fd, pid_str, strlen(pid_str));
+	if (flock(pid_fd, LOCK_EX | LOCK_NB) == -1)
+	{
+		if (errno == EWOULDBLOCK)
+		{
+			return (TM_FAILURE);
+		}
+		Logger::perror("flock");
+		return (TM_FAILURE);
+	}
 
-// 	return (TM_SUCCESS);
-// }
+	len = snprintf(pid_str, TM_INT64_LEN + 2, "%i", tm_pid);
+	if (len == -1)
+	{
+		Logger::perror("snprintf");
+		return (TM_FAILURE);
+	}
+	if (write(pid_fd, pid_str, len) == -1)
+	{
+		Logger::perror("write");
+		return (TM_FAILURE);
+	}
+
+	return (TM_SUCCESS);
+}
+
+int
+check_pid_file(void)
+{
+	int		pid_fd;
+	char	pid_str[TM_INT64_LEN + 2];
+	ssize_t	len;
+	pid_t	pid;
+
+	pid_fd = open(TM_PID_FILE, O_RDONLY);
+	if (pid_fd == -1)
+	{
+		if (errno == ENOENT)
+		{
+			return (TM_SUCCESS);
+		}
+		Logger::perror("open");
+		return (TM_FAILURE);
+	}
+
+	len = read(pid_fd, pid_str, TM_INT64_LEN + 2);
+	if (len == -1)
+	{
+		Logger::perror("read");
+		return (TM_FAILURE);
+	}
+
+	pid = atoi(pid_str);
+	if (kill(pid, 0) == -1)
+	{
+		if (errno == ESRCH)
+		{
+			return (TM_SUCCESS);
+		}
+		Logger::perror("kill");
+		return (TM_FAILURE);
+	}
+
+	return (TM_SUCCESS);
+}
 
 int
 main(int argc, char* const* argv, char* const* envp)
 {
-	if (argc < 2) {
+	if (argc < 2)
+	{
 		std::cerr << "Usage: " << argv[0] << " <command> [args...]" << std::endl;
-		return (1);
+		return (TM_FAILURE);
 	}
 
-	// if (create_pid_file() == TM_FAILURE)
-	// {
-	// 	return (1);
-	// }
+	Logger::init();
+	Logger::setDebug(true);
+
+	if (check_pid_file() == TM_FAILURE)
+	{
+		Logger::error("Another instance is already running!");
+		return (TM_FAILURE);
+	}
+
+	if (create_pid_file() == TM_FAILURE)
+	{
+		Logger::error("Another instance is already running!");
+		return (TM_FAILURE);
+	}
 
 	// setup_signal(SIGINT, SIG_IGN);
 	// setup_signal(SIGQUIT, SIG_IGN);
 	// setup_signal(SIGTERM, SIG_IGN);
 
 	setup_signal(SIGINT, interruptHandler);
-
-	Logger::init();
-	Logger::setDebug(true);
 
 	// Taskmaster master(envp);
 

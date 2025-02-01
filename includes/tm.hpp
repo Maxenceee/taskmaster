@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 23:24:24 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/01 00:55:36 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/01 12:20:58 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,11 @@
 
 #define TM_PID_FILE "./taskmaster.pid"
 #define TM_SOCKET_PATH "./taskmaster.sock"
+
+#define TM_INT32_LEN   (sizeof("-2147483648") - 1)
+#define TM_INT64_LEN   (sizeof("-9223372036854775808") - 1)
+
+#define TM_DEFAULT_FILE_MODE 0644
 
 #define TM_SUCCESS 0
 #define TM_FAILURE 1
