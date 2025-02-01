@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/31 16:20:23 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/01 15:54:33 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ int	Taskmaster::addChild(char* const* exec)
 {
 	int	std_out_fd = open("child_stdout.log", O_WRONLY | O_CREAT | O_APPEND, 0644);
 	if (std_out_fd == -1) {
-		perror("Failed to open log file");
+		Logger::perror("open");
 		return (TM_FAILURE);
 	}
 
@@ -48,7 +48,7 @@ int	Taskmaster::addChild(char* const* exec)
 		.auto_restart = true
 	};
 
-	Process*	new_child = new Process(exec, -1, std_out_fd, -1, config);
+	Process* new_child = new Process(exec, -1, std_out_fd, -1, config);
 
 	this->_processes.push_back(new_child);
 	return (0);
@@ -95,11 +95,11 @@ int	Taskmaster::start(void)
 
 	setup_signal(SIGPIPE, SIG_IGN);
 
-	this->launch();
+	(void)this->launch();
 
 	bool	handling_stop = false;
-
 	std::string input;
+
 	do
 	{
 		if (!this->should_stop && stdinHasData())
@@ -136,14 +136,14 @@ int	Taskmaster::start(void)
 			{
 				std::cout << "Stopping child " << process->getPid() << std::endl;
 				if (process->stop())
-					perror("Could not stop");
+					Logger::perror("Could not stop");
 			}
 			handling_stop = true;
 		}
 
 		if (this->should_stop && handling_stop && all_stopped)
 			break;
-		sleep(1);
+		(void)sleep(1);
 	} while (false == this->exit);
 	
 	return (0);

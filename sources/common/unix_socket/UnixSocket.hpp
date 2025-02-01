@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:37:52 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/01 00:08:48 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/01 15:30:03 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,9 @@
 
 #define TM_DEFAULT_MAX_WORKERS	1024
 
-#define TM_CRLF "\r\n"
+#define TM_CR "\r"
+#define TM_LF "\n"
+#define TM_CRLF TM_CR TM_LF
 
 class UnixSocket
 {
@@ -46,11 +48,11 @@ protected:
 
 	std::vector<pollfd>				poll_fds;
 
-public:
-	explicit UnixSocket(const char* path): socket_path(path), sockfd(-1) {}
-	virtual ~UnixSocket(void) = default;
+	int	poll(void);
 
-	virtual int	poll(void) = 0;
+public:
+	explicit UnixSocket(const char* path);
+	virtual ~UnixSocket(void) = default;
 };
 
 #endif /* UNIXSOCKET_HPP */

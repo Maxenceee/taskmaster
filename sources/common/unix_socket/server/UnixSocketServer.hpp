@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:45:59 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/01 00:13:15 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/01 15:49:55 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,19 +32,22 @@ typedef struct tm_pollclient {
 	void				*data;
 } tm_pollclient;
 
-#define TM_POLL_EVENTS	(POLLIN | POLLHUP | POLLERR)
+#define TM_POLL_EVENTS		POLLIN | POLLHUP | POLLERR
+#define TM_POLL_NO_EVENTS	0
 
 class UnixSocketServer: public UnixSocket
 {
 private:
 	std::map<int, tm_pollclient>	_poll_clients;
 
+	int	serve(int client);
+
 public:
 	UnixSocketServer(const char* socket_path);
 	~UnixSocketServer(void);
 
 	int	listen(void);
-	int	poll(void);
+	int	cycle(void);
 };
 
 #endif /* UNIXSOCKETSERVER_HPP */

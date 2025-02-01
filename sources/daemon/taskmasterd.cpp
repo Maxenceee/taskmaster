@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/01 12:42:01 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/01 16:13:02 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,16 +42,6 @@ create_pid_file(void)
 	if (pid_fd == -1)
 	{
 		Logger::perror("open");
-		return (TM_FAILURE);
-	}
-
-	if (flock(pid_fd, LOCK_EX | LOCK_NB) == -1)
-	{
-		if (errno == EWOULDBLOCK)
-		{
-			return (TM_FAILURE);
-		}
-		Logger::perror("flock");
 		return (TM_FAILURE);
 	}
 
@@ -97,6 +87,10 @@ check_pid_file(void)
 	}
 
 	pid = atoi(pid_str);
+	if (pid < 1)
+	{
+		return (TM_SUCCESS);
+	}
 	if (kill(pid, 0) == -1)
 	{
 		if (errno == ESRCH)
@@ -107,7 +101,7 @@ check_pid_file(void)
 		return (TM_FAILURE);
 	}
 
-	return (TM_SUCCESS);
+	return (TM_FAILURE);
 }
 
 int
@@ -130,7 +124,6 @@ main(int argc, char* const* argv, char* const* envp)
 
 	if (create_pid_file() == TM_FAILURE)
 	{
-		Logger::error("Another instance is already running!");
 		return (TM_FAILURE);
 	}
 
@@ -150,7 +143,7 @@ main(int argc, char* const* argv, char* const* envp)
 	
 	do
 	{
-		if (server.poll())
+		if (server.cycle())
 		{
 			break;
 		}

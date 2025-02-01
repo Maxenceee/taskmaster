@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/31 16:21:02 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/01 15:54:58 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ Process::~Process(void)
 	if (this->_status == TM_P_STARTED && this->pid != -1)
 	{
 		std::cout << "Killing child " << this->pid << std::endl;
-		this->stop();
+		(void)this->stop();
 	}
 }
 

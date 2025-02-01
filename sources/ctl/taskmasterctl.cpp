@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/31 23:54:11 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/01 16:31:55 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ validate_command(const CommandNode& node, const std::vector<std::string>& tokens
 		}
 	}
 
-	return false;  // Commande invalide si aucun enfant correspondant n'est trouvé
+	return false;
 }
 
 std::vector<std::string>
@@ -122,16 +122,6 @@ dprintf(tty_fd, "command: %s\n", command.name.c_str());
 	return suggestions;
 }
 
-void
-send_message(int sockfd, const char* message)
-{
-	if (send(sockfd, message, strlen(message), 0) < 0) {
-		perror("send failed");
-		close(sockfd);
-		exit(EXIT_FAILURE);
-	}
-}
-
 static void
 interruptHandler(int sig_int)
 {
@@ -139,8 +129,55 @@ interruptHandler(int sig_int)
 	tm_rl_new_line();
 }
 
+
+ssize_t
+send_message(int sockfd, const char* message, size_t strlen)
+{
+	return send(sockfd, message, strlen, 0);
+}
+
+ssize_t
+read_message(int sockfd)
+{
+	char buffer[1024];
+
+	ssize_t n = recv(sockfd, buffer, sizeof(buffer) - 1, 0);
+	if (n < 0) {
+		perror("recv failed");
+		close(sockfd);
+		return (-1);
+	}
+	buffer[n] = '\0';
+	std::cout << "Server: " << buffer << std::endl;
+	return (n);
+}
+
+int
+connect_server(void)
+{
+	int sockfd;
+	struct sockaddr_un servaddr;
+
+	if ((sockfd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
+		perror("socket creation failed");
+		return (-1);
+	}
+
+	memset(&servaddr, 0, sizeof(servaddr));
+	servaddr.sun_family = AF_UNIX;
+	strncpy(servaddr.sun_path, TM_SOCKET_PATH, sizeof(servaddr.sun_path) - 1);
+
+	if (connect(sockfd, (struct sockaddr*)&servaddr, sizeof(servaddr)) < 0) {
+		perror("connect failed");
+		close(sockfd);
+		return (-1);
+	}
+
+	return sockfd;
+}
+
 void
-enable_readline(void)
+attach_readline()
 {
 	tm_rl_add_autocomplete_handler([](const std::string& input, size_t cursor_pos) {
 		auto tokens = tokenize(input);
@@ -148,9 +185,18 @@ enable_readline(void)
 		return autocomplete(commands, tokens, cursor_pos);
 	});
 
+	setup_signal(SIGINT, interruptHandler);
+	setup_signal(SIGPIPE, SIG_IGN);
+
+	size_t total_sent = 0;
+	size_t total_recv = 0;
+
 	do
 	{
-		setup_signal(SIGINT, interruptHandler);
+		int socket_fd = connect_server();
+		if (socket_fd == -1) {
+			break;
+		}
 
 		auto rl_in = tm_readline("taskmasterctl> ");
 		if (!rl_in) {
@@ -164,53 +210,22 @@ enable_readline(void)
 			break;
 		}
 
-		std::cout << "Input: (" << input << ")" << std::endl;
+		// std::cout << "Input: (" << input << ")" << std::endl;
+		total_sent += send_message(socket_fd, input.c_str(), input.length());
+		total_recv += read_message(socket_fd);
+		close(socket_fd);
 	} while (true);
 }
 
 int
 main(int argc, char* const* argv)
 {
-	if (argc < 2 || argc > 3) {
-		std::cerr << "Usage: " << argv[0] << " <message>" << std::endl;
-		return 1;
+	if (argc != 1) {
+		std::cerr << "Usage: " << argv[0] << std::endl;
+		return (TM_FAILURE);
 	}
 
-	int sockfd;
-	struct sockaddr_un servaddr;
+	attach_readline();
 
-	// Create socket
-	if ((sockfd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
-		perror("socket creation failed");
-		exit(EXIT_FAILURE);
-	}
-
-	// Set server address
-	memset(&servaddr, 0, sizeof(servaddr));
-	servaddr.sun_family = AF_UNIX;
-	strncpy(servaddr.sun_path, TM_SOCKET_PATH, sizeof(servaddr.sun_path) - 1);
-
-	// Connect to server
-	if (connect(sockfd, (struct sockaddr*)&servaddr, sizeof(servaddr)) < 0) {
-		perror("connect failed");
-		close(sockfd);
-		exit(EXIT_FAILURE);
-	}
-
-	send_message(sockfd, argv[1]);
-
-	// Receive a message from the server
-	char buffer[1024];
-	int n = recv(sockfd, buffer, sizeof(buffer) - 1, 0);
-	if (n < 0) {
-		perror("recv failed");
-		close(sockfd);
-		exit(EXIT_FAILURE);
-	}
-	buffer[n] = '\0';
-	std::cout << "Server: " << buffer << std::endl;
-
-	// Close the socket
-	close(sockfd);
-	return 0;
+	return (TM_SUCCESS);
 }
