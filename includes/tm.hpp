@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 23:24:24 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/31 16:19:18 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/01 00:55:36 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 
 // Sys
 #include <sys/socket.h>
+#include <sys/file.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -77,6 +78,7 @@
 
 #define TM_PREFIX "taskmaster: "
 
+#define TM_PID_FILE "./taskmaster.pid"
 #define TM_SOCKET_PATH "./taskmaster.sock"
 
 #define TM_SUCCESS 0

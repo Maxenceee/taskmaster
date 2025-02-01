@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:45:59 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/31 16:32:53 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/01 00:13:15 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,30 @@
 
 #include "unix_socket/UnixSocket.hpp"
 
+enum tm_polltype {
+	TM_POLL_SERVER	= 0x00,	// A server socket
+	TM_POLL_CLIENT	= 0x01	// A client socket
+};
+
+enum tm_pollclientstatus {
+	TM_POLL_CLIENT_OK			= 0x00,
+	TM_POLL_CLIENT_DISCONNECT	= 0x01,
+	TM_POLL_CLIENT_CLOSED		= 0x02,
+	TM_POLL_CLIENT_ERROR		= 0x03
+};
+
+typedef struct tm_pollclient {
+	enum tm_polltype	type;
+	void				*data;
+} tm_pollclient;
+
+#define TM_POLL_EVENTS	(POLLIN | POLLHUP | POLLERR)
+
 class UnixSocketServer: public UnixSocket
 {
+private:
+	std::map<int, tm_pollclient>	_poll_clients;
+
 public:
 	UnixSocketServer(const char* socket_path);
 	~UnixSocketServer(void);

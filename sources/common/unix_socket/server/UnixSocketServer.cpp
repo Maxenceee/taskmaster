@@ -6,15 +6,19 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 17:43:04 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/31 16:41:10 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/01 01:02:11 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "unix_socket/server/UnixSocketServer.hpp"
 #include "logger/Logger.hpp"
 
+bool check_living_socket(const char* socket_path);
+
 UnixSocketServer::UnixSocketServer(const char* socket_path): UnixSocket(socket_path)
 {
+	// check_living_socket(socket_path);
+
 	this->sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (this->sockfd == -1)
 	{
@@ -30,6 +34,7 @@ UnixSocketServer::UnixSocketServer(const char* socket_path): UnixSocket(socket_p
 		throw std::runtime_error("setsockopt failed");
 	}
 
+	(void)unlink(socket_path);
 	bzero(&this->addr, sizeof(this->addr));
 	this->addr.sun_family = AF_UNIX;
 	strncpy(this->addr.sun_path, socket_path, sizeof(this->addr.sun_path) - 1);
@@ -51,6 +56,8 @@ UnixSocketServer::UnixSocketServer(const char* socket_path): UnixSocket(socket_p
 UnixSocketServer::~UnixSocketServer(void)
 {
 	close(this->sockfd);
+	Logger::debug("Removing socket file: " + std::string(this->socket_path));
+	unlink(this->socket_path);
 }
 
 int
@@ -61,7 +68,29 @@ UnixSocketServer::listen(void)
 		Logger::perror("unix server: listen failed");
 		return (TM_FAILURE);
 	}
-	this->poll_fds.push_back((pollfd){this->sockfd, POLLIN | POLLHUP | POLLERR, 0});
+	this->poll_fds.push_back((pollfd){this->sockfd, TM_POLL_EVENTS, 0});
+	this->_poll_clients[this->sockfd] = (tm_pollclient){TM_POLL_SERVER, nullptr};
+	return (TM_SUCCESS);
+}
+
+int
+read_from_client(int client_fd)
+{
+	char buffer[TM_RECV_SIZE];
+	size_t bytes_received;
+
+	bytes_received = recv(client_fd, buffer, sizeof(buffer), 0);
+	if (bytes_received == -1)
+	{
+		Logger::perror("server error: an error occurred while receiving data from the client");
+		return (TM_FAILURE);
+	}
+	else if (bytes_received == 0)
+	{
+		Logger::debug("Connection closed by the client");
+		return (TM_FAILURE);
+	}
+	Logger::debug("Data received: " + std::string(buffer, bytes_received));
 	return (TM_SUCCESS);
 }
 
@@ -79,23 +108,88 @@ UnixSocketServer::poll(void)
 		return (TM_FAILURE);
 	}
 
-	for (size_t i = 0; i < poll_fds.size(); ++i)
+	for (size_t i = 0; i < this->poll_fds.size(); ++i)
 	{
-		if (poll_fds[i].revents & POLLHUP)
+		if (this->poll_fds[i].revents & POLLHUP)
 		{
 			Logger::debug("Connection closed by the client (event POLLHUP)");
 			to_remove.push_back(i);
 		}
-		else if (poll_fds[i].revents & POLLERR)
+		else if (this->poll_fds[i].revents & POLLERR)
 		{
 			Logger::debug("Socket error (POLLERR detected)");
 			to_remove.push_back(i);
 		}
-		else if (poll_fds[i].revents & POLLIN)
+		else if (this->poll_fds[i].revents & POLLIN)
 		{
-			// TODO: Gérer la connexion entrante
+			int newclient;
+
+			switch (this->_poll_clients[this->poll_fds[i].fd].type)
+			{
+			case TM_POLL_SERVER:
+				newclient = accept(this->sockfd, nullptr, nullptr);
+				if (newclient == -1)
+				{
+					Logger::perror("server error: accept failed");
+					return (TM_SUCCESS);
+				}
+				this->_poll_clients[newclient] = (tm_pollclient){TM_POLL_CLIENT, nullptr};
+				this->poll_fds.push_back((pollfd){newclient, TM_POLL_EVENTS, 0});
+				break;
+			
+			case TM_POLL_CLIENT:
+				read_from_client(this->poll_fds[i].fd);
+				close(this->poll_fds[i].fd);
+				to_remove.push_back(i);
+				break;
+			}
 		}
 	}
+
+	for (auto it = to_remove.rbegin(); it != to_remove.rend(); ++it)
+	{
+		close(this->poll_fds[*it].fd);
+		this->poll_fds.erase(this->poll_fds.begin() + *it);
+		this->_poll_clients.erase(this->poll_fds[*it].fd);
+	}
+	return (TM_SUCCESS);
+}
+
+bool
+check_living_socket(const char* socket_path)
+{
+	struct stat buffer;
+	if (stat(socket_path, &buffer) != 0)
+	{
+		return (false);
+	}
+
+	int sock = socket(AF_UNIX, SOCK_STREAM, 0);
+	if (sock == -1)
+	{
+		perror("socket");
+		return (false);
+	}
+
+	struct sockaddr_un addr;
+	addr.sun_family = AF_UNIX;
+	strncpy(addr.sun_path, socket_path, sizeof(addr.sun_path) - 1);
+
+	if (connect(sock, (struct sockaddr *)&addr, sizeof(addr)) == 0)
+	{
+		close(sock);
+		return (true);
+	}
+
+	if (errno == ECONNREFUSED)
+	{
+		close(sock);
+		unlink(socket_path);
+		return (false);
+	}
+
+	close(sock);
+	return (false);
 }
 
 int

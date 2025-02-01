@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:37:52 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/31 16:41:14 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/01 00:08:48 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,23 +36,6 @@
 #define TM_DEFAULT_MAX_WORKERS	1024
 
 #define TM_CRLF "\r\n"
-
-enum tm_polltype {
-	WBS_POLL_SERVER	= 0x00,	// A server socket
-	WBS_POLL_CLIENT	= 0x01	// A client socket
-};
-
-enum tm_pollclientstatus {
-	WBS_POLL_CLIENT_OK			= 0x00,
-	WBS_POLL_CLIENT_DISCONNECT	= 0x01,
-	WBS_POLL_CLIENT_CLOSED		= 0x02,
-	WBS_POLL_CLIENT_ERROR		= 0x03
-};
-
-struct tm_pollclient {
-	enum tm_polltype	type;
-	void				*data;
-};
 
 class UnixSocket
 {
