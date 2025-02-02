@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 17:43:04 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/02 13:42:03 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/02 14:10:16 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,12 +31,10 @@ UnixSocketServer::UnixSocketServer(const char* unix_path): UnixSocket(unix_path)
 		throw std::runtime_error("setsockopt failed");
 	}
 
-	const auto socket_path = resolve_path(unix_path, "unix://");
-
-	(void)unlink(socket_path.c_str());
+	(void)unlink(this->socket_path.c_str());
 	bzero(&this->addr, sizeof(this->addr));
 	this->addr.sun_family = AF_UNIX;
-	(void)strncpy(this->addr.sun_path, socket_path.c_str(), sizeof(this->addr.sun_path) - 1);
+	(void)strncpy(this->addr.sun_path, this->socket_path.c_str(), sizeof(this->addr.sun_path) - 1);
 
 	if (bind(this->sockfd, (struct sockaddr *) &this->addr, sizeof(struct sockaddr_un)) == -1)
 	{
@@ -55,8 +53,8 @@ UnixSocketServer::UnixSocketServer(const char* unix_path): UnixSocket(unix_path)
 UnixSocketServer::~UnixSocketServer(void)
 {
 	(void)close(this->sockfd);
-	Logger::debug("Removing socket file: " + std::string(this->socket_path));
-	(void)unlink(this->socket_path);
+	Logger::debug("Removing socket file: " + this->socket_path);
+	(void)unlink(this->socket_path.c_str());
 }
 
 int

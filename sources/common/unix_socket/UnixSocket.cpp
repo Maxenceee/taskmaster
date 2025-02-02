@@ -6,14 +6,15 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/01 15:26:16 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/01 15:28:24 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/02 14:11:13 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "unix_socket/UnixSocket.hpp"
 #include "logger/Logger.hpp"
+#include "utils/utils.hpp"
 
-UnixSocket::UnixSocket(const char* path): socket_path(path), sockfd(-1) {}
+UnixSocket::UnixSocket(const char* path): unix_domain_path(path), socket_path(resolve_path(path, "unix://")), sockfd(-1) {}
 
 int
 UnixSocket::poll(void)

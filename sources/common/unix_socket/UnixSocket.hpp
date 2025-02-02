@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:37:52 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/01 15:30:03 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/02 14:11:06 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,8 @@
 class UnixSocket
 {
 protected:
-	const char*			socket_path;
+	const char*			unix_domain_path;
+	const std::string	socket_path;
 	int 				sockfd;
 	struct sockaddr_un	addr;
 

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/02 13:35:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/02 13:36:47 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/02 14:06:30 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,16 +29,16 @@ resolve_path(const std::string& url, const std::string& scheme)
         return path; // Déjà un chemin absolu
     }
 
-    // Convertir en chemin absolu si c'est un chemin relatif
     char resolved_path[PATH_MAX];
+
+    // Convertir en chemin absolu si c'est un chemin relatif
     if (realpath(path.c_str(), resolved_path)) {
         return std::string(resolved_path);
     }
 
     // Si realpath échoue, on tente de préfixer avec le répertoire courant
-    char cwd[PATH_MAX];
-    if (getcwd(cwd, sizeof(cwd))) {
-        return std::string(cwd) + "/" + path;
+    if (getcwd(resolved_path, sizeof(resolved_path))) {
+        return std::string(resolved_path) + "/" + path;
     }
 
     // Impossible de résoudre, retourner le chemin original
