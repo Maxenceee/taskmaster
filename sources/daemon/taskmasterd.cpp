@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/01 16:13:02 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/02 13:44:29 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,6 +104,23 @@ check_pid_file(void)
 	return (TM_FAILURE);
 }
 
+void
+start_server(void)
+{
+	UnixSocketServer server(TM_SOCKET_PATH);
+	server.listen();
+
+	setup_signal(SIGPIPE, SIG_IGN);
+	
+	do
+	{
+		if (server.cycle())
+		{
+			break;
+		}
+	} while (running);
+}
+
 int
 main(int argc, char* const* argv, char* const* envp)
 {
@@ -137,16 +154,13 @@ main(int argc, char* const* argv, char* const* envp)
 
 	// master.addChild(argv + 1);
 	// master.start();
+	
+	try {
+		start_server();
+	} catch (const std::exception& e) {
+		Logger::error(e.what());
+		return (TM_FAILURE);
+	}
 
-	UnixSocketServer server(TM_SOCKET_PATH);
-	server.listen();
-	
-	do
-	{
-		if (server.cycle())
-		{
-			break;
-		}
-	} while (running);
-	
+	return (TM_SUCCESS);
 }

@@ -6,14 +6,15 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 17:43:04 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/01 16:07:53 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/02 13:42:03 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "unix_socket/server/UnixSocketServer.hpp"
 #include "logger/Logger.hpp"
+#include "utils/utils.hpp"
 
-UnixSocketServer::UnixSocketServer(const char* socket_path): UnixSocket(socket_path)
+UnixSocketServer::UnixSocketServer(const char* unix_path): UnixSocket(unix_path)
 {
 	this->sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (this->sockfd == -1)
@@ -30,10 +31,12 @@ UnixSocketServer::UnixSocketServer(const char* socket_path): UnixSocket(socket_p
 		throw std::runtime_error("setsockopt failed");
 	}
 
-	(void)unlink(socket_path);
+	const auto socket_path = resolve_path(unix_path, "unix://");
+
+	(void)unlink(socket_path.c_str());
 	bzero(&this->addr, sizeof(this->addr));
 	this->addr.sun_family = AF_UNIX;
-	(void)strncpy(this->addr.sun_path, socket_path, sizeof(this->addr.sun_path) - 1);
+	(void)strncpy(this->addr.sun_path, socket_path.c_str(), sizeof(this->addr.sun_path) - 1);
 
 	if (bind(this->sockfd, (struct sockaddr *) &this->addr, sizeof(struct sockaddr_un)) == -1)
 	{

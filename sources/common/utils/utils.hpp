@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 11:38:42 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/21 16:23:32 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/02 13:37:22 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,10 @@ std::string					getSize(int size);
 
 time_t						parseTime(const std::string &timeStr);
 std::string					getTime(time_t time);
+
+/* uri */
+
+std::string	resolve_path(const std::string& url, const std::string& scheme);
 
 /* time */
 

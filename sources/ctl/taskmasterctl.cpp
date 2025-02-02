@@ -6,11 +6,12 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/01 16:31:55 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/02 13:42:25 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "tm.hpp"
+#include "logger/Logger.hpp"
 #include <optional>
 #include "readline.hpp"
 #include "utils/utils.hpp"
@@ -153,7 +154,7 @@ read_message(int sockfd)
 }
 
 int
-connect_server(void)
+connect_server(const std::string& unix_path)
 {
 	int sockfd;
 	struct sockaddr_un servaddr;
@@ -163,12 +164,14 @@ connect_server(void)
 		return (-1);
 	}
 
+	const auto socket_path = resolve_path(unix_path, "unix://");
+
 	memset(&servaddr, 0, sizeof(servaddr));
 	servaddr.sun_family = AF_UNIX;
-	strncpy(servaddr.sun_path, TM_SOCKET_PATH, sizeof(servaddr.sun_path) - 1);
+	strncpy(servaddr.sun_path, socket_path.c_str(), sizeof(servaddr.sun_path) - 1);
 
 	if (connect(sockfd, (struct sockaddr*)&servaddr, sizeof(servaddr)) < 0) {
-		perror("connect failed");
+		std::cout << "Cannot connect to the Taskmaster daemon at " << unix_path << ". Is the daemon running?" << std::endl;
 		close(sockfd);
 		return (-1);
 	}
@@ -193,7 +196,7 @@ attach_readline()
 
 	do
 	{
-		int socket_fd = connect_server();
+		int socket_fd = connect_server(TM_SOCKET_PATH);
 		if (socket_fd == -1) {
 			break;
 		}
@@ -225,7 +228,15 @@ main(int argc, char* const* argv)
 		return (TM_FAILURE);
 	}
 
-	attach_readline();
+	Logger::init();
+	Logger::setDebug(true);
+
+	try {
+		attach_readline();
+	} catch (const std::exception& e) {
+		Logger::error(e.what());
+		return (TM_FAILURE);
+	}
 
 	return (TM_SUCCESS);
 }
