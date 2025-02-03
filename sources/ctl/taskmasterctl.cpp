@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/03 11:34:28 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/03 11:58:46 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,17 +19,34 @@
 
 extern int tty_fd;
 
-struct CommandNode {
-	std::string					name;			// Nom de la commande
-	std::string					description;	// Description pour l'aide
-	// std::vector<std::string>	arguments;		// Liste des arguments valides
-	// std::vector<CommandNode>	children;		// Sous-commandes
+struct CommandNodeUsage {
+	std::string usage;
+	std::string description;
 };
 
-std::vector<CommandNode> commands = {
-    {"list", "List tasks"},
-    {"add", "Add a new task"},
-    {"remove", "Remove a task"},
+struct CommandNode {
+	std::string					name;		// Nom de la commande
+	std::vector<struct CommandNodeUsage> 	usages;		// Liste des variantes d'usage de la commande
+	bool						visible;	// Indique si la commande doit être affichée dans l'aide
+	bool						ripple_autocomplete; // Indique si l'autocomplétion doit être propagée aux sous-commandes
+};
+
+const std::vector<CommandNode> commands = {
+	{"list", {
+		{"list", "List all processes"},
+		{"list <name>", "List a specific process"},
+	}, true, false},
+	{"add", {
+		{"add <name> <cmd>", "Add a new process"},
+		{"add <name> <cmd> <numprocs>", "Add a new process with a specific number of instances"},
+	}, true, false},
+	{"remove", {
+		{"remove <name>", "Remove a process"},
+	}, true, false},
+	{"help", {
+		{"help", "Show help"},
+		{"help <command>", "Show help for a specific command"},
+	}, false, true},
 };
 
 static void
@@ -41,31 +58,39 @@ show_help()
 
 	const int columns = 5;
 
-    size_t total = commands.size();
-    size_t rows = (total + columns - 1) / columns; // Nombre de lignes nécessaires
+	// Filtrer les commandes visibles
+	std::vector<CommandNode> visibleCommands;
+	for (const auto& command : commands) {
+		if (command.visible) {
+			visibleCommands.push_back(command);
+		}
+	}
 
-    // Calcul de la largeur maximale pour chaque colonne
-    std::vector<size_t> colWidths(columns, 0);
+	size_t total = visibleCommands.size();
+	size_t rows = (total + columns - 1) / columns; // Nombre de lignes nécessaires
 
-    for (size_t col = 0; col < columns; ++col) {
-        for (size_t row = 0; row < rows; ++row) {
-            size_t index = row * columns + col;
-            if (index < total) {
-                colWidths[col] = std::max(colWidths[col], commands[index].name.size());
-            }
-        }
-    }
+	// Calcul de la largeur maximale pour chaque colonne
+	std::vector<size_t> colWidths(columns, 0);
 
-    // Affichage des commandes avec un alignement dynamique
-    for (size_t row = 0; row < rows; ++row) {
-        for (size_t col = 0; col < columns; ++col) {
-            size_t index = row * columns + col;
-            if (index < total) {
-                std::cout << std::left << std::setw(colWidths[col] + 2) << commands[index].name;
-            }
-        }
-        std::cout << "\n";
-    }
+	for (size_t col = 0; col < columns; ++col) {
+		for (size_t row = 0; row < rows; ++row) {
+			size_t index = row * columns + col;
+			if (index < total) {
+				colWidths[col] = std::max(colWidths[col], visibleCommands[index].name.size());
+			}
+		}
+	}
+
+	// Affichage des commandes avec un alignement dynamique
+	for (size_t row = 0; row < rows; ++row) {
+		for (size_t col = 0; col < columns; ++col) {
+			size_t index = row * columns + col;
+			if (index < total) {
+				std::cout << std::left << std::setw(colWidths[col] + 2) << visibleCommands[index].name;
+			}
+		}
+		std::cout << "\n";
+	}
 
 	std::cout << std::endl;
 }
@@ -75,11 +100,13 @@ show_command_info(const std::string &cmd)
 {
 	for (const auto& command : commands) {
 		if (command.name == cmd) {
-			std::cout << std::setw(10) << std::left << command.name << command.description << std::endl;
+			for (const auto& usage : command.usages) {
+				std::cout << std::setw(17) << std::left << usage.usage << usage.description << "\n";
+			}
 			return;
 		}
 	}
-	std::cout << "Command not found: " << cmd << "\n";
+	std::cout << "*** No help on " << cmd << "\n";
 }
 
 std::vector<std::string>
@@ -120,19 +147,11 @@ autocomplete(const std::vector<CommandNode>& commands, const std::vector<std::st
 	std::string current_word = tokens[word_start];
 	std::string prefix = current_word.substr(0, cursor_pos - word_start);
 
-	// Identifier le niveau de la commande à partir des tokens précédents
-	const std::vector<CommandNode>* current_level = &commands;
-
-	// Ajouter les suggestions basées sur le préfixe
-	for (const auto& command : *current_level) {
-		if (command.name.compare(0, prefix.size(), prefix) == 0) {
-			suggestions.push_back(command.name);
-		}
-	}
-
-	for (auto& command : *current_level) {
-dprintf(tty_fd, "command: %s\n", command.name.c_str());
-	}
+	for (const auto& command : commands) {
+        if (command.name.compare(0, prefix.size(), prefix) == 0) {
+            suggestions.push_back(command.name);
+        }
+    }
 
 	return suggestions;
 }
@@ -143,7 +162,6 @@ interruptHandler(int sig_int)
 	(void)sig_int;
 	tm_rl_new_line();
 }
-
 
 ssize_t
 send_message(int sockfd, const char* message, size_t strlen)
