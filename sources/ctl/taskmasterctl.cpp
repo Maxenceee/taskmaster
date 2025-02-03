@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/03 11:58:46 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/03 12:00:54 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,10 @@ struct CommandNodeUsage {
 };
 
 struct CommandNode {
-	std::string					name;		// Nom de la commande
-	std::vector<struct CommandNodeUsage> 	usages;		// Liste des variantes d'usage de la commande
-	bool						visible;	// Indique si la commande doit être affichée dans l'aide
-	bool						ripple_autocomplete; // Indique si l'autocomplétion doit être propagée aux sous-commandes
+	std::string								name;				// Nom de la commande
+	std::vector<struct CommandNodeUsage> 	usages;				// Liste des variantes d'usage de la commande
+	bool									visible;			// Indique si la commande doit être affichée dans l'aide
+	bool									ripple_autocomplete;// Indique si l'autocomplétion doit être propagée aux sous-commandes
 };
 
 const std::vector<CommandNode> commands = {
