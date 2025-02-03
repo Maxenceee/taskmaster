@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/01 16:21:33 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/03 11:05:18 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,8 @@ size_t						global_cursor_pos = 0;
 std::vector<char>			global_input_buffer;
 tm_rl_autocomple_handler_t	global_autocomplete_handler = nullptr;
 
-char
-getch()
+static char
+tm_rl_getch()
 {
 	struct termios oldt, newt;
 	char ch;
@@ -43,8 +43,8 @@ getch()
 	return ch;
 }
 
-void
-draw_line(const std::string &prompt, const std::vector<char>& input_buffer, int cursor_pos)
+static void
+tm_rl_draw_line(const std::string &prompt, const std::vector<char>& input_buffer, int cursor_pos)
 {
 	std::cout << "\033[2K";  // Effacer la ligne actuelle
 	std::cout << "\033[0G";  // Déplacer le curseur au début de la ligne
@@ -55,7 +55,8 @@ dprintf(tty_fd, "c: %zu, %d, %zu, (%s)\n", prompt.size(), cursor_pos, prompt.siz
 	std::cout << prompt;
 
 	// Afficher le contenu du buffer
-	for (size_t i = 0; i < input_buffer.size(); i++) {
+	for (size_t i = 0; i < input_buffer.size(); i++)
+	{
 		std::cout << input_buffer[i];
 	}
 
@@ -63,20 +64,20 @@ dprintf(tty_fd, "c: %zu, %d, %zu, (%s)\n", prompt.size(), cursor_pos, prompt.siz
 	std::cout << "\033[" << prompt.size() + 1 + cursor_pos << "G";
 }
 
-void
-draw_from_history(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos)
+static void
+tm_rl_draw_from_history(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos)
 {
 	// History start at 1 because 0 is the current input
 	if (global_history_index > 0 && global_history_index < global_history.size() + 1)
 	{
 		input_buffer.assign(global_history[global_history_index - 1].begin(), global_history[global_history_index - 1].end());
 		cursor_pos = input_buffer.size();
-		draw_line(prompt, input_buffer, cursor_pos);
+		tm_rl_draw_line(prompt, input_buffer, cursor_pos);
 	}
 }
 
-void
-process_autocomplete(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos)
+static void
+tm_rl_process_autocomplete(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos)
 {
 	if (!global_autocomplete_handler)
 		return;
@@ -90,7 +91,8 @@ dprintf(tty_fd, "input_buffer: %s\n", input.c_str());
 	if (suggestions.empty())
 		return;
 
-	if (suggestions.size() == 1) {
+	if (suggestions.size() == 1)
+	{
 		size_t start_of_token = input.rfind(' ', cursor_pos > 0 ? cursor_pos - 1 : 0);
 		start_of_token = (start_of_token == std::string::npos) ? 0 : start_of_token + 1;
 
@@ -105,7 +107,8 @@ dprintf(tty_fd, "input_buffer: %s\n", input.c_str());
 		// Construire la ligne complétée
 		const std::string& suggestion = suggestions[0];
 		std::string completed = prefix + suggestion;
-		if (cursor_pos == end_of_token && (end_of_token >= input.size() || input[end_of_token] != ' ')) { // Ajouter un espace si le curseur est à la fin du token
+		if (cursor_pos == end_of_token && (end_of_token >= input.size() || input[end_of_token] != ' ')) // Ajouter un espace si le curseur est à la fin du token
+		{
 			completed += ' ';
 		}
 		completed += suffix;
@@ -114,135 +117,158 @@ dprintf(tty_fd, "input_buffer: %s\n", input.c_str());
 		input_buffer = std::vector<char>(completed.begin(), completed.end());
 		cursor_pos = prefix.size() + suggestion.size() + (cursor_pos == end_of_token ? 1 : 0);
 
-		draw_line(prompt, input_buffer, cursor_pos);
-	} else {
+		tm_rl_draw_line(prompt, input_buffer, cursor_pos);
+	}
+	else
+	{
 		// Afficher les suggestions
 		std::cout << "\n";
-		for (const auto& suggestion : suggestions) {
+		for (const auto& suggestion : suggestions)
+		{
 			std::cout << suggestion << " ";
 		}
 		std::cout << "\n";
 
 		// Réafficher la ligne actuelle
-		draw_line(prompt, input_buffer, cursor_pos);
+		tm_rl_draw_line(prompt, input_buffer, cursor_pos);
 	}
 }
 
-void
-left_suppr(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos, int count = 1)
+static void
+tm_rl_left_suppr(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos, int count = 1)
 {
-	if (cursor_pos > 0) {
+	if (cursor_pos > 0)
+	{
 		input_buffer.erase(input_buffer.begin() + cursor_pos - count, input_buffer.begin() + cursor_pos);
 
 		cursor_pos -= count;
-		draw_line(prompt, input_buffer, cursor_pos);
+		tm_rl_draw_line(prompt, input_buffer, cursor_pos);
 	}
 }
 
-void
-right_suppr(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos, int count = 1)
+static void
+tm_rl_right_suppr(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos, int count = 1)
 {
-	if (cursor_pos < input_buffer.size()) {
+	if (cursor_pos < input_buffer.size())
+	{
 		input_buffer.erase(input_buffer.begin() + cursor_pos, input_buffer.begin() + cursor_pos + count);
 
-		draw_line(prompt, input_buffer, cursor_pos);
+		tm_rl_draw_line(prompt, input_buffer, cursor_pos);
 	}
 }
 
-void
-add_char(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos, char ch)
+static void
+tm_rl_add_char(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos, char ch)
 {
-	if (ch < 32 || ch > 126) {
+	if (ch < 32 || ch > 126)
+	{
 		return;
 	}
 	input_buffer.insert(input_buffer.begin() + cursor_pos, ch);
 	cursor_pos++;
-	draw_line(prompt, input_buffer, cursor_pos);
+	tm_rl_draw_line(prompt, input_buffer, cursor_pos);
 }
 
-void
-move_cursor_by_word(const std::vector<char>& input_buffer, size_t& cursor_pos, bool forward)
+static void
+tm_rl_move_cursor_by_word(const std::vector<char>& input_buffer, size_t& cursor_pos, bool forward)
 {
-	if (forward) {
+	if (forward)
+	{
 		// Skip any spaces first
-		while (cursor_pos < input_buffer.size() && input_buffer[cursor_pos] == ' ') {
+		while (cursor_pos < input_buffer.size() && input_buffer[cursor_pos] == ' ')
+		{
 			cursor_pos++;
 			std::cout << "\033[C";
 		}
 		// Then move to the end of the word
-		while (cursor_pos < input_buffer.size() && input_buffer[cursor_pos] != ' ') {
+		while (cursor_pos < input_buffer.size() && input_buffer[cursor_pos] != ' ')
+		{
 			cursor_pos++;
 			std::cout << "\033[C";
 		}
-	} else {
+	}
+	else 
+	{
 		// Skip any spaces first
-		while (cursor_pos > 0 && input_buffer[cursor_pos - 1] == ' ') {
+		while (cursor_pos > 0 && input_buffer[cursor_pos - 1] == ' ')
+		{
 			cursor_pos--;
 			std::cout << "\033[D";
 		}
 		// Then move to the beginning of the word
-		while (cursor_pos > 0 && input_buffer[cursor_pos - 1] != ' ') {
+		while (cursor_pos > 0 && input_buffer[cursor_pos - 1] != ' ')
+		{
 			cursor_pos--;
 			std::cout << "\033[D";
 		}
 	}
 }
 
-void
-delete_word(std::vector<char>& input_buffer, size_t& cursor_pos, bool forward)
+static void
+tm_rl_delete_word(std::vector<char>& input_buffer, size_t& cursor_pos, bool forward)
 {
-	if (forward) {
+	if (forward) 
+	{
 		// Skip any spaces first
-		while (cursor_pos < input_buffer.size() && input_buffer[cursor_pos] == ' ') {
+		while (cursor_pos < input_buffer.size() && input_buffer[cursor_pos] == ' ')
+		{
 			input_buffer.erase(input_buffer.begin() + cursor_pos);
 		}
 		// Then delete the word
-		while (cursor_pos < input_buffer.size() && input_buffer[cursor_pos] != ' ') {
+		while (cursor_pos < input_buffer.size() && input_buffer[cursor_pos] != ' ')
+		{
 			input_buffer.erase(input_buffer.begin() + cursor_pos);
 		}
-	} else {
+	}
+	else
+	{
 		// Skip any spaces first
-		while (cursor_pos > 0 && input_buffer[cursor_pos - 1] == ' ') {
+		while (cursor_pos > 0 && input_buffer[cursor_pos - 1] == ' ')
+		{
 			input_buffer.erase(input_buffer.begin() + cursor_pos - 1);
 			cursor_pos--;
 		}
 		// Then delete the word
-		while (cursor_pos > 0 && input_buffer[cursor_pos - 1] != ' ') {
+		while (cursor_pos > 0 && input_buffer[cursor_pos - 1] != ' ')
+		{
 			input_buffer.erase(input_buffer.begin() + cursor_pos - 1);
 			cursor_pos--;
 		}
 	}
 }
 
-void
-process_escape_basic_arrows(const char ch, const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos)
+static void
+tm_rl_process_escape_basic_arrows(const char ch, const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos)
 {
 	switch (ch)
 	{
 	case 'A': // Up arrow
 		global_history_index = std::min(global_history_index + 1, global_history.size());
 dprintf(tty_fd, "global_history_index: %zu\n", global_history_index);
-		draw_from_history(prompt, input_buffer, cursor_pos);
+		tm_rl_draw_from_history(prompt, input_buffer, cursor_pos);
 		break;
 	case 'B': // Down arrow
 		global_history_index = global_history_index > 0 ? global_history_index - 1 : 0;
 dprintf(tty_fd, "global_history_index: %zu\n", global_history_index);
-		if (global_history_index == 0) {
+		if (global_history_index == 0)
+		{
 			input_buffer.clear();
 			cursor_pos = 0;
-			draw_line(prompt, input_buffer, cursor_pos);
+			tm_rl_draw_line(prompt, input_buffer, cursor_pos);
 			break;
 		}
-		draw_from_history(prompt, input_buffer, cursor_pos);
+		tm_rl_draw_from_history(prompt, input_buffer, cursor_pos);
 		break;
 	case 'C': // Right arrow
-		if (cursor_pos < input_buffer.size()) {
+		if (cursor_pos < input_buffer.size())
+		{
 			cursor_pos++;
 			std::cout << "\033[C";  // Déplacer le curseur à droite
 		}
 		break;
 	case 'D': // Left arrow
-		if (cursor_pos > 0) {
+		if (cursor_pos > 0)
+		{
 			cursor_pos--;
 			std::cout << "\033[D";  // Déplacer le curseur à gauche
 		}
@@ -250,52 +276,52 @@ dprintf(tty_fd, "global_history_index: %zu\n", global_history_index);
 	}
 }
 
-void
-process_escape_ctrl_arrows(const char ch, const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos)
+static void
+tm_rl_process_escape_ctrl_arrows(const char ch, const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos)
 {
 	switch (ch)
 	{
 	case 'C': // Right arrow
-		move_cursor_by_word(input_buffer, cursor_pos, true);
+		tm_rl_move_cursor_by_word(input_buffer, cursor_pos, true);
 		break;
 	case 'D': // Left arrow
-		move_cursor_by_word(input_buffer, cursor_pos, false);
+		tm_rl_move_cursor_by_word(input_buffer, cursor_pos, false);
 		break;
 	}
 }
 
-void
-process_modified_arrow(const std::string& prompt, std::vector<char>& input_buffer, size_t& cursor_pos, int modifier, char direction)
+static void
+tm_rl_process_modified_arrow(const std::string& prompt, std::vector<char>& input_buffer, size_t& cursor_pos, int modifier, char direction)
 {
 	switch (modifier)
 	{
 	case '5': // CTRL
 	case '3': // ALT
-		process_escape_ctrl_arrows(direction, prompt, input_buffer, cursor_pos);
+		tm_rl_process_escape_ctrl_arrows(direction, prompt, input_buffer, cursor_pos);
 		break;
 	default: // Unhandled modifier
-		add_char(prompt, input_buffer, cursor_pos, direction);
+		tm_rl_add_char(prompt, input_buffer, cursor_pos, direction);
 	}
 }
 
-void
-process_escape_sequence(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos)
+static void
+tm_rl_process_escape_sequence(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos)
 {
-	char ch = getch();
+	char ch = tm_rl_getch();
 dprintf(tty_fd, "es ch: %c\n", ch);
 	switch (ch)
 	{
 #ifdef __APPLE__
 	case 'b': // Alt + Left arrow
-		move_cursor_by_word(input_buffer, cursor_pos, false);
+		tm_rl_move_cursor_by_word(input_buffer, cursor_pos, false);
 		return;
 	case 'f': // Alt + Right arrow
-		move_cursor_by_word(input_buffer, cursor_pos, true);
+		tm_rl_move_cursor_by_word(input_buffer, cursor_pos, true);
 		return;
 #endif /* __APPLE__ */
 	case 100: // Alt + Right Suppr
-		delete_word(input_buffer, cursor_pos, true);
-		draw_line(prompt, input_buffer, cursor_pos);
+		tm_rl_delete_word(input_buffer, cursor_pos, true);
+		tm_rl_draw_line(prompt, input_buffer, cursor_pos);
 		return;
 	case '[':
 		// If escape sequence break out of the statement
@@ -304,73 +330,76 @@ dprintf(tty_fd, "es ch: %c\n", ch);
 		return; // Invalid escape sequence
 	}
 
-	ch = getch();
+	ch = tm_rl_getch();
 dprintf(tty_fd, "es m ch: %c\n", ch);
 
 	// Check if the character is a modifier
 	switch (ch)
 	{
 	case '1': // Extended arrow sequence
-		if (getch() == ';') {
-			char mod = getch();
-			char direction = getch();
-			process_modified_arrow(prompt, input_buffer, cursor_pos, mod, direction);
+		if (tm_rl_getch() == ';')
+		{
+			char mod = tm_rl_getch();
+			char direction = tm_rl_getch();
+			tm_rl_process_modified_arrow(prompt, input_buffer, cursor_pos, mod, direction);
 		}
 		break;
 	case '3': // Alt/Cmd + Right Suppr
-		if (getch() == ';') {
-			getch(); // Get modifier
-			getch(); // Get ~
+		if (tm_rl_getch() == ';')
+		{
+			tm_rl_getch(); // Get modifier
+			tm_rl_getch(); // Get ~
 			input_buffer.clear();
 			cursor_pos = 0;
-			draw_line(prompt, input_buffer, cursor_pos);
+			tm_rl_draw_line(prompt, input_buffer, cursor_pos);
 			break;
 		}
-		right_suppr(prompt, input_buffer, cursor_pos);
+		tm_rl_right_suppr(prompt, input_buffer, cursor_pos);
 		break;
 	default:
-		process_escape_basic_arrows(ch, prompt, input_buffer, cursor_pos);
+		tm_rl_process_escape_basic_arrows(ch, prompt, input_buffer, cursor_pos);
 		break;
 	}
 }
 
-int
-process_input(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos)
+static int
+tm_rl_process_input(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos)
 {
-	char ch = getch();
+	char ch = tm_rl_getch();
 dprintf(tty_fd, "ch: %d\n", ch);
 
 	switch (ch)
 	{
 	case 4: // Ctrl + D
-		if (input_buffer.empty()) {
+		if (input_buffer.empty())
+		{
 			std::cout << "^D" << std::endl;
-		    return TM_RL_EOF;
+			return TM_RL_EOF;
 		}
 		break;
 	case 1: // Ctrl + A
 		cursor_pos = 0;
-		draw_line(prompt, input_buffer, cursor_pos);
+		tm_rl_draw_line(prompt, input_buffer, cursor_pos);
 		break;
 	case 5: // Ctrl + E
 		cursor_pos = input_buffer.size();
-		draw_line(prompt, input_buffer, cursor_pos);
+		tm_rl_draw_line(prompt, input_buffer, cursor_pos);
 		break;
 	case 21: // Ctrl + U
 		input_buffer.clear();
 		cursor_pos = 0;
-		draw_line(prompt, input_buffer, cursor_pos);
+		tm_rl_draw_line(prompt, input_buffer, cursor_pos);
 		break;
 	case 23: // Ctrl + W
-		delete_word(input_buffer, cursor_pos, false);
-		draw_line(prompt, input_buffer, cursor_pos);
+		tm_rl_delete_word(input_buffer, cursor_pos, false);
+		tm_rl_draw_line(prompt, input_buffer, cursor_pos);
 		break;
 	case 27: // Escape sequence
-		process_escape_sequence(prompt, input_buffer, cursor_pos);
+		tm_rl_process_escape_sequence(prompt, input_buffer, cursor_pos);
 		break;
 	case 8: // Backspace
 	case 127: // Delete
-		left_suppr(prompt, input_buffer, cursor_pos);
+		tm_rl_left_suppr(prompt, input_buffer, cursor_pos);
 		break;
 	case '\r':
 		cursor_pos = 0;
@@ -381,10 +410,10 @@ dprintf(tty_fd, "ch: %d\n", ch);
 		global_history_index = 0;
 		return TM_RL_NEW_LINE;
 	case '\t':
-		process_autocomplete(prompt, input_buffer, cursor_pos);
+		tm_rl_process_autocomplete(prompt, input_buffer, cursor_pos);
 		break;
 	default:
-		add_char(prompt, input_buffer, cursor_pos, ch);
+		tm_rl_add_char(prompt, input_buffer, cursor_pos, ch);
 		break;
 	}
 	return TM_RL_CONTINUE;
@@ -399,15 +428,18 @@ dprintf(tty_fd, "ch: %d\n", ch);
 std::optional<std::string>
 tm_readline(const std::string& prompt)
 {
-	global_prompt = prompt;
-    global_input_buffer.clear();
-    global_cursor_pos = 0;
-
-	draw_line(global_prompt, global_input_buffer, global_cursor_pos);
-
 	int status;
-	while ((status = process_input(global_prompt, global_input_buffer, global_cursor_pos)) != TM_RL_NEW_LINE) {
-		if (status == TM_RL_EOF) {
+
+	global_prompt = prompt;
+	global_input_buffer.clear();
+	global_cursor_pos = 0;
+
+	tm_rl_draw_line(global_prompt, global_input_buffer, global_cursor_pos);
+
+	while ((status = tm_rl_process_input(global_prompt, global_input_buffer, global_cursor_pos)) != TM_RL_NEW_LINE)
+	{
+		if (status == TM_RL_EOF)
+		{
 			return std::nullopt;
 		}
 	}
@@ -423,12 +455,16 @@ tm_readline(const std::string& prompt)
 void
 tm_rl_add_history(const std::string& line)
 {
-	if (line.empty() || is_spaces(line)) {
+	if (line.empty() || is_spaces(line))
+	{
 		return;
 	}
-	if (global_history.size() > 0 && global_history.front() == line) {
+
+	if (global_history.size() > 0 && global_history.front() == line)
+	{
 		return;
 	}
+
 	global_history.push_front(line);
 dprintf(tty_fd, "global_history: %zu\n", global_history.size());
 	global_history_index = 0;
@@ -460,7 +496,7 @@ tm_rl_new_line()
 	global_cursor_pos = 0;
 
 	// Draw the new prompt line
-	draw_line(global_prompt, global_input_buffer, global_cursor_pos);
+	tm_rl_draw_line(global_prompt, global_input_buffer, global_cursor_pos);
 }
 
 /**

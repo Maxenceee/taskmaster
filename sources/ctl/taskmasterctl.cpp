@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/02 13:42:25 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/03 10:55:13 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -196,11 +196,6 @@ attach_readline()
 
 	do
 	{
-		int socket_fd = connect_server(TM_SOCKET_PATH);
-		if (socket_fd == -1) {
-			break;
-		}
-
 		auto rl_in = tm_readline("taskmasterctl> ");
 		if (!rl_in) {
 			break;
@@ -211,6 +206,15 @@ attach_readline()
 		trim(input);
 		if (input == "exit") {
 			break;
+		}
+
+		if (input.empty()) {
+			continue;
+		}
+
+		int socket_fd = connect_server(TM_SOCKET_PATH);
+		if (socket_fd == -1) {
+			continue;
 		}
 
 		// std::cout << "Input: (" << input << ")" << std::endl;
