@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/03 10:55:13 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/03 11:34:28 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,33 +22,64 @@ extern int tty_fd;
 struct CommandNode {
 	std::string					name;			// Nom de la commande
 	std::string					description;	// Description pour l'aide
-	std::vector<std::string>	arguments;		// Liste des arguments valides
-	std::vector<CommandNode>	children;		// Sous-commandes
+	// std::vector<std::string>	arguments;		// Liste des arguments valides
+	// std::vector<CommandNode>	children;		// Sous-commandes
 };
 
 std::vector<CommandNode> commands = {
-    {"list", "List tasks", {}, {
-		{"processes", "Manage subtasks", {}, {}},
-		{"pelements", "Manage subtasks", {}, {}}
-	}},
-    {"add", "Add a new task", {"--name", "--due"}, {
-		{"subtask", "Manage subtasks", {}, {}}
-	}},
-    {"remove", "Remove a task", {"--id"}, {}},
+    {"list", "List tasks"},
+    {"add", "Add a new task"},
+    {"remove", "Remove a task"},
 };
 
-bool
-validate_command(const CommandNode& node, const std::vector<std::string>& tokens, size_t index = 0)
+static void
+show_help()
 {
-	if (index >= tokens.size()) return true;
+	std::cout << "\n";
+	std::cout << "default commands (type help <topic>):" << "\n";
+	std::cout << "=====================================" << "\n";
 
-	for (const auto& child : node.children) {
-		if (child.name == tokens[index]) {
-			return validate_command(child, tokens, index + 1);
+	const int columns = 5;
+
+    size_t total = commands.size();
+    size_t rows = (total + columns - 1) / columns; // Nombre de lignes nécessaires
+
+    // Calcul de la largeur maximale pour chaque colonne
+    std::vector<size_t> colWidths(columns, 0);
+
+    for (size_t col = 0; col < columns; ++col) {
+        for (size_t row = 0; row < rows; ++row) {
+            size_t index = row * columns + col;
+            if (index < total) {
+                colWidths[col] = std::max(colWidths[col], commands[index].name.size());
+            }
+        }
+    }
+
+    // Affichage des commandes avec un alignement dynamique
+    for (size_t row = 0; row < rows; ++row) {
+        for (size_t col = 0; col < columns; ++col) {
+            size_t index = row * columns + col;
+            if (index < total) {
+                std::cout << std::left << std::setw(colWidths[col] + 2) << commands[index].name;
+            }
+        }
+        std::cout << "\n";
+    }
+
+	std::cout << std::endl;
+}
+
+static void
+show_command_info(const std::string &cmd)
+{
+	for (const auto& command : commands) {
+		if (command.name == cmd) {
+			std::cout << std::setw(10) << std::left << command.name << command.description << std::endl;
+			return;
 		}
 	}
-
-	return false;
+	std::cout << "Command not found: " << cmd << "\n";
 }
 
 std::vector<std::string>
@@ -91,23 +122,6 @@ autocomplete(const std::vector<CommandNode>& commands, const std::vector<std::st
 
 	// Identifier le niveau de la commande à partir des tokens précédents
 	const std::vector<CommandNode>* current_level = &commands;
-
-	for (size_t i = 0; i < word_start; ++i) {
-		const std::string& token = tokens[i];
-		bool found = false;
-
-		for (const auto& command : *current_level) {
-			if (command.name == token) {
-				current_level = &command.children;
-				found = true;
-				break;
-			}
-		}
-
-		if (!found) {
-			return {}; // Si un chemin invalide est trouvé, aucune suggestion possible
-		}
-	}
 
 	// Ajouter les suggestions basées sur le préfixe
 	for (const auto& command : *current_level) {
@@ -206,6 +220,20 @@ attach_readline()
 		trim(input);
 		if (input == "exit") {
 			break;
+		}
+
+		std::vector<std::string> tokens = tokenize(input);
+		if (tokens.empty()) {
+			continue;
+		}
+
+		if (tokens[0] == "help") {
+			if (tokens.size() > 1) {
+				show_command_info(tokens[1]);
+			} else {
+				show_help();
+			}
+			continue;
 		}
 
 		if (input.empty()) {
