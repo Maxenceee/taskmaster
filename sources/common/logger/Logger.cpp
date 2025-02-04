@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:56 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/04 21:50:39 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/04 22:33:56 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,10 +53,10 @@ std::ostream& operator<<(std::ostream& os, const Logger::LoggerDisplayDate&)
 	return os;
 }
 
-void	Logger::init(void)
+void	Logger::init(const char *action)
 {
-	std::cout << Logger::DisplayDate << TM_PREFIX << "Starting server: New logger session" << std::endl;
-	std::cerr << Logger::DisplayDate << TM_PREFIX << "Starting server: New logger session" << std::endl;
+	std::cout << Logger::DisplayDate << TM_PREFIX << action << ": New logger session" << std::endl;
+	std::cerr << Logger::DisplayDate << TM_PREFIX << action << ": New logger session" << std::endl;
 	/**
 	 * Initialisation du mutex pour éviter les conflits d'affichage
 	 */

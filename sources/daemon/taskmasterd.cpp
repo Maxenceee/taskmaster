@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/04 19:56:48 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/04 22:43:19 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,8 @@
 #include "signal.hpp"
 #include "taskmaster/Taskmaster.hpp"
 #include "logger/Logger.hpp"
-#include "unix_socket/server/UnixSocketServer.hpp"
+#include "server/UnixSocketServer.hpp"
+#include "daemon/daemon.hpp"
 
 bool running = true;
 
@@ -132,7 +133,9 @@ main(int argc, char* const* argv, char* const* envp)
 		return (TM_FAILURE);
 	}
 
-	Logger::init();
+	become_daemon(TM_NO_CHDIR);
+
+	Logger::init("Starting daemon");
 	Logger::setDebug(true);
 
 	if (check_pid_file() == TM_FAILURE)

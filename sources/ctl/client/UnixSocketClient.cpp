@@ -6,11 +6,11 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:59:19 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/04 11:04:24 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/04 22:16:45 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "unix_socket/client/UnixSocketClient.hpp"
+#include "client/UnixSocketClient.hpp"
 #include "logger/Logger.hpp"
 
 UnixSocketClient::UnixSocketClient(const char* socket_path): UnixSocket(socket_path)

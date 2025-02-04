@@ -6,13 +6,15 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 17:43:04 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/02 14:10:16 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/04 22:16:37 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "unix_socket/server/UnixSocketServer.hpp"
+#include "server/UnixSocketServer.hpp"
 #include "logger/Logger.hpp"
 #include "utils/utils.hpp"
+
+extern bool running;
 
 UnixSocketServer::UnixSocketServer(const char* unix_path): UnixSocket(unix_path)
 {
@@ -71,12 +73,11 @@ UnixSocketServer::listen(void)
 }
 
 int
-read_from_client(int client_fd)
+read_from_client(int client_fd, char *buffer, size_t buffer_size)
 {
-	char	buffer[TM_RECV_SIZE];
 	ssize_t	bytes_received;
 
-	bytes_received = recv(client_fd, buffer, sizeof(buffer), 0);
+	bytes_received = recv(client_fd, buffer, buffer_size, 0);
 	if (bytes_received == -1)
 	{
 		Logger::perror("server error: an error occurred while receiving data from the client");
@@ -149,7 +150,15 @@ UnixSocketServer::cycle(void)
 int
 UnixSocketServer::serve(int client_fd)
 {
-	(void)read_from_client(client_fd);
+	char	buffer[TM_RECV_SIZE];
+
+	(void)read_from_client(client_fd, buffer, TM_RECV_SIZE);
+	if (strncmp(buffer, "kill", 4) == 0)
+	{
+		Logger::debug("Client requested to exit");
+		running = false;
+	}
+
 	(void)send(client_fd, "Data successfully received", 27, 0);
 	return (TM_SUCCESS);
 }

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/04 19:38:32 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/04 22:35:18 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -280,7 +280,7 @@ main(int argc, char* const* argv)
 		return (TM_FAILURE);
 	}
 
-	Logger::init();
+	Logger::init("Starting taskmasterctl");
 	Logger::setDebug(true);
 
 	try {

@@ -1,13 +1,16 @@
 OBJ_DIR			=	.objs
 SOURCES_DIR		=	sources
+COMMON_SOURCES_DIR	=	$(SOURCES_DIR)/common
+D_SOURCES_DIR		=	$(SOURCES_DIR)/daemon
+CTL_SOURCES_DIR		=	$(SOURCES_DIR)/ctl
 
-COMMON_SRCS		=	$(shell find $(SOURCES_DIR)/common -name "*.cpp")
+COMMON_SRCS		=	$(shell find $(COMMON_SOURCES_DIR) -name "*.cpp")
 COMMON_OBJS		=	$(patsubst $(SOURCES_DIR)%.cpp, $(OBJ_DIR)%.o, $(COMMON_SRCS))
 
-D_SRCS			=	$(shell find $(SOURCES_DIR)/daemon -name "*.cpp")
+D_SRCS			=	$(shell find $(D_SOURCES_DIR) -name "*.cpp")
 D_OBJS			=	$(patsubst $(SOURCES_DIR)%.cpp, $(OBJ_DIR)%.o, $(D_SRCS))
 
-CTL_SRCS		=	$(shell find $(SOURCES_DIR)/ctl -name "*.cpp")
+CTL_SRCS		=	$(shell find $(CTL_SOURCES_DIR) -name "*.cpp")
 CTL_OBJS		=	$(patsubst $(SOURCES_DIR)%.cpp, $(OBJ_DIR)%.o, $(CTL_SRCS))
 
 HEADERS_DIR		=	includes
@@ -15,7 +18,7 @@ HEADERS			=	$(shell find $(HEADERS_DIR) -name "*.hpp") $(shell find $(SOURCES_DI
 
 RM				=	rm -f
 CC				=	g++
-CFLAGS			=	-g3 -std=c++20 -I $(HEADERS_DIR) -I $(SOURCES_DIR)/common #-Wall -Wextra -Werror
+CFLAGS			=	-g3 -std=c++20 -I $(HEADERS_DIR) -I $(COMMON_SOURCES_DIR) -I $(D_SOURCES_DIR) -I $(CTL_SOURCES_DIR) #-Wall -Wextra -Werror
 LIBS			=	-lpthread -lcrypto
 
 NAME_D			=	taskmasterd

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:53 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/04 20:38:59 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/04 22:34:05 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ protected:
 	static constexpr LoggerDisplayDate DisplayDate = {};
 
 public:
-	static void init(void);
+	static void init(const char *action);
 	static void destroy(void);
 
 	static void	printHeader(void);
