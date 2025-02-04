@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/03 12:00:54 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/04 11:04:04 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,7 +176,7 @@ read_message(int sockfd)
 
 	ssize_t n = recv(sockfd, buffer, sizeof(buffer) - 1, 0);
 	if (n < 0) {
-		perror("recv failed");
+		Logger::perror("recv failed");
 		close(sockfd);
 		return (-1);
 	}
@@ -192,7 +192,7 @@ connect_server(const std::string& unix_path)
 	struct sockaddr_un servaddr;
 
 	if ((sockfd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
-		perror("socket creation failed");
+		Logger::perror("socket creation failed");
 		return (-1);
 	}
 
@@ -273,6 +273,9 @@ attach_readline()
 int
 main(int argc, char* const* argv)
 {
+	std::cout << "\n" << HEADER << TM_OCTO << RESET << "\n";
+	std::cout << HACKER << std::setw(12) << "" << "Taskmaster" << RESET << "\n" << std::endl;
+
 	if (argc != 1) {
 		std::cerr << "Usage: " << argv[0] << std::endl;
 		return (TM_FAILURE);

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/03 16:09:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/18 23:15:30 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/04 10:39:29 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,5 +110,11 @@
 # define DTAB	"\t\t"
 # define TTAB	"\t\t\t"
 # define QTAB	"\t\t\t\t"
+
+/*
+ * Hacker
+ */
+
+# define HACKER		"\x1b[1;5;38;5;40m"
 
 #endif /* PCOLORS_H */

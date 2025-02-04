@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/02 13:44:29 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/04 11:01:35 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,9 +124,12 @@ start_server(void)
 int
 main(int argc, char* const* argv, char* const* envp)
 {
-	if (argc < 2)
+	std::cout << "\n" << HEADER << TM_OCTO << RESET << "\n";
+	std::cout << HACKER << std::setw(12) << "" << "Taskmaster" << RESET << "\n" << std::endl;
+
+	if (argc != 1)
 	{
-		std::cerr << "Usage: " << argv[0] << " <command> [args...]" << std::endl;
+		std::cerr << "Usage: " << argv[0] << std::endl;
 		return (TM_FAILURE);
 	}
 
