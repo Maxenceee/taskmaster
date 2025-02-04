@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 15:39:02 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/04 22:42:49 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/04 22:49:52 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ become_daemon(int flags)
 	if(0 == (flags & TM_NO_CHDIR))
 		chdir("/");                     // changer vers le répertoire racine
 
-	if(1 == (flags & TM_CLOSE_FILES))    // fermer tous les fichiers ouverts
+	if(1 == (flags & TM_CLOSE_FILES))   // fermer tous les fichiers ouverts
 	{
 		maxfd = sysconf(_SC_OPEN_MAX);  // permet de déterminer le nombre maximal de descripteurs disponibles
 		if (maxfd == -1)
