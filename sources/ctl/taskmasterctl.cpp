@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/04 11:04:04 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/04 19:38:32 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -273,8 +273,7 @@ attach_readline()
 int
 main(int argc, char* const* argv)
 {
-	std::cout << "\n" << HEADER << TM_OCTO << RESET << "\n";
-	std::cout << HACKER << std::setw(12) << "" << "Taskmaster" << RESET << "\n" << std::endl;
+	Logger::printHeader();
 
 	if (argc != 1) {
 		std::cerr << "Usage: " << argv[0] << std::endl;

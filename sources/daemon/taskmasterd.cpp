@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/04 11:01:35 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/04 19:56:48 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,8 +124,7 @@ start_server(void)
 int
 main(int argc, char* const* argv, char* const* envp)
 {
-	std::cout << "\n" << HEADER << TM_OCTO << RESET << "\n";
-	std::cout << HACKER << std::setw(12) << "" << "Taskmaster" << RESET << "\n" << std::endl;
+	Logger::printHeader();
 
 	if (argc != 1)
 	{
