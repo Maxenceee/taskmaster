@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:53 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/04 22:34:05 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/05 22:18:05 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ private:
 	static bool				_initiated;
 
 	static bool				aquireMutex(void);
-	static void				releaseMutex(void);
+	static bool				releaseMutex(void);
 
 protected:
 	struct LoggerDisplayColor {
@@ -45,8 +45,8 @@ public:
 	static void destroy(void);
 
 	static void	printHeader(void);
-	static void out(const char *msg, const char *color = RESET);
-	static void out(const std::string &msg, const char *color = RESET);
+	static void cout(const char *msg);
+	static void cout(const std::string &msg);
 
 	static void	print(const char *msg, const char *color = RESET);
 	static void	print(const std::string &msg, const char *color = RESET);

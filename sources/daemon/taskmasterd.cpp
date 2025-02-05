@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/04 22:43:19 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/05 22:14:55 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ void
 interruptHandler(int sig_int)
 {
 	(void)sig_int;
-	std::cout << "\b\b"; // rm ^C from tty
+	Logger::cout("\b\b"); // rm ^C from tty
 	Logger::print("Signal received: " + std::string(strsignal(sig_int)), B_GREEN);
 	running = false;
 }
@@ -133,7 +133,11 @@ main(int argc, char* const* argv, char* const* envp)
 		return (TM_FAILURE);
 	}
 
-	become_daemon(TM_NO_CHDIR);
+	if (become_daemon(TM_NO_CHDIR) == TM_FAILURE)
+	{
+		Logger::error("Could not become daemon");
+		return (TM_FAILURE);
+	}
 
 	Logger::init("Starting daemon");
 	Logger::setDebug(true);

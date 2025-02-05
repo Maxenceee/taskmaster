@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:56 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/04 22:33:56 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/05 22:19:14 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,14 +29,14 @@ std::ostream& operator<<(std::ostream& os, const Logger::LoggerDisplayColor& dc)
 {
 	if (isTTY(os))
 		os << dc.color;
-	return os;
+	return (os);
 }
 
 std::ostream& operator<<(std::ostream& os, const Logger::LoggerDisplayReset&)
 {
 	if (isTTY(os))
 		os << RESET;
-	return os;
+	return (os);
 }
 
 std::ostream& operator<<(std::ostream& os, const Logger::LoggerDisplayDate&)
@@ -45,23 +45,26 @@ std::ostream& operator<<(std::ostream& os, const Logger::LoggerDisplayDate&)
 	time_t rawtime;
 	char buf[32];
 
-	time(&rawtime);
+	(void)time(&rawtime);
 	tm = localtime(&rawtime);
 	int ret = strftime(buf, 32, "%T", tm);
 	buf[ret] = '\0';
 	os << Logger::Color(CYAN) << "[" << buf << "] " << Logger::DisplayReset;
-	return os;
+	return (os);
 }
 
 void	Logger::init(const char *action)
 {
+	if (Logger::_initiated)
+		return ;
+
 	std::cout << Logger::DisplayDate << TM_PREFIX << action << ": New logger session" << std::endl;
 	std::cerr << Logger::DisplayDate << TM_PREFIX << action << ": New logger session" << std::endl;
 	/**
 	 * Initialisation du mutex pour éviter les conflits d'affichage
 	 */
-	pthread_mutex_init(&Logger::_loggerMutex, NULL);
-	std::atexit(Logger::destroy);
+	(void)pthread_mutex_init(&Logger::_loggerMutex, NULL);
+	(void)std::atexit(Logger::destroy);
 	Logger::_initiated = true;
 }
 
@@ -70,21 +73,22 @@ void	Logger::destroy(void)
 	if (!Logger::_initiated)
 		return ;
 
-	pthread_mutex_destroy(&Logger::_loggerMutex);
+	(void)pthread_mutex_destroy(&Logger::_loggerMutex);
 }
 
 bool	Logger::aquireMutex(void)
 {
 	if (!Logger::_initiated)
 	{
-		throw std::runtime_error("Logger should be initiated before use (Logger::init)");
+		// throw std::runtime_error("Logger should be initiated before use (Logger::init)");
+		Logger::init(TM_PROJECT);
 	}
 	return (pthread_mutex_lock(&Logger::_loggerMutex) == 0);
 }
 
-void	Logger::releaseMutex(void)
+bool	Logger::releaseMutex(void)
 {
-	pthread_mutex_unlock(&Logger::_loggerMutex);
+	return (pthread_mutex_unlock(&Logger::_loggerMutex) == 0);
 }
 
 void	Logger::printHeader(void)
@@ -104,23 +108,23 @@ void	Logger::printHeader(void)
 	}
 }
 
-void	Logger::out(const char *msg, const char *color)
+void	Logger::cout(const char *msg)
 {
-	Logger::aquireMutex();
-	std::cout << Logger::Color(color) << msg << Logger::DisplayReset << std::endl;
-	Logger::releaseMutex();
+	(void)Logger::aquireMutex();
+	std::cout << Logger::Color(msg) << std::flush;
+	(void)Logger::releaseMutex();
 }
 
-void	Logger::out(const std::string &msg, const char *color)
+void	Logger::cout(const std::string &msg)
 {
-	Logger::out(msg.c_str(), color);
+	Logger::cout(msg.c_str());
 }
 
 void	Logger::print(const char *msg, const char *color)
 {
-	Logger::aquireMutex();
+	(void)Logger::aquireMutex();
 	std::cout << Logger::DisplayDate << Logger::Color(color) << msg << Logger::DisplayReset << std::endl;
-	Logger::releaseMutex();
+	(void)Logger::releaseMutex();
 }
 
 void	Logger::print(const std::string &msg, const char *color)
@@ -130,9 +134,9 @@ void	Logger::print(const std::string &msg, const char *color)
 
 void	Logger::info(const char *msg)
 {
-	Logger::aquireMutex();
+	(void)Logger::aquireMutex();
 	std::cout << Logger::DisplayDate << Logger::Color(YELLOW) << TM_PREFIX << msg << Logger::DisplayReset << std::endl;
-	Logger::releaseMutex();
+	(void)Logger::releaseMutex();
 }
 
 void	Logger::info(const std::string &msg)
@@ -142,9 +146,9 @@ void	Logger::info(const std::string &msg)
 
 void	Logger::warning(const char *msg)
 {
-	Logger::aquireMutex();
+	(void)Logger::aquireMutex();
 	std::cerr << Logger::DisplayDate << Logger::Color(B_ORANGE) << TM_PREFIX << msg << Logger::DisplayReset << std::endl;
-	Logger::releaseMutex();
+	(void)Logger::releaseMutex();
 }
 
 void	Logger::warning(const std::string &msg)
@@ -154,9 +158,9 @@ void	Logger::warning(const std::string &msg)
 
 void	Logger::error(const char *msg)
 {
-	Logger::aquireMutex();
+	(void)Logger::aquireMutex();
 	std::cerr << Logger::DisplayDate << Logger::Color(B_RED) << TM_PREFIX << msg << Logger::DisplayReset << std::endl;
-	Logger::releaseMutex();
+	(void)Logger::releaseMutex();
 }
 
 void	Logger::error(const std::string &msg)
@@ -166,9 +170,9 @@ void	Logger::error(const std::string &msg)
 
 void	Logger::perror(const char *msg)
 {
-	Logger::aquireMutex();
+	(void)Logger::aquireMutex();
 	std::cerr << Logger::DisplayDate << Logger::Color(B_RED) << TM_PREFIX << msg << ": " << strerror(errno) << Logger::DisplayReset << std::endl;
-	Logger::releaseMutex();
+	(void)Logger::releaseMutex();
 }
 
 void	Logger::perror(const std::string &msg)
@@ -178,9 +182,9 @@ void	Logger::perror(const std::string &msg)
 
 void	Logger::pherror(const char *msg)
 {
-	Logger::aquireMutex();
+	(void)Logger::aquireMutex();
 	std::cerr << Logger::DisplayDate << Logger::Color(B_RED) << TM_PREFIX << msg << ": " << hstrerror(h_errno) << Logger::DisplayReset << std::endl;
-	Logger::releaseMutex();
+	(void)Logger::releaseMutex();
 }
 
 void	Logger::pherror(const std::string &msg)
@@ -193,9 +197,9 @@ void	Logger::debug(const char *msg, const char *color)
 	if (!Logger::_debug)
 		return ;
 
-	Logger::aquireMutex();
+	(void)Logger::aquireMutex();
 	std::cout << Logger::DisplayDate << Logger::Color(color) << msg << Logger::DisplayReset << std::endl;
-	Logger::releaseMutex();
+	(void)Logger::releaseMutex();
 }
 
 void	Logger::debug(const std::string &msg, const char *color)

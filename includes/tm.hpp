@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 23:24:24 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/04 22:55:15 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/05 22:13:39 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,10 +73,11 @@
 
 // 
 
+#define TM_PROJECT "taskmaster"
 #define TM_VERSION "1.0"
 #define TM_AUTHOR "mgama"
 
-#define TM_PREFIX "taskmaster: "
+#define TM_PREFIX TM_PROJECT ": "
 
 #define TM_PID_FILE "./taskmaster.pid"
 #define TM_SOCKET_PATH "unix://./taskmaster.sock"
