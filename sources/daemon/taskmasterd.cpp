@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/05 22:14:55 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/06 19:25:45 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,20 +106,50 @@ check_pid_file(void)
 }
 
 void
-start_server(void)
+start_main_loop(char* const* argv, char* const* envp)
 {
 	UnixSocketServer server(TM_SOCKET_PATH);
 	server.listen();
 
-	setup_signal(SIGPIPE, SIG_IGN);
-	
+	setup_signal(SIGINT, interruptHandler);
+	setup_signal(SIGQUIT, interruptHandler);
+	setup_signal(SIGTERM, interruptHandler);
+
+	Taskmaster master(envp);
+
+	(void)master.addChild(argv + 1);
+	(void)master.start();
+
 	do
 	{
 		if (server.cycle())
 		{
 			break;
 		}
+		if (master.cycle())
+		{
+			break;
+		}
 	} while (running);
+
+	(void)server.stop();
+	(void)master.stop();
+
+	const auto current_time = std::chrono::system_clock::now();
+
+	while (!master.allStopped() && std::chrono::system_clock::now() - current_time < std::chrono::seconds(10))
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		(void)master.cycle();
+	}
+
+	if (!master.allStopped())
+	{
+		Logger::info("Child did not stop within 10s, using SIGKILL");
+		master.kill();
+	}
+
+	Logger::print("taskmasterd stopped", B_GREEN);
 }
 
 int
@@ -127,17 +157,17 @@ main(int argc, char* const* argv, char* const* envp)
 {
 	Logger::printHeader();
 
-	if (argc != 1)
+	if (argc < 2)
 	{
-		std::cerr << "Usage: " << argv[0] << std::endl;
+		std::cerr << "Usage: " << argv[0] << " <cmd>" << std::endl;
 		return (TM_FAILURE);
 	}
 
-	if (become_daemon(TM_NO_CHDIR) == TM_FAILURE)
-	{
-		Logger::error("Could not become daemon");
-		return (TM_FAILURE);
-	}
+	// if (become_daemon(TM_NO_CHDIR) == TM_FAILURE)
+	// {
+	// 	Logger::error("Could not become daemon");
+	// 	return (TM_FAILURE);
+	// }
 
 	Logger::init("Starting daemon");
 	Logger::setDebug(true);
@@ -153,20 +183,18 @@ main(int argc, char* const* argv, char* const* envp)
 		return (TM_FAILURE);
 	}
 
-	// setup_signal(SIGINT, SIG_IGN);
-	// setup_signal(SIGQUIT, SIG_IGN);
-	// setup_signal(SIGTERM, SIG_IGN);
+	setup_signal(SIGINT, SIG_IGN);
+	setup_signal(SIGQUIT, SIG_IGN);
+	setup_signal(SIGTERM, SIG_IGN);
 
-	setup_signal(SIGINT, interruptHandler);
+	setup_signal(SIGPIPE, SIG_IGN);
 
-	// Taskmaster master(envp);
-
-	// master.addChild(argv + 1);
-	// master.start();
-	
-	try {
-		start_server();
-	} catch (const std::exception& e) {
+	try
+	{
+		start_main_loop(argv, envp);
+	}
+	catch (const std::exception& e)
+	{
 		Logger::error(e.what());
 		return (TM_FAILURE);
 	}

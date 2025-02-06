@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 17:43:04 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/04 22:16:37 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/06 19:25:11 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,9 +54,10 @@ UnixSocketServer::UnixSocketServer(const char* unix_path): UnixSocket(unix_path)
 
 UnixSocketServer::~UnixSocketServer(void)
 {
-	(void)close(this->sockfd);
-	Logger::debug("Removing socket file: " + this->socket_path);
-	(void)unlink(this->socket_path.c_str());
+	if (this->_running)
+	{
+		(void)this->stop();
+	}
 }
 
 int
@@ -69,6 +70,26 @@ UnixSocketServer::listen(void)
 	}
 	this->poll_fds.push_back((pollfd){this->sockfd, TM_POLL_EVENTS, TM_POLL_NO_EVENTS});
 	this->_poll_clients[this->sockfd] = (tm_pollclient){TM_POLL_SERVER, nullptr};
+
+	this->_running = true;
+	return (TM_SUCCESS);
+}
+
+int
+UnixSocketServer::stop(void)
+{
+	(void)close(this->sockfd);
+
+	for (auto& poll_fd : this->poll_fds)
+	{
+		(void)close(poll_fd.fd);
+	}
+
+	Logger::debug("Removing socket file: " + this->socket_path);
+	(void)unlink(this->socket_path.c_str());
+
+	this->_running = false;
+
 	return (TM_SUCCESS);
 }
 

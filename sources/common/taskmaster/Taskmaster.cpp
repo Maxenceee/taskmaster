@@ -6,22 +6,13 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/01 15:54:33 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/06 19:16:43 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "signal.hpp"
 #include "taskmaster/Taskmaster.hpp"
 #include "logger/Logger.hpp"
-
-bool Taskmaster::should_stop = false;
-
-static void interruptHandler(int sig_int) {
-	(void)sig_int;
-	std::cout << "\b\b"; // rm ^C from tty
-	Logger::print("Signal received: " + std::string(strsignal(sig_int)), B_GREEN);
-	Taskmaster::should_stop = true;
-}
 
 Taskmaster::Taskmaster(char* const* envp)
 {
@@ -36,8 +27,10 @@ Taskmaster::~Taskmaster(void)
 {
 }
 
-int	Taskmaster::addChild(char* const* exec)
+int
+Taskmaster::addChild(char* const* exec)
 {
+	// Temp output file
 	int	std_out_fd = open("child_stdout.log", O_WRONLY | O_CREAT | O_APPEND, 0644);
 	if (std_out_fd == -1) {
 		Logger::perror("open");
@@ -54,7 +47,8 @@ int	Taskmaster::addChild(char* const* exec)
 	return (0);
 }
 
-int	Taskmaster::launch(void)
+int
+Taskmaster::launch(void)
 {
 	for(const auto& process : this->_processes)
 	{
@@ -66,85 +60,76 @@ int	Taskmaster::launch(void)
 	return (0);
 }
 
-bool stdinHasData()
-{
-	// using a timeout of 0 so we aren't waiting:
-	struct timespec timeout{ 0l, 0l };
+// bool
+// stdinHasData()
+// {
+// 	// using a timeout of 0 so we aren't waiting:
+// 	struct timespec timeout{ 0l, 0l };
 
-	// create a file descriptor set
-	fd_set fds{};
+// 	// create a file descriptor set
+// 	fd_set fds{};
 
-	// initialize the fd_set to 0
-	FD_ZERO(&fds);
-	// set the fd_set to target file descriptor 0 (STDIN)
-	FD_SET(STDIN_FILENO, &fds);
+// 	// initialize the fd_set to 0
+// 	FD_ZERO(&fds);
+// 	// set the fd_set to target file descriptor 0 (STDIN)
+// 	FD_SET(STDIN_FILENO, &fds);
 
-	// pselect the number of file descriptors that are ready, since
-	//  we're only passing in 1 file descriptor, it will return either
-	//  a 0 if STDIN isn't ready, or a 1 if it is.
-	return pselect(0 + 1, &fds, nullptr, nullptr, &timeout, nullptr) == 1;
-}
+// 	// pselect the number of file descriptors that are ready, since
+// 	//  we're only passing in 1 file descriptor, it will return either
+// 	//  a 0 if STDIN isn't ready, or a 1 if it is.
+// 	return pselect(0 + 1, &fds, nullptr, nullptr, &timeout, nullptr) == 1;
+// }
 
-int	Taskmaster::start(void)
+int
+Taskmaster::start(void)
 {
 	Logger::print("taskmasterd started with pid "+std::to_string(this->pid));
 
-	setup_signal(SIGINT, interruptHandler);
-	setup_signal(SIGQUIT, interruptHandler);
-	setup_signal(SIGTERM, interruptHandler);
-
-	setup_signal(SIGPIPE, SIG_IGN);
-
 	(void)this->launch();
-
-	bool	handling_stop = false;
-	std::string input;
-
-	do
-	{
-		if (!this->should_stop && stdinHasData())
-		{
-			std::cin >> input;
-			if ("rs" == input) {
-				for(const auto& process : this->_processes)
-				{
-					if (process->exited())
-					{
-						if (process->spawn(this->envp))
-						{
-							std::cout << "Could not spawn child" << std::endl;
-						}
-					}
-				}
-			}
-		}
-
-		bool all_stopped = true;
-		int s;
-		for(const auto& process : this->_processes)
-		{
-			if (!(s = process->monitor()))
-			{
-				all_stopped = false;
-			}
-			std::cout << "Child " << process->getPid() << " monitor status: " << s << std::endl;
-		}
-
-		if (this->should_stop && !handling_stop)
-		{
-			for(const auto& process : this->_processes)
-			{
-				std::cout << "Stopping child " << process->getPid() << std::endl;
-				if (process->stop())
-					Logger::perror("Could not stop");
-			}
-			handling_stop = true;
-		}
-
-		if (this->should_stop && handling_stop && all_stopped)
-			break;
-		(void)sleep(1);
-	} while (false == this->exit);
 	
-	return (0);
+	return (TM_SUCCESS);
+}
+
+int
+Taskmaster::cycle(void)
+{
+	int s;
+	for(const auto& process : this->_processes)
+	{
+		s = process->monitor();
+		// std::cout << "Child " << process->getPid() << " monitor status: " << s << std::endl;
+	}
+
+	return (TM_SUCCESS);
+}
+
+int
+Taskmaster::stop(void)
+{
+	for(const auto& process : this->_processes)
+	{
+		(void)process->stop();
+	}
+	return (TM_SUCCESS);
+}
+
+int
+Taskmaster::kill(void)
+{
+	for(const auto& process : this->_processes)
+	{
+		(void)process->kill();
+	}
+	return (TM_SUCCESS);
+}
+
+bool
+Taskmaster::allStopped() const
+{
+	for(const auto& process : this->_processes)
+	{
+		if (false == process->exited())
+			return false;
+	}
+	return true;
 }

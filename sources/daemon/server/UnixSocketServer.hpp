@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:45:59 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/01 15:49:55 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/06 19:24:03 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,8 @@ typedef struct tm_pollclient {
 class UnixSocketServer: public UnixSocket
 {
 private:
+	bool	_running;
+
 	std::map<int, tm_pollclient>	_poll_clients;
 
 	int	serve(int client);
@@ -48,6 +50,7 @@ public:
 
 	int	listen(void);
 	int	cycle(void);
+	int	stop(void);
 };
 
 #endif /* UNIXSOCKETSERVER_HPP */

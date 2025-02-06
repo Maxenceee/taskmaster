@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:51 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/19 12:13:15 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/06 19:06:21 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,11 +33,14 @@ public:
 	Taskmaster(char* const* envp);
 	~Taskmaster(void);
 
-	static bool		should_stop;
-
 	int		addChild(char* const* exec);
 
 	int		start(void);
+	int		stop(void);
+	int		kill(void);
+	int		cycle(void);
+
+	bool	allStopped(void) const;
 };
 
 #endif /* TASKMASTER_HPP */

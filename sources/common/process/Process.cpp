@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/01 15:54:58 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/06 19:19:18 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,8 @@ Process::~Process(void)
 	}
 }
 
-int	Process::spawn(char* const* envp)
+int
+Process::spawn(char* const* envp)
 {
 	if (this->_status == TM_P_STARTED)
 	{
@@ -67,17 +68,19 @@ int	Process::spawn(char* const* envp)
 	return (TM_SUCCESS);
 }
 
-int	Process::stop(void)
+int
+Process::stop(void)
 {
 	if (this->_status == TM_P_EXITED || this->pid == -1)
 	{
 		return (TM_SUCCESS);
 	}
-	Logger::print("Stopping child " + std::to_string(this->stop_sig));
+	std::cout << "Stopping child with signal " << strsignal(this->stop_sig) << std::endl;
 	return (::kill(this->pid, this->stop_sig));
 }
 
-int	Process::kill(void)
+int
+Process::kill(void)
 {
 	if (this->_status == TM_P_EXITED || this->pid == -1)
 	{
@@ -86,7 +89,8 @@ int	Process::kill(void)
 	return (::kill(this->pid, SIGKILL));
 }
 
-int	Process::monitor(void)
+int
+Process::monitor(void)
 {
 	if (this->_status == TM_P_EXITED || this->pid == -1)
 		return (TM_FAILURE);
