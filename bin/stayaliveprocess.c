@@ -16,23 +16,23 @@ handle_sigint(int sig) {
 int
 main()
 {
-	printf("Starting infinit living process\n");
+	dprintf(1, "Starting infinit living process\n");
 	signal(SIGTERM, handle_sigterm);
 	signal(SIGINT, handle_sigint);
 
 	// for (size_t i = 0; i < 5; i++)
 	// {
-	// 	printf("I'm alive\n");
+	// 	dprintf(1, "I'm alive\n");
 	// 	// fflush(stdout);
 	// 	sleep(1);
 	// }
 	while (1)
 	{
-		printf("I'm alive\n");
-		// dprintf(2, "I'm alive\n");
+		dprintf(1, "I'm alive\n");
+		// ddprintf(1, 2, "I'm alive\n");
 		// fflush(stdout);
 		sleep(1);
 	}
-	printf("I'm dead\n");
+	dprintf(1, "I'm dead\n");
 	return 0;
 }

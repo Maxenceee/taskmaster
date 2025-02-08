@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/06 19:25:45 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/08 12:00:41 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,6 +132,7 @@ start_main_loop(char* const* argv, char* const* envp)
 		}
 	} while (running);
 
+	Logger::print("taskmasterd stopping, this can take a while...", B_GREEN);
 	(void)server.stop();
 	(void)master.stop();
 
