@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/06 19:16:43 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/11 17:48:42 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ Taskmaster::addChild(char* const* exec)
 	Process* new_child = new Process(exec, -1, std_out_fd, -1, config);
 
 	this->_processes.push_back(new_child);
-	return (0);
+	return (TM_SUCCESS);
 }
 
 int
@@ -57,7 +57,7 @@ Taskmaster::launch(void)
 			std::cout << "Could not spawn child" << std::endl;
 		}
 	}
-	return (0);
+	return (TM_SUCCESS);
 }
 
 // bool
@@ -129,7 +129,7 @@ Taskmaster::allStopped() const
 	for(const auto& process : this->_processes)
 	{
 		if (false == process->exited())
-			return false;
+			return (false);
 	}
-	return true;
+	return (true);
 }

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/06 19:19:18 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/11 18:22:02 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ Process::Process(char* const* exec, int std_in_fd, int std_out_fd, int std_err_f
 	this->_wpstatus = 0;
 	this->_signal = 0;
 	this->_exit_code = 0;
-	this->_status = TM_P_IDLE;
+	this->_state = TM_P_STOPPED;
 
 	this->std_in_fd = std_in_fd;
 	this->std_out_fd = std_out_fd;
@@ -35,7 +35,7 @@ Process::Process(char* const* exec, int std_in_fd, int std_out_fd, int std_err_f
 
 Process::~Process(void)
 {
-	if (this->_status == TM_P_STARTED && this->pid != -1)
+	if (this->_state == TM_P_RUNNING && this->pid != -1)
 	{
 		std::cout << "Killing child " << this->pid << std::endl;
 		(void)this->stop();
@@ -45,7 +45,7 @@ Process::~Process(void)
 int
 Process::spawn(char* const* envp)
 {
-	if (this->_status == TM_P_STARTED)
+	if (this->_state == TM_P_RUNNING)
 	{
 		Logger::error("Process already spawned");
 		return (TM_FAILURE);
@@ -53,15 +53,18 @@ Process::spawn(char* const* envp)
 
 	if (access(exec[0], F_OK | X_OK) == -1)
 	{
+		Logger::error("requested executable does not exist or is not executable");
+		return (TM_FAILURE);
+	}
+
+	this->_state = TM_P_STARTING;
+	if ((this->pid = spawn_child(this->exec, envp, this->std_in_fd, this->std_out_fd, this->std_err_fd)) == -1)
+	{
 		Logger::perror("could not spawn child");
 		return (TM_FAILURE);
 	}
 
-	if ((this->pid = spawn_child(this->exec, envp, this->std_in_fd, this->std_out_fd, this->std_err_fd)) == -1)
-	{
-		return (TM_FAILURE);
-	}
-	this->_status = TM_P_STARTED;
+	this->_state = TM_P_RUNNING;
 	std::cout << "Child spawned with pid " << this->pid << std::endl;
 	this->start_time = std::chrono::steady_clock::now();
 	
@@ -71,10 +74,12 @@ Process::spawn(char* const* envp)
 int
 Process::stop(void)
 {
-	if (this->_status == TM_P_EXITED || this->pid == -1)
+	if (this->_signal == TM_P_STOPPED || this->_state == TM_P_STOPPING || this->_state == TM_P_EXITED || this->pid == -1)
 	{
 		return (TM_SUCCESS);
 	}
+	this->_state = TM_P_STOPPING;
+
 	std::cout << "Stopping child with signal " << strsignal(this->stop_sig) << std::endl;
 	return (::kill(this->pid, this->stop_sig));
 }
@@ -82,20 +87,21 @@ Process::stop(void)
 int
 Process::kill(void)
 {
-	if (this->_status == TM_P_EXITED || this->pid == -1)
+	if (this->_signal == TM_P_STOPPED || this->_state == TM_P_EXITED || this->pid == -1)
 	{
 		return (TM_SUCCESS);
 	}
+
 	return (::kill(this->pid, SIGKILL));
 }
 
 int
 Process::monitor(void)
 {
-	if (this->_status == TM_P_EXITED || this->pid == -1)
+	if (this->_state != TM_P_RUNNING || this->pid == -1)
 		return (TM_FAILURE);
 
-	if (this->_status == TM_P_STARTED && waitpid(this->pid, &this->_wpstatus, WNOHANG) == this->pid)
+	if (this->_state == TM_P_RUNNING && waitpid(this->pid, &this->_wpstatus, WNOHANG) == this->pid)
 	{
 		if (WIFSIGNALED(this->_wpstatus))
 		{
@@ -108,8 +114,9 @@ Process::monitor(void)
 			std::cout << "Child process " << this->pid << " terminated with code " << this->_exit_code << std::endl;
 		}
 		this->stop_time = std::chrono::steady_clock::now();
-		this->_status = TM_P_EXITED;
+		this->_state = TM_P_EXITED;
 		return (TM_FAILURE);
 	}
+
 	return (TM_SUCCESS);
 }
