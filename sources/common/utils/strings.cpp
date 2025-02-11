@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 13:18:00 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/21 16:23:20 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/11 17:47:30 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,7 +198,7 @@ uint32_t	setIPAddress(const std::string &addr)
 	std::vector<std::string>	tokens = split(addr, '.');
 	uint32_t					res = 0;
 	if (tokens.size() != 4)
-		return (0);
+		return (TM_SUCCESS);
 	res |= (std::atoi(tokens[0].c_str()) << 24);
 	res |= (std::atoi(tokens[1].c_str()) << 16);
 	res |= (std::atoi(tokens[2].c_str()) << 8);
