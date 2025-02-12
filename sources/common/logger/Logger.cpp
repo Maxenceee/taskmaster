@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:56 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/05 22:19:14 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/12 11:46:28 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,7 @@ void	Logger::init(const char *action)
 
 	std::cout << Logger::DisplayDate << TM_PREFIX << action << ": New logger session" << std::endl;
 	std::cerr << Logger::DisplayDate << TM_PREFIX << action << ": New logger session" << std::endl;
+
 	/**
 	 * Initialisation du mutex pour éviter les conflits d'affichage
 	 */
@@ -80,7 +81,6 @@ bool	Logger::aquireMutex(void)
 {
 	if (!Logger::_initiated)
 	{
-		// throw std::runtime_error("Logger should be initiated before use (Logger::init)");
 		Logger::init(TM_PROJECT);
 	}
 	return (pthread_mutex_lock(&Logger::_loggerMutex) == 0);
