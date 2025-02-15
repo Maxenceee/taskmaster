@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/11 17:44:26 by mgama            ###   ########.fr       */
+/*   Updated: 2025/02/14 12:03:32 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,7 +146,7 @@ start_main_loop(char* const* argv, char* const* envp)
 
 	if (!master.allStopped())
 	{
-		Logger::info("Child did not stop within 10s, sending SIGKILL");
+		Logger::info("StopSignal SIGTERM failed to stop child in 10 seconds, resorting to SIGKILL");
 		master.kill();
 	}
 
