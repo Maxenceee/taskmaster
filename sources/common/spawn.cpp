@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:15:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/31 16:21:58 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/09 18:57:14 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 	}
 
 	posix_spawnattr_t attr;
-    posix_spawnattr_init(&attr);
+	posix_spawnattr_init(&attr);
 
 	sigset_t signal_set;
 	sigemptyset(&signal_set);
