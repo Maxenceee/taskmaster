@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:56 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/12 11:46:28 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/16 19:36:21 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,8 +58,16 @@ void	Logger::init(const char *action)
 	if (Logger::_initiated)
 		return ;
 
+#ifndef TM_DISABLE_SYSLOG
+	openlog(TM_PROJECT, LOG_PID | LOG_CONS, LOG_DAEMON);
+#endif
+
 	std::cout << Logger::DisplayDate << TM_PREFIX << action << ": New logger session" << std::endl;
 	std::cerr << Logger::DisplayDate << TM_PREFIX << action << ": New logger session" << std::endl;
+
+#ifndef TM_DISABLE_SYSLOG
+	syslog(LOG_INFO, "%s: New logger session", action);
+#endif
 
 	/**
 	 * Initialisation du mutex pour éviter les conflits d'affichage
@@ -73,6 +81,10 @@ void	Logger::destroy(void)
 {
 	if (!Logger::_initiated)
 		return ;
+
+#ifndef TM_DISABLE_SYSLOG
+	closelog();
+#endif
 
 	(void)pthread_mutex_destroy(&Logger::_loggerMutex);
 }
@@ -124,6 +136,9 @@ void	Logger::print(const char *msg, const char *color)
 {
 	(void)Logger::aquireMutex();
 	std::cout << Logger::DisplayDate << Logger::Color(color) << msg << Logger::DisplayReset << std::endl;
+#ifndef TM_DISABLE_SYSLOG
+	syslog(LOG_INFO, "%s", msg);
+#endif
 	(void)Logger::releaseMutex();
 }
 
@@ -136,6 +151,9 @@ void	Logger::info(const char *msg)
 {
 	(void)Logger::aquireMutex();
 	std::cout << Logger::DisplayDate << Logger::Color(YELLOW) << TM_PREFIX << msg << Logger::DisplayReset << std::endl;
+#ifndef TM_DISABLE_SYSLOG
+	syslog(LOG_INFO, "%s", msg);
+#endif
 	(void)Logger::releaseMutex();
 }
 
@@ -148,6 +166,9 @@ void	Logger::warning(const char *msg)
 {
 	(void)Logger::aquireMutex();
 	std::cerr << Logger::DisplayDate << Logger::Color(B_ORANGE) << TM_PREFIX << msg << Logger::DisplayReset << std::endl;
+#ifndef TM_DISABLE_SYSLOG
+	syslog(LOG_WARNING, "%s", msg);
+#endif
 	(void)Logger::releaseMutex();
 }
 
@@ -160,6 +181,9 @@ void	Logger::error(const char *msg)
 {
 	(void)Logger::aquireMutex();
 	std::cerr << Logger::DisplayDate << Logger::Color(B_RED) << TM_PREFIX << msg << Logger::DisplayReset << std::endl;
+#ifndef TM_DISABLE_SYSLOG
+	syslog(LOG_ERR, "%s", msg);
+#endif
 	(void)Logger::releaseMutex();
 }
 
@@ -172,6 +196,9 @@ void	Logger::perror(const char *msg)
 {
 	(void)Logger::aquireMutex();
 	std::cerr << Logger::DisplayDate << Logger::Color(B_RED) << TM_PREFIX << msg << ": " << strerror(errno) << Logger::DisplayReset << std::endl;
+#ifndef TM_DISABLE_SYSLOG
+	syslog(LOG_ERR, "%s: %s", msg, strerror(errno));
+#endif
 	(void)Logger::releaseMutex();
 }
 
@@ -184,6 +211,9 @@ void	Logger::pherror(const char *msg)
 {
 	(void)Logger::aquireMutex();
 	std::cerr << Logger::DisplayDate << Logger::Color(B_RED) << TM_PREFIX << msg << ": " << hstrerror(h_errno) << Logger::DisplayReset << std::endl;
+#ifndef TM_DISABLE_SYSLOG
+	syslog(LOG_ERR, "%s: %s", msg, hstrerror(h_errno));
+#endif
 	(void)Logger::releaseMutex();
 }
 
@@ -199,6 +229,9 @@ void	Logger::debug(const char *msg, const char *color)
 
 	(void)Logger::aquireMutex();
 	std::cout << Logger::DisplayDate << Logger::Color(color) << msg << Logger::DisplayReset << std::endl;
+#ifndef TM_DISABLE_SYSLOG
+	syslog(LOG_DEBUG, "%s", msg);
+#endif
 	(void)Logger::releaseMutex();
 }
 

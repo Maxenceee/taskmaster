@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 23:24:24 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/06 19:07:56 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/16 19:22:33 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 #include <spawn.h>
 #include <signal.h>
 #include <errno.h>
+#include <syslog.h>
 
 // Sys
 #include <sys/socket.h>
