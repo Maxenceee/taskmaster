@@ -6,11 +6,12 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:15:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/16 18:37:58 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/16 19:54:21 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "tm.hpp"
+#include "logger/Logger.hpp"
 
 int
 spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, int stderr_fd, int pgid)
@@ -53,7 +54,7 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 	posix_spawnattr_setflags(&attr, POSIX_SPAWN_SETSIGMASK);
 	if (posix_spawnattr_setsigmask(&attr, &signal_set) != 0)
 	{
-		perror("posix_spawnattr_setsigmask failed");
+		Logger::perror("posix_spawnattr_setsigmask failed");
 		posix_spawn_file_actions_destroy(&actions);
 		posix_spawnattr_destroy(&attr);
 		return (-1);
@@ -62,7 +63,7 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 	posix_spawnattr_setflags(&attr, POSIX_SPAWN_SETPGROUP);
 	if (posix_spawnattr_setpgroup(&attr, pgid) != 0)
 	{
-		perror("posix_spawnattr_setpgroup failed");
+		Logger::perror("posix_spawnattr_setpgroup failed");
 		posix_spawn_file_actions_destroy(&actions);
 		posix_spawnattr_destroy(&attr);
 		return (-1);
@@ -71,7 +72,7 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 	// Spawn the child process
 	if (posix_spawn(&pid, argv[0], &actions, &attr, argv, envp) != 0)
 	{
-		perror("posix_spawn failed");
+		Logger::perror("posix_spawn failed");
 		posix_spawn_file_actions_destroy(&actions);
 		posix_spawnattr_destroy(&attr);
 		return (-1);
@@ -83,12 +84,15 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 #else
 
 	if ((pid = fork()) < 0) {
-		perror("fork");
+		Logger::perror("fork");
 		return (-1);
 	}
 
 	if (pid == 0) {
 		// In child process
+
+		// In the child process, we use perror instead of Logger::perror
+		// because the logger can't handle subprocesses
 
 		// Redirect stdin
 		if (stdin_fd != -1) {
