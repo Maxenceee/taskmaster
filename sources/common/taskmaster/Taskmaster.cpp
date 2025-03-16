@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/11 17:48:42 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/16 18:43:14 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ Taskmaster::addChild(char* const* exec)
 		.auto_restart = true
 	};
 
-	Process* new_child = new Process(exec, -1, std_out_fd, -1, config);
+	Process* new_child = new Process(exec, this->pid, -1, std_out_fd, -1, config);
 
 	this->_processes.push_back(new_child);
 	return (TM_SUCCESS);

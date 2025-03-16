@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/16 10:33:34 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/16 18:46:20 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,11 @@
 #include "utils/utils.hpp"
 #include "logger/Logger.hpp"
 
-Process::Process(char* const* exec, int std_in_fd, int std_out_fd, int std_err_fd, tm_process_config &config)
+Process::Process(char* const* exec, pid_t ppid, int std_in_fd, int std_out_fd, int std_err_fd, tm_process_config &config)
 {
 	this->pid = -1;
+	this->ppid = ppid;
+	this->pgid = 0;
 	this->_wpstatus = 0;
 	this->_signal = 0;
 	this->_exit_code = 0;
@@ -58,7 +60,7 @@ Process::spawn(char* const* envp)
 	}
 
 	this->_state = TM_P_STARTING;
-	if ((this->pid = spawn_child(this->exec, envp, this->std_in_fd, this->std_out_fd, this->std_err_fd)) == -1)
+	if ((this->pid = spawn_child(this->exec, envp, this->std_in_fd, this->std_out_fd, this->std_err_fd, this->pgid)) == -1)
 	{
 		Logger::perror("could not spawn child");
 		return (TM_FAILURE);

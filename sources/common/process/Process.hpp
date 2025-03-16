@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/11 18:17:43 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/16 18:46:26 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,8 @@ class Process
 {
 private:
 	pid_t	pid;
+	pid_t	ppid;
+	pid_t	pgid;
 	int		_wpstatus;
 	int		_signal;
 	int		_exit_code;
@@ -60,7 +62,7 @@ private:
 	char* const*	exec;
 
 public:
-	Process(char* const* exec, int std_in_fd, int std_out_fd, int std_err_fd, tm_process_config &config);
+	Process(char* const* exec, pid_t ppid, int std_in_fd, int std_out_fd, int std_err_fd, tm_process_config &config);
 	~Process(void);
 
 	int		spawn(char* const* envp);

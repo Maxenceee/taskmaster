@@ -6,14 +6,14 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:15:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/16 18:30:27 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/16 18:37:58 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "tm.hpp"
 
 int
-spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, int stderr_fd)
+spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, int stderr_fd, int pgid)
 {
 	pid_t pid;
 
@@ -60,7 +60,7 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 	}
 
 	posix_spawnattr_setflags(&attr, POSIX_SPAWN_SETPGROUP);
-	if (posix_spawnattr_setpgroup(&attr, 0) != 0)
+	if (posix_spawnattr_setpgroup(&attr, pgid) != 0)
 	{
 		perror("posix_spawnattr_setpgroup failed");
 		posix_spawn_file_actions_destroy(&actions);
@@ -123,7 +123,7 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 		signal(SIGTERM, SIG_DFL);
 		signal(SIGPIPE, SIG_DFL);
 
-		if (setpgid(0, 0) == -1) {
+		if (setpgid(0, pgid) == -1) {
 			perror("setpgid");
 			exit(TM_FAILURE);
 		}
