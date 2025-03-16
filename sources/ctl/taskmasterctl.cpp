@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/04 22:35:18 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/16 20:09:15 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,7 +177,7 @@ read_message(int sockfd)
 	ssize_t n = recv(sockfd, buffer, sizeof(buffer) - 1, 0);
 	if (n < 0) {
 		Logger::perror("recv failed");
-		close(sockfd);
+		(void)close(sockfd);
 		return (-1);
 	}
 	buffer[n] = '\0';
@@ -198,13 +198,13 @@ connect_server(const std::string& unix_path)
 
 	const auto socket_path = resolve_path(unix_path, "unix://");
 
-	memset(&servaddr, 0, sizeof(servaddr));
+	(void)memset(&servaddr, 0, sizeof(servaddr));
 	servaddr.sun_family = AF_UNIX;
-	strncpy(servaddr.sun_path, socket_path.c_str(), sizeof(servaddr.sun_path) - 1);
+	(void)strncpy(servaddr.sun_path, socket_path.c_str(), sizeof(servaddr.sun_path) - 1);
 
 	if (connect(sockfd, (struct sockaddr*)&servaddr, sizeof(servaddr)) < 0) {
 		std::cout << "Cannot connect to the Taskmaster daemon at " << unix_path << ". Is the daemon running?" << std::endl;
-		close(sockfd);
+		(void)close(sockfd);
 		return (-1);
 	}
 
@@ -234,8 +234,13 @@ attach_readline()
 		}
 		auto input = rl_in.value();
 
+		(void)trim(input);
+
+		if (input.empty()) {
+			continue;
+		}
+
 		tm_rl_add_history(input);
-		trim(input);
 		if (input == "exit") {
 			break;
 		}
@@ -251,10 +256,6 @@ attach_readline()
 			} else {
 				show_help();
 			}
-			continue;
-		}
-
-		if (input.empty()) {
 			continue;
 		}
 
