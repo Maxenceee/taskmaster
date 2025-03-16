@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:15:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/09 18:57:14 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/16 10:34:12 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 	pid_t pid;
 
 #ifndef TM_SPAWN_CHILD_USE_FORK
-// #if 1
+// #if 0
 
 	posix_spawn_file_actions_t actions;
 	posix_spawn_file_actions_init(&actions);

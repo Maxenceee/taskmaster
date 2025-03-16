@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/11 18:22:02 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/16 10:33:34 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ Process::spawn(char* const* envp)
 int
 Process::stop(void)
 {
-	if (this->_signal == TM_P_STOPPED || this->_state == TM_P_STOPPING || this->_state == TM_P_EXITED || this->pid == -1)
+	if (this->_signal > 0 || this->_state == TM_P_STOPPING || this->_state == TM_P_EXITED || this->pid == -1)
 	{
 		return (TM_SUCCESS);
 	}
@@ -87,11 +87,12 @@ Process::stop(void)
 int
 Process::kill(void)
 {
-	if (this->_signal == TM_P_STOPPED || this->_state == TM_P_EXITED || this->pid == -1)
+	if (this->_signal > 0 || this->_state == TM_P_EXITED || this->pid == -1)
 	{
 		return (TM_SUCCESS);
 	}
 
+	std::cout << "Killing child " << this->pid << std::endl;
 	return (::kill(this->pid, SIGKILL));
 }
 
