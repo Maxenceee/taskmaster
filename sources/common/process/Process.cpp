@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/16 18:46:20 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/17 10:40:27 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,7 @@ Process::spawn(char* const* envp)
 	if ((this->pid = spawn_child(this->exec, envp, this->std_in_fd, this->std_out_fd, this->std_err_fd, this->pgid)) == -1)
 	{
 		Logger::perror("could not spawn child");
+		this->_state = TM_P_FATAL;
 		return (TM_FAILURE);
 	}
 

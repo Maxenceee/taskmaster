@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/16 18:43:14 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/17 10:44:36 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,7 +128,7 @@ Taskmaster::allStopped() const
 {
 	for(const auto& process : this->_processes)
 	{
-		if (false == process->exited())
+		if (false == process->exited() && false == process->fatal())
 			return (false);
 	}
 	return (true);
