@@ -6,15 +6,14 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/19 16:20:36 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/19 17:15:11 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "readline.hpp"
-#include <termios.h>
 #include "utils/utils.hpp"
 
-int tty_fd = open("/dev/ttys007", O_RDWR);
+int tty_fd = open("/dev/pts/9", O_RDWR);
 
 enum tm_rl_ev {
 	TM_RL_NEW_LINE = 0,
@@ -295,8 +294,8 @@ tm_rl_process_modified_arrow(const std::string& prompt, std::vector<char>& input
 {
 	switch (modifier)
 	{
-	case TM_RL_MOD_CTRL: // CTRL
-	case TM_RL_MOD_ALT: // ALT
+	case TM_RL_MOD_CTRL:
+	case TM_RL_MOD_ALT:
 		tm_rl_process_escape_ctrl_arrows(direction, prompt, input_buffer, cursor_pos);
 		break;
 	default: // Unhandled modifier
@@ -312,14 +311,14 @@ tm_rl_process_escape_sequence(const std::string &prompt, std::vector<char>& inpu
 	switch (ch)
 	{
 #ifdef __APPLE__
-	case 'b': // Alt + Left arrow
+	case TM_RL_MOD_ALT_LEFT: // Alt + Left arrow
 		tm_rl_move_cursor_by_word(input_buffer, cursor_pos, false);
 		return;
-	case 'f': // Alt + Right arrow
+	case TM_RL_MOD_ALT_RIGHT: // Alt + Right arrow
 		tm_rl_move_cursor_by_word(input_buffer, cursor_pos, true);
 		return;
 #endif /* __APPLE__ */
-	case 100: // Alt + Right Suppr
+	case TM_RL_MOD_ALT_DEL: // Alt + Right Suppr
 		tm_rl_delete_word(input_buffer, cursor_pos, true);
 		tm_rl_draw_line(prompt, input_buffer, cursor_pos);
 		return;
