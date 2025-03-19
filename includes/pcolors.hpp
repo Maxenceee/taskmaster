@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/03 16:09:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/04 10:39:29 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/19 16:21:24 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,16 +100,6 @@
 # define U_CYAN		"\033[4;36m"
 # define U_GREY		"\033[4;90m"
 # define U_PURPLE	"\x1b[4;38;5;92m"
-
-/*
- *	-- Misc
- */
-
-# define NL		"\n"
-# define TAB	"\t"
-# define DTAB	"\t\t"
-# define TTAB	"\t\t\t"
-# define QTAB	"\t\t\t\t"
 
 /*
  * Hacker

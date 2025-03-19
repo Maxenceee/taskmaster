@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/03 11:05:18 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/19 16:20:36 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,10 +46,10 @@ tm_rl_getch()
 static void
 tm_rl_draw_line(const std::string &prompt, const std::vector<char>& input_buffer, int cursor_pos)
 {
-	std::cout << "\033[2K";  // Effacer la ligne actuelle
-	std::cout << "\033[0G";  // Déplacer le curseur au début de la ligne
+	std::cout << TM_RL_ER_LINE;  // Effacer la ligne actuelle
+	std::cout << TM_RL_MV_CURSOR_COL("0");  // Déplacer le curseur au début de la ligne
 
-dprintf(tty_fd, "c: %zu, %d, %zu, (%s)\n", prompt.size(), cursor_pos, prompt.size() + 1 + cursor_pos, std::string(input_buffer.begin(), input_buffer.end()).c_str());
+(void)dprintf(tty_fd, "c: %zu, %d, %zu, (%s)\n", prompt.size(), cursor_pos, prompt.size() + 1 + cursor_pos, std::string(input_buffer.begin(), input_buffer.end()).c_str());
 
 	// Afficher le prompt
 	std::cout << prompt;
@@ -61,7 +61,7 @@ dprintf(tty_fd, "c: %zu, %d, %zu, (%s)\n", prompt.size(), cursor_pos, prompt.siz
 	}
 
 	// Déplacer le curseur à la position actuelle
-	std::cout << "\033[" << prompt.size() + 1 + cursor_pos << "G";
+	std::cout << TM_RL_ESC_SEQ TM_RL_CTRL_SEQ << prompt.size() + 1 + cursor_pos << "G";
 }
 
 static void
@@ -83,7 +83,7 @@ tm_rl_process_autocomplete(const std::string &prompt, std::vector<char>& input_b
 		return;
 
 	std::string input(input_buffer.begin(), input_buffer.end());
-dprintf(tty_fd, "input_buffer: %s\n", input.c_str());
+(void)dprintf(tty_fd, "input_buffer: %s\n", input.c_str());
 
 	// Récupérer les suggestions d'autocomplétion
 	std::vector<std::string> suggestions = global_autocomplete_handler(input, cursor_pos);
@@ -93,10 +93,10 @@ dprintf(tty_fd, "input_buffer: %s\n", input.c_str());
 
 	if (suggestions.size() == 1)
 	{
-		size_t start_of_token = input.rfind(' ', cursor_pos > 0 ? cursor_pos - 1 : 0);
+		size_t start_of_token = input.rfind(TM_RL_CH_SPACE, cursor_pos > 0 ? cursor_pos - 1 : 0);
 		start_of_token = (start_of_token == std::string::npos) ? 0 : start_of_token + 1;
 
-		size_t end_of_token = input.find(' ', cursor_pos);
+		size_t end_of_token = input.find(TM_RL_CH_SPACE, cursor_pos);
 		end_of_token = (end_of_token == std::string::npos) ? input.size() : end_of_token;
 
 		// Extraire les parties avant, après et le token actif
@@ -107,9 +107,9 @@ dprintf(tty_fd, "input_buffer: %s\n", input.c_str());
 		// Construire la ligne complétée
 		const std::string& suggestion = suggestions[0];
 		std::string completed = prefix + suggestion;
-		if (cursor_pos == end_of_token && (end_of_token >= input.size() || input[end_of_token] != ' ')) // Ajouter un espace si le curseur est à la fin du token
+		if (cursor_pos == end_of_token && (end_of_token >= input.size() || input[end_of_token] != TM_RL_CH_SPACE)) // Ajouter un espace si le curseur est à la fin du token
 		{
-			completed += ' ';
+			completed += TM_RL_CH_SPACE;
 		}
 		completed += suffix;
 
@@ -122,12 +122,12 @@ dprintf(tty_fd, "input_buffer: %s\n", input.c_str());
 	else
 	{
 		// Afficher les suggestions
-		std::cout << "\n";
+		std::cout << TM_RL_CH_NL;
 		for (const auto& suggestion : suggestions)
 		{
-			std::cout << suggestion << " ";
+			std::cout << suggestion << TM_RL_CH_SPACE;
 		}
-		std::cout << "\n";
+		std::cout << TM_RL_CH_NL;
 
 		// Réafficher la ligne actuelle
 		tm_rl_draw_line(prompt, input_buffer, cursor_pos);
@@ -160,7 +160,7 @@ tm_rl_right_suppr(const std::string &prompt, std::vector<char>& input_buffer, si
 static void
 tm_rl_add_char(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos, char ch)
 {
-	if (ch < 32 || ch > 126)
+	if (ch < TM_RL_MIN_CHAR || ch > TM_RL_MAX_CHAR)
 	{
 		return;
 	}
@@ -175,31 +175,31 @@ tm_rl_move_cursor_by_word(const std::vector<char>& input_buffer, size_t& cursor_
 	if (forward)
 	{
 		// Skip any spaces first
-		while (cursor_pos < input_buffer.size() && input_buffer[cursor_pos] == ' ')
+		while (cursor_pos < input_buffer.size() && input_buffer[cursor_pos] == TM_RL_CH_SPACE)
 		{
 			cursor_pos++;
-			std::cout << "\033[C";
+			std::cout << TM_RL_MV_CURSOR_RIGHT;
 		}
 		// Then move to the end of the word
-		while (cursor_pos < input_buffer.size() && input_buffer[cursor_pos] != ' ')
+		while (cursor_pos < input_buffer.size() && input_buffer[cursor_pos] != TM_RL_CH_SPACE)
 		{
 			cursor_pos++;
-			std::cout << "\033[C";
+			std::cout << TM_RL_MV_CURSOR_RIGHT;
 		}
 	}
 	else 
 	{
 		// Skip any spaces first
-		while (cursor_pos > 0 && input_buffer[cursor_pos - 1] == ' ')
+		while (cursor_pos > 0 && input_buffer[cursor_pos - 1] == TM_RL_CH_SPACE)
 		{
 			cursor_pos--;
-			std::cout << "\033[D";
+			std::cout << TM_RL_MV_CURSOR_LEFT;
 		}
 		// Then move to the beginning of the word
-		while (cursor_pos > 0 && input_buffer[cursor_pos - 1] != ' ')
+		while (cursor_pos > 0 && input_buffer[cursor_pos - 1] != TM_RL_CH_SPACE)
 		{
 			cursor_pos--;
-			std::cout << "\033[D";
+			std::cout << TM_RL_MV_CURSOR_LEFT;
 		}
 	}
 }
@@ -210,12 +210,12 @@ tm_rl_delete_word(std::vector<char>& input_buffer, size_t& cursor_pos, bool forw
 	if (forward) 
 	{
 		// Skip any spaces first
-		while (cursor_pos < input_buffer.size() && input_buffer[cursor_pos] == ' ')
+		while (cursor_pos < input_buffer.size() && input_buffer[cursor_pos] == TM_RL_CH_SPACE)
 		{
 			input_buffer.erase(input_buffer.begin() + cursor_pos);
 		}
 		// Then delete the word
-		while (cursor_pos < input_buffer.size() && input_buffer[cursor_pos] != ' ')
+		while (cursor_pos < input_buffer.size() && input_buffer[cursor_pos] != TM_RL_CH_SPACE)
 		{
 			input_buffer.erase(input_buffer.begin() + cursor_pos);
 		}
@@ -223,13 +223,13 @@ tm_rl_delete_word(std::vector<char>& input_buffer, size_t& cursor_pos, bool forw
 	else
 	{
 		// Skip any spaces first
-		while (cursor_pos > 0 && input_buffer[cursor_pos - 1] == ' ')
+		while (cursor_pos > 0 && input_buffer[cursor_pos - 1] == TM_RL_CH_SPACE)
 		{
 			input_buffer.erase(input_buffer.begin() + cursor_pos - 1);
 			cursor_pos--;
 		}
 		// Then delete the word
-		while (cursor_pos > 0 && input_buffer[cursor_pos - 1] != ' ')
+		while (cursor_pos > 0 && input_buffer[cursor_pos - 1] != TM_RL_CH_SPACE)
 		{
 			input_buffer.erase(input_buffer.begin() + cursor_pos - 1);
 			cursor_pos--;
@@ -242,14 +242,14 @@ tm_rl_process_escape_basic_arrows(const char ch, const std::string &prompt, std:
 {
 	switch (ch)
 	{
-	case 'A': // Up arrow
+	case TM_RL_ARROW_UP: // Up arrow
 		global_history_index = std::min(global_history_index + 1, global_history.size());
-dprintf(tty_fd, "global_history_index: %zu\n", global_history_index);
+(void)dprintf(tty_fd, "global_history_index: %zu\n", global_history_index);
 		tm_rl_draw_from_history(prompt, input_buffer, cursor_pos);
 		break;
-	case 'B': // Down arrow
+	case TM_RL_ARROW_DOWN: // Down arrow
 		global_history_index = global_history_index > 0 ? global_history_index - 1 : 0;
-dprintf(tty_fd, "global_history_index: %zu\n", global_history_index);
+(void)dprintf(tty_fd, "global_history_index: %zu\n", global_history_index);
 		if (global_history_index == 0)
 		{
 			input_buffer.clear();
@@ -259,18 +259,18 @@ dprintf(tty_fd, "global_history_index: %zu\n", global_history_index);
 		}
 		tm_rl_draw_from_history(prompt, input_buffer, cursor_pos);
 		break;
-	case 'C': // Right arrow
+	case TM_RL_ARROW_RIGHT: // Right arrow
 		if (cursor_pos < input_buffer.size())
 		{
 			cursor_pos++;
-			std::cout << "\033[C";  // Déplacer le curseur à droite
+			std::cout << TM_RL_MV_CURSOR_RIGHT;
 		}
 		break;
-	case 'D': // Left arrow
+	case TM_RL_ARROW_LEFT: // Left arrow
 		if (cursor_pos > 0)
 		{
 			cursor_pos--;
-			std::cout << "\033[D";  // Déplacer le curseur à gauche
+			std::cout << TM_RL_MV_CURSOR_LEFT;
 		}
 		break;
 	}
@@ -281,10 +281,10 @@ tm_rl_process_escape_ctrl_arrows(const char ch, const std::string &prompt, std::
 {
 	switch (ch)
 	{
-	case 'C': // Right arrow
+	case TM_RL_ARROW_RIGHT: // Right arrow
 		tm_rl_move_cursor_by_word(input_buffer, cursor_pos, true);
 		break;
-	case 'D': // Left arrow
+	case TM_RL_ARROW_LEFT: // Left arrow
 		tm_rl_move_cursor_by_word(input_buffer, cursor_pos, false);
 		break;
 	}
@@ -295,8 +295,8 @@ tm_rl_process_modified_arrow(const std::string& prompt, std::vector<char>& input
 {
 	switch (modifier)
 	{
-	case '5': // CTRL
-	case '3': // ALT
+	case TM_RL_MOD_CTRL: // CTRL
+	case TM_RL_MOD_ALT: // ALT
 		tm_rl_process_escape_ctrl_arrows(direction, prompt, input_buffer, cursor_pos);
 		break;
 	default: // Unhandled modifier
@@ -308,7 +308,7 @@ static void
 tm_rl_process_escape_sequence(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos)
 {
 	char ch = tm_rl_getch();
-dprintf(tty_fd, "es ch: %c\n", ch);
+(void)dprintf(tty_fd, "es ch: %c\n", ch);
 	switch (ch)
 	{
 #ifdef __APPLE__
@@ -323,7 +323,7 @@ dprintf(tty_fd, "es ch: %c\n", ch);
 		tm_rl_delete_word(input_buffer, cursor_pos, true);
 		tm_rl_draw_line(prompt, input_buffer, cursor_pos);
 		return;
-	case '[':
+	case TM_RL_ESC_DELIM:
 		// If escape sequence break out of the statement
 		break;
 	default:
@@ -331,21 +331,21 @@ dprintf(tty_fd, "es ch: %c\n", ch);
 	}
 
 	ch = tm_rl_getch();
-dprintf(tty_fd, "es m ch: %c\n", ch);
+(void)dprintf(tty_fd, "es m ch: %c\n", ch);
 
 	// Check if the character is a modifier
 	switch (ch)
 	{
-	case '1': // Extended arrow sequence
-		if (tm_rl_getch() == ';')
+	case TM_RL_MOD_EXT: // Extended arrow sequence
+		if (tm_rl_getch() == TM_RL_ESC_SEP)
 		{
 			char mod = tm_rl_getch();
 			char direction = tm_rl_getch();
 			tm_rl_process_modified_arrow(prompt, input_buffer, cursor_pos, mod, direction);
 		}
 		break;
-	case '3': // Alt/Cmd + Right Suppr
-		if (tm_rl_getch() == ';')
+	case TM_RL_MOD_ALT: // Alt/Cmd + Right Suppr
+		if (tm_rl_getch() == TM_RL_ESC_SEP)
 		{
 			tm_rl_getch(); // Get modifier
 			tm_rl_getch(); // Get ~
@@ -366,50 +366,50 @@ static int
 tm_rl_process_input(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos)
 {
 	char ch = tm_rl_getch();
-dprintf(tty_fd, "ch: %d\n", ch);
+(void)dprintf(tty_fd, "ch: %d\n", ch);
 
 	switch (ch)
 	{
-	case 4: // Ctrl + D
+	case TM_RL_CH_EOT: // Ctrl + D
 		if (input_buffer.empty())
 		{
-			std::cout << "^D" << std::endl;
+			std::cout << TM_RL_EOF_SEQ << std::endl;
 			return TM_RL_EOF;
 		}
 		break;
-	case 1: // Ctrl + A
+	case TM_RL_ESC_CTRL_A: // Ctrl + A
 		cursor_pos = 0;
 		tm_rl_draw_line(prompt, input_buffer, cursor_pos);
 		break;
-	case 5: // Ctrl + E
+	case TM_RL_ESC_CTRL_E: // Ctrl + E
 		cursor_pos = input_buffer.size();
 		tm_rl_draw_line(prompt, input_buffer, cursor_pos);
 		break;
-	case 21: // Ctrl + U
+	case TM_RL_ESC_CTRL_U: // Ctrl + U
 		input_buffer.clear();
 		cursor_pos = 0;
 		tm_rl_draw_line(prompt, input_buffer, cursor_pos);
 		break;
-	case 23: // Ctrl + W
+	case TM_RL_ESC_CTRL_W: // Ctrl + W
 		tm_rl_delete_word(input_buffer, cursor_pos, false);
 		tm_rl_draw_line(prompt, input_buffer, cursor_pos);
 		break;
-	case 27: // Escape sequence
+	case TM_RL_CH_ESC: // Escape sequence
 		tm_rl_process_escape_sequence(prompt, input_buffer, cursor_pos);
 		break;
-	case 8: // Backspace
-	case 127: // Delete
+	case TM_RL_CH_BS: // Backspace
+	case TM_RL_CH_DEL: // Delete
 		tm_rl_left_suppr(prompt, input_buffer, cursor_pos);
 		break;
-	case '\r':
+	case TM_RL_CH_CR:
 		cursor_pos = 0;
 		break;
-	case 3:
-	case '\n':
+	case TM_RL_CH_ETX:
+	case TM_RL_CH_NL:
 		std::cout << std::endl;
 		global_history_index = 0;
 		return TM_RL_NEW_LINE;
-	case '\t':
+	case TM_RL_CH_HT:
 		tm_rl_process_autocomplete(prompt, input_buffer, cursor_pos);
 		break;
 	default:
@@ -420,7 +420,7 @@ dprintf(tty_fd, "ch: %d\n", ch);
 }
 
 /**
- * @brief Read a line from the terminal
+ * @brief Read a line from the terminal.
  * 
  * @param prompt A string to display as the prompt
  * @return An optional string that should be checked before use (std::nullopt if EOF)
@@ -448,7 +448,7 @@ tm_readline(const std::string& prompt)
 }
 
 /**
- * @brief Add a line to the history
+ * @brief Add a line to the history.
  * 
  * @param line The line to add
  */
@@ -466,12 +466,12 @@ tm_rl_add_history(const std::string& line)
 	}
 
 	global_history.push_front(line);
-dprintf(tty_fd, "global_history: %zu\n", global_history.size());
+(void)dprintf(tty_fd, "global_history: %zu\n", global_history.size());
 	global_history_index = 0;
 }
 
 /**
- * @brief Clear the history
+ * @brief Clear the history.
  * 
  */
 void
@@ -482,7 +482,7 @@ tm_rl_clear_history(void)
 }
 
 /**
- * @brief Display a new entry line
+ * @brief Display a new entry line.
  * 
  */
 void
@@ -500,13 +500,15 @@ tm_rl_new_line()
 }
 
 /**
- * @brief Add an autocomplete handler
+ * @brief Add an autocomplete handler.
+ * 
+ * If a handler is already set, it will be replaced.
  * 
  * @param handler The handler to add
  */
 void
 tm_rl_add_autocomplete_handler(tm_rl_autocomple_handler_t handler)
 {
-dprintf(tty_fd, "add handler %p\n", handler);
+(void)dprintf(tty_fd, "add handler %p\n", handler);
 	global_autocomplete_handler = handler;
 }
