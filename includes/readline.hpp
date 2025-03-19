@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:08:18 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/19 16:20:23 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/19 16:33:13 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,15 +15,39 @@
 
 #include "tm.hpp"
 
-#define TM_RL_CH_ETX		'\x03'
-#define TM_RL_CH_EOT		'\x04'
-#define TM_RL_CH_BEL		'\a'
-#define TM_RL_CH_BS			'\b'
-#define TM_RL_CH_HT			'\t'
-#define TM_RL_CH_NL			'\n'
-#define TM_RL_CH_CR			'\r'
-#define TM_RL_CH_ESC		'\e'
-#define TM_RL_CH_SPACE		' '
+#define TM_RL_CH_NUL		0
+#define TM_RL_CH_SOH		1
+#define TM_RL_CH_STX		2
+#define TM_RL_CH_ETX		3
+#define TM_RL_CH_EOT		4
+#define TM_RL_CH_ENQ		5
+#define TM_RL_CH_ACK		6
+#define TM_RL_CH_BEL		7
+#define TM_RL_CH_BS			8
+#define TM_RL_CH_HT			9
+#define TM_RL_CH_NL			10
+#define TM_RL_CH_VT			11
+#define TM_RL_CH_FF			12
+#define TM_RL_CH_CR			13
+#define TM_RL_CH_SO			14
+#define TM_RL_CH_SI			15
+#define TM_RL_CH_DLE		16
+#define TM_RL_CH_DC1		17
+#define TM_RL_CH_DC2		18
+#define TM_RL_CH_DC3		19
+#define TM_RL_CH_DC4		20
+#define TM_RL_CH_NAK		21
+#define TM_RL_CH_SYN		22
+#define TM_RL_CH_ETB		23
+#define TM_RL_CH_CAN		24
+#define TM_RL_CH_EM			25
+#define TM_RL_CH_SUB		26
+#define TM_RL_CH_ESC		27
+#define TM_RL_CH_FS			28
+#define TM_RL_CH_GS			29
+#define TM_RL_CH_RS			30
+#define TM_RL_CH_US			31
+#define TM_RL_CH_SPACE		32
 #define TM_RL_CH_DEL		127
 
 #define TM_RL_ESC_SEP		';'
@@ -34,10 +58,10 @@
 #define TM_RL_MOD_ALT		'3'
 #define TM_RL_MOD_CTRL		'5'
 
-#define TM_RL_ESC_CTRL_A	1
-#define TM_RL_ESC_CTRL_E	5
-#define TM_RL_ESC_CTRL_U	21
-#define TM_RL_ESC_CTRL_W	23
+#define TM_RL_ESC_CTRL_A	TM_RL_CH_SOH
+#define TM_RL_ESC_CTRL_E	TM_RL_CH_ENQ
+#define TM_RL_ESC_CTRL_U	TM_RL_CH_NAK
+#define TM_RL_ESC_CTRL_W	TM_RL_CH_ETB
 
 #define TM_RL_ARROW_UP		'A'
 #define TM_RL_ARROW_DOWN	'B'
