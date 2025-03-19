@@ -9,3 +9,4 @@ super.conf
 *.log
 *.lock
 *.pid
+bin/stayaliveprocess
