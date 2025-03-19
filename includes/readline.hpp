@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:08:18 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/19 16:33:13 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/19 17:15:16 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define READLINE_HPP
 
 #include "tm.hpp"
+#include <termios.h>
 
 #define TM_RL_CH_NUL		0
 #define TM_RL_CH_SOH		1
@@ -50,6 +51,9 @@
 #define TM_RL_CH_SPACE		32
 #define TM_RL_CH_DEL		127
 
+#define TM_RL_MIN_CHAR		32
+#define TM_RL_MAX_CHAR		126
+
 #define TM_RL_ESC_SEP		';'
 #define TM_RL_ESC_DELIM		'['
 
@@ -57,6 +61,12 @@
 #define TM_RL_MOD_SHIFT		'2'
 #define TM_RL_MOD_ALT		'3'
 #define TM_RL_MOD_CTRL		'5'
+
+#ifdef __APPLE__
+#define TM_RL_MOD_ALT_LEFT		'b'
+#define TM_RL_MOD_ALT_RIGHT		'f'
+#endif /* __APPLE__ */
+#define TM_RL_MOD_ALT_DEL		100
 
 #define TM_RL_ESC_CTRL_A	TM_RL_CH_SOH
 #define TM_RL_ESC_CTRL_E	TM_RL_CH_ENQ
@@ -67,9 +77,6 @@
 #define TM_RL_ARROW_DOWN	'B'
 #define TM_RL_ARROW_RIGHT	'C'
 #define TM_RL_ARROW_LEFT	'D'
-
-#define TM_RL_MIN_CHAR		32
-#define TM_RL_MAX_CHAR		126
 
 #define TM_RL_ESC_SEQ		"\033"
 #define TM_RL_CTRL_SEQ		"["
