@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:08:18 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/19 17:15:16 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/19 18:15:30 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define READLINE_HPP
 
 #include "tm.hpp"
+#include <sys/ioctl.h>
 #include <termios.h>
 
 #define TM_RL_CH_NUL		0
