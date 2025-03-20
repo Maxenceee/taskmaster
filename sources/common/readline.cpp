@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/20 11:41:15 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/20 12:20:01 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,6 +116,29 @@ tm_rl_draw_from_history(const std::string &prompt, std::vector<char>& input_buff
 }
 
 static void
+tm_rl_draw_previous_history(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos)
+{
+	global_history_index = std::min(global_history_index + 1, global_history.size());
+(void)dprintf(tty_fd, "global_history_index: %zu\n", global_history_index);
+	tm_rl_draw_from_history(prompt, input_buffer, cursor_pos);
+}
+
+static void
+tm_rl_draw_next_history(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos)
+{
+	global_history_index = global_history_index > 0 ? global_history_index - 1 : 0;
+(void)dprintf(tty_fd, "global_history_index: %zu\n", global_history_index);
+	if (global_history_index == 0)
+	{
+		input_buffer.clear();
+		cursor_pos = 0;
+		tm_rl_draw_line(prompt, input_buffer, cursor_pos);
+		return;
+	}
+	tm_rl_draw_from_history(prompt, input_buffer, cursor_pos);
+}
+
+static void
 tm_rl_process_autocomplete(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos)
 {
 	if (!global_autocomplete_handler)
@@ -209,6 +232,26 @@ tm_rl_add_char(const std::string &prompt, std::vector<char>& input_buffer, size_
 }
 
 static void
+tm_rl_move_cursor_left(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos)
+{
+	if (cursor_pos > 0)
+	{
+		cursor_pos--;
+		std::cout << TM_RL_MV_CURSOR_LEFT;
+	}
+}
+
+static void
+tm_rl_move_cursor_right(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos)
+{
+	if (cursor_pos < input_buffer.size())
+	{
+		cursor_pos++;
+		std::cout << TM_RL_MV_CURSOR_RIGHT;
+	}
+}
+
+static void
 tm_rl_move_cursor_by_word(const std::vector<char>& input_buffer, size_t& cursor_pos, bool forward)
 {
 	if (forward)
@@ -282,35 +325,16 @@ tm_rl_process_escape_basic_arrows(const char ch, const std::string &prompt, std:
 	switch (ch)
 	{
 	case TM_RL_ARROW_UP: // Up arrow
-		global_history_index = std::min(global_history_index + 1, global_history.size());
-(void)dprintf(tty_fd, "global_history_index: %zu\n", global_history_index);
-		tm_rl_draw_from_history(prompt, input_buffer, cursor_pos);
+		tm_rl_draw_previous_history(prompt, input_buffer, cursor_pos);
 		break;
 	case TM_RL_ARROW_DOWN: // Down arrow
-		global_history_index = global_history_index > 0 ? global_history_index - 1 : 0;
-(void)dprintf(tty_fd, "global_history_index: %zu\n", global_history_index);
-		if (global_history_index == 0)
-		{
-			input_buffer.clear();
-			cursor_pos = 0;
-			tm_rl_draw_line(prompt, input_buffer, cursor_pos);
-			break;
-		}
-		tm_rl_draw_from_history(prompt, input_buffer, cursor_pos);
+		tm_rl_draw_next_history(prompt, input_buffer, cursor_pos);
 		break;
 	case TM_RL_ARROW_RIGHT: // Right arrow
-		if (cursor_pos < input_buffer.size())
-		{
-			cursor_pos++;
-			std::cout << TM_RL_MV_CURSOR_RIGHT;
-		}
+		tm_rl_move_cursor_right(prompt, input_buffer, cursor_pos);
 		break;
 	case TM_RL_ARROW_LEFT: // Left arrow
-		if (cursor_pos > 0)
-		{
-			cursor_pos--;
-			std::cout << TM_RL_MV_CURSOR_LEFT;
-		}
+		tm_rl_move_cursor_left(prompt, input_buffer, cursor_pos);
 		break;
 	}
 }
@@ -409,6 +433,13 @@ tm_rl_process_input(const std::string &prompt, std::vector<char>& input_buffer, 
 
 	switch (ch)
 	{
+	case TM_RL_CH_SOH: // Ctrl + A
+		cursor_pos = 0;
+		tm_rl_draw_line(prompt, input_buffer, cursor_pos);
+		break;
+	case TM_RL_CH_STX: // Ctrl + B
+		tm_rl_move_cursor_left(prompt, input_buffer, cursor_pos);
+		break;
 	case TM_RL_CH_EOT: // Ctrl + D
 		if (input_buffer.empty())
 		{
@@ -416,40 +447,63 @@ tm_rl_process_input(const std::string &prompt, std::vector<char>& input_buffer, 
 			return TM_RL_EOF;
 		}
 		break;
-	case TM_RL_ESC_CTRL_A: // Ctrl + A
-		cursor_pos = 0;
-		tm_rl_draw_line(prompt, input_buffer, cursor_pos);
-		break;
-	case TM_RL_ESC_CTRL_E: // Ctrl + E
+	case TM_RL_CH_ENQ: // Ctrl + E
 		cursor_pos = input_buffer.size();
 		tm_rl_draw_line(prompt, input_buffer, cursor_pos);
 		break;
-	case TM_RL_ESC_CTRL_U: // Ctrl + U
+	case TM_RL_CH_ACK: // Ctrl + F
+		tm_rl_move_cursor_right(prompt, input_buffer, cursor_pos);
+		break;
+	case TM_RL_CH_BEL: // Ctrl + G
+		tm_rl_new_line();
+		break;
+	case TM_RL_CH_BS: // Backspace (Ctrl + H)
+	case TM_RL_CH_DEL: // Delete
+		tm_rl_left_suppr(prompt, input_buffer, cursor_pos);
+		break;
+	case TM_RL_CH_HT: // Ctrl + I
+		tm_rl_process_autocomplete(prompt, input_buffer, cursor_pos);
+		break;
+	case TM_RL_CH_ETX: // Ctrl + C (only used when SIGINT is ignored)
+	case TM_RL_CH_NL: // Ctrl + J or Ctrl + M
+	case TM_RL_CH_SI: // Ctrl + O
+		std::cout << std::endl;
+		global_history_index = 0;
+		return TM_RL_NEW_LINE;
+	case TM_RL_CH_VT: // Ctrl + K
+		input_buffer.erase(input_buffer.begin() + cursor_pos, input_buffer.end());
+		tm_rl_draw_line(prompt, input_buffer, cursor_pos);
+		break;
+	case TM_RL_CH_CR: // Ctrl + M
+		cursor_pos = 0;
+		break;
+	case TM_RL_CH_SO: // Ctrl + N
+		tm_rl_draw_next_history(prompt, input_buffer, cursor_pos);
+		break;
+	case TM_RL_CH_DLE: // Ctrl + P
+		tm_rl_draw_previous_history(prompt, input_buffer, cursor_pos);
+		break;
+	case TM_RL_CH_NAK: // Ctrl + U
 		input_buffer.clear();
 		cursor_pos = 0;
 		tm_rl_draw_line(prompt, input_buffer, cursor_pos);
 		break;
-	case TM_RL_ESC_CTRL_W: // Ctrl + W
+	case TM_RL_CH_ETB: // Ctrl + W
 		tm_rl_delete_word(input_buffer, cursor_pos, false);
 		tm_rl_draw_line(prompt, input_buffer, cursor_pos);
 		break;
+	case TM_RL_CH_FF: // Ctrl + L
+	case TM_RL_CH_DC1: // Ctrl + Q
+	case TM_RL_CH_DC2: // Ctrl + R
+	case TM_RL_CH_DC3: // Ctrl + S
+	case TM_RL_CH_DC4: // Ctrl + T
+	case TM_RL_CH_SYN: // Ctrl + V
+	case TM_RL_CH_CAN: // Ctrl + X
+	case TM_RL_CH_EM: // Ctrl + Y
+	case TM_RL_CH_SUB: // Ctrl + Z
+		break;
 	case TM_RL_CH_ESC: // Escape sequence
 		tm_rl_process_escape_sequence(prompt, input_buffer, cursor_pos);
-		break;
-	case TM_RL_CH_BS: // Backspace
-	case TM_RL_CH_DEL: // Delete
-		tm_rl_left_suppr(prompt, input_buffer, cursor_pos);
-		break;
-	case TM_RL_CH_CR:
-		cursor_pos = 0;
-		break;
-	case TM_RL_CH_ETX:
-	case TM_RL_CH_NL:
-		std::cout << std::endl;
-		global_history_index = 0;
-		return TM_RL_NEW_LINE;
-	case TM_RL_CH_HT:
-		tm_rl_process_autocomplete(prompt, input_buffer, cursor_pos);
 		break;
 	default:
 		tm_rl_add_char(prompt, input_buffer, cursor_pos, ch);

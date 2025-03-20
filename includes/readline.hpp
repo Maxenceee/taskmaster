@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:08:18 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/20 11:37:39 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/20 11:52:18 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,11 +68,6 @@
 #define TM_RL_MOD_ALT_RIGHT		'f'
 #endif /* __APPLE__ */
 #define TM_RL_MOD_ALT_DEL		100
-
-#define TM_RL_ESC_CTRL_A	TM_RL_CH_SOH
-#define TM_RL_ESC_CTRL_E	TM_RL_CH_ENQ
-#define TM_RL_ESC_CTRL_U	TM_RL_CH_NAK
-#define TM_RL_ESC_CTRL_W	TM_RL_CH_ETB
 
 #define TM_RL_ARROW_UP		'A'
 #define TM_RL_ARROW_DOWN	'B'
