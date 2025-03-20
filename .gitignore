@@ -10,3 +10,4 @@ super.conf
 *.lock
 *.pid
 bin/stayaliveprocess
+out.out

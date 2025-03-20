@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/20 14:48:48 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/20 15:19:34 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ std::string					global_prompt;
 size_t						global_cursor_pos = 0;
 std::vector<char>			global_input_buffer;
 tm_rl_autocomple_handler_t	global_autocomplete_handler = nullptr;
+
+static int previous_line_count = 0;
 
 static char
 tm_rl_getch()
@@ -61,23 +63,21 @@ tm_rl_draw_line(const std::string &prompt, const std::vector<char>& input_buffer
 	int term_width = get_terminal_width();
 	int line_count = calculate_line_count(prompt, input_buffer, term_width);
 
-(void)dprintf(tty_fd, "cs %zu, tw: %d, lc: %d\n", prompt.size() + input_buffer.size(), term_width, line_count);
+(void)dprintf(tty_fd, "cs %zu, tw: %d, lc: %d, plc: %d\n", prompt.size() + input_buffer.size(), term_width, line_count, previous_line_count);
 
-	for (int i = 0; i < line_count; i++)
+	for (int i = 0; i < previous_line_count; i++)
 	{
 		std::cout << TM_RL_ER_LINE;
-		if (i > 0)
-			std::cout << TM_RL_MV_CURSOR_NEXT_LINE;
+		if (i < previous_line_count - 1)
+			std::cout << TM_RL_MV_CURSOR_PREV_LINE;
 	}
 
 	std::cout << TM_RL_MV_CURSOR_COL("0");
 
 (void)dprintf(tty_fd, "c: %zu, %d, %zu, (%s)\n", prompt.size(), cursor_pos, prompt.size() + 1 + cursor_pos, std::string(input_buffer.begin(), input_buffer.end()).c_str());
 
-	// Afficher le prompt
 	std::cout << prompt;
 
-	// Afficher le contenu du buffer
 	for (size_t i = 0; i < input_buffer.size(); i++)
 	{
 		std::cout << input_buffer[i];
@@ -85,6 +85,7 @@ tm_rl_draw_line(const std::string &prompt, const std::vector<char>& input_buffer
 
 	if ((prompt.size() + input_buffer.size()) % term_width == 0) {
 		std::cout << "\n";  // Ajoute une ligne fantôme (comme le fait Zsh)
+		line_count++;
 	}
 
 	size_t total_rows = (prompt.size() + input_buffer.size()) / term_width;
@@ -93,16 +94,17 @@ tm_rl_draw_line(const std::string &prompt, const std::vector<char>& input_buffer
 
 	// Déplacer le curseur à la bonne ligne (remonter vers la ligne du prompt)
 	if (row_offset > 0) {
-		std::cout << "\033[" << row_offset << "A"; // Remonte de `row_offset` lignes
+		std::cout << TM_RL_ESC_SEQ TM_RL_CTRL_SEQ << row_offset << "A"; // Remonte de `row_offset` lignes
 	}
 
 	// Positionner le curseur sur la bonne colonne
 	size_t cursor_col = (prompt.size() + cursor_pos) % term_width;
 
-(void)dprintf(tty_fd, "ttr: %zu, cr: %zu, ro: %zu, co: %zu", total_rows, current_row, row_offset, cursor_col);
+(void)dprintf(tty_fd, "ttr: %zu, cr: %zu, ro: %zu, co: %zu\n", total_rows, current_row, row_offset, cursor_col);
 
 	std::cout << TM_RL_ESC_SEQ TM_RL_CTRL_SEQ << cursor_col + 1 << "G";
-	// std::cout << TM_RL_ESC_SEQ TM_RL_CTRL_SEQ << prompt.size() + 1 + cursor_pos << "G";
+
+	previous_line_count = line_count;
 }
 
 static void
@@ -206,6 +208,7 @@ tm_rl_left_suppr(const std::string &prompt, std::vector<char>& input_buffer, siz
 		input_buffer.erase(input_buffer.begin() + cursor_pos - count, input_buffer.begin() + cursor_pos);
 
 		cursor_pos -= count;
+		// std::cout << TM_RL_MV_CURSOR_LEFT << TM_RL_ESC_SEQ TM_RL_CTRL_SEQ << "P";
 		tm_rl_draw_line(prompt, input_buffer, cursor_pos);
 	}
 }
@@ -228,6 +231,10 @@ tm_rl_add_char(const std::string &prompt, std::vector<char>& input_buffer, size_
 	{
 		return;
 	}
+	if (input_buffer.size() >= 100)
+	{
+		return;
+	}
 	input_buffer.insert(input_buffer.begin() + cursor_pos, ch);
 	cursor_pos++;
 	tm_rl_draw_line(prompt, input_buffer, cursor_pos);
@@ -238,8 +245,19 @@ tm_rl_move_cursor_left(const std::string &prompt, std::vector<char>& input_buffe
 {
 	if (cursor_pos > 0)
 	{
+		size_t term_width = get_terminal_width();
+		size_t cursor_col = (prompt.size() + cursor_pos) % term_width;
+
 		cursor_pos--;
-		std::cout << TM_RL_MV_CURSOR_LEFT;
+		if (cursor_col == 0)
+		{
+			std::cout << TM_RL_MV_CURSOR_UP;
+			std::cout << TM_RL_ESC_SEQ TM_RL_CTRL_SEQ << term_width << "G";
+		}
+		else
+		{
+			std::cout << TM_RL_MV_CURSOR_LEFT;
+		}
 	}
 }
 
@@ -248,8 +266,19 @@ tm_rl_move_cursor_right(const std::string &prompt, std::vector<char>& input_buff
 {
 	if (cursor_pos < input_buffer.size())
 	{
+		size_t term_width = get_terminal_width();
+		size_t cursor_col = (prompt.size() + cursor_pos) % term_width;
+
 		cursor_pos++;
-		std::cout << TM_RL_MV_CURSOR_RIGHT;
+		if (cursor_col == term_width - 1)
+		{
+			std::cout << TM_RL_MV_CURSOR_DOWN;
+			std::cout << TM_RL_MV_CURSOR_COL("0");
+		}
+		else
+		{
+			std::cout << TM_RL_MV_CURSOR_RIGHT;
+		}
 	}
 }
 
@@ -597,6 +626,7 @@ tm_rl_new_line()
 	// Clear the input buffer and reset the cursor position
 	global_input_buffer.clear();
 	global_cursor_pos = 0;
+	previous_line_count = 1;
 
 	// Draw the new prompt line
 	tm_rl_draw_line(global_prompt, global_input_buffer, global_cursor_pos);
