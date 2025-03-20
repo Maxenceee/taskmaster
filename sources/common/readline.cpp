@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/20 15:19:34 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/20 15:20:52 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,12 @@ size_t						global_cursor_pos = 0;
 std::vector<char>			global_input_buffer;
 tm_rl_autocomple_handler_t	global_autocomplete_handler = nullptr;
 
+/**
+ * TODO:
+ * 
+ * Ne plus appeler la fonction draw line a chaque fois mais utiliser les carracteres de
+ * suppresion type \033[P et autres.
+ */
 static int previous_line_count = 0;
 
 static char
