@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:56 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/20 17:52:51 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/20 18:17:50 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,13 +103,13 @@ bool	Logger::releaseMutex(void)
 	return (pthread_mutex_unlock(&Logger::_loggerMutex) == 0);
 }
 
-void	Logger::printHeader(void)
+void	Logger::printHeader(bool tty_fallback)
 {
 	if (isTTY(std::cout))
 	{
 		std::cout << "\n" << Logger::Color(HEADER) << TM_OCTO << Logger::DisplayReset << "\n" << std::setw(12) << "" << Logger::Color(HACKER) << "Taskmaster" << "\n" << Logger::DisplayReset << std::endl;;
 	}
-	else
+	else if (tty_fallback)
 	{
 		std::ofstream tty("/dev/tty");
 		if (tty.is_open())

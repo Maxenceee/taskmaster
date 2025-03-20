@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:53 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/05 22:18:05 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/20 18:17:45 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ public:
 	static void init(const char *action);
 	static void destroy(void);
 
-	static void	printHeader(void);
+	static void	printHeader(bool tty_fallback = true);
 	static void cout(const char *msg);
 	static void cout(const std::string &msg);
 
