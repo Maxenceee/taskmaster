@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/20 15:20:52 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/20 18:05:20 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -500,7 +500,7 @@ tm_rl_process_input(const std::string &prompt, std::vector<char>& input_buffer, 
 		tm_rl_move_cursor_right(prompt, input_buffer, cursor_pos);
 		break;
 	case TM_RL_CH_BEL: // Ctrl + G
-		tm_rl_new_line();
+		std::cout << static_cast<char>(TM_RL_CH_BEL);
 		break;
 	case TM_RL_CH_BS: // Backspace (Ctrl + H)
 	case TM_RL_CH_DEL: // Delete

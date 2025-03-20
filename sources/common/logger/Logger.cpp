@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:56 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/16 19:36:21 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/20 17:52:51 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,14 +107,14 @@ void	Logger::printHeader(void)
 {
 	if (isTTY(std::cout))
 	{
-		std::cout << "\n" << Logger::Color(HEADER) << TM_OCTO << "\n" << Logger::Color(HACKER) << std::setw(12) << "" << "Taskmaster" << "\n" << Logger::DisplayReset << std::endl;;
+		std::cout << "\n" << Logger::Color(HEADER) << TM_OCTO << Logger::DisplayReset << "\n" << std::setw(12) << "" << Logger::Color(HACKER) << "Taskmaster" << "\n" << Logger::DisplayReset << std::endl;;
 	}
 	else
 	{
 		std::ofstream tty("/dev/tty");
 		if (tty.is_open())
 		{
-			tty << "\n" << HEADER << TM_OCTO << "\n" << HACKER << std::setw(12) << "" << "Taskmaster" << "\n" << RESET << std::endl;;
+			tty << "\n" << HEADER << TM_OCTO << RESET << "\n" << std::setw(12) << "" << HACKER << "Taskmaster" << "\n" << RESET << std::endl;;
 			tty.close();
 		}
 	}
