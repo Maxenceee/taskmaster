@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:08:18 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/19 18:15:30 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/20 11:37:39 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,9 @@
 #define TM_RL_MV_CURSOR_RIGHT	TM_RL_ESC("C")
 #define TM_RL_MV_CURSOR_LEFT	TM_RL_ESC("D")
 #define TM_RL_MV_CURSOR_COL(x)	TM_RL_ESC(x) "G"
+
+#define TM_RL_MV_CURSOR_NEXT_LINE	TM_RL_ESC("E")
+#define TM_RL_MV_CURSOR_PREV_LINE	TM_RL_ESC("F")
 
 #define TM_RL_SV_CURSOR_POS		TM_RL_ESC("s")
 #define TM_RL_RS_CURSOR_POS		TM_RL_ESC("u")

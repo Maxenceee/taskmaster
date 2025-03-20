@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/19 18:33:01 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/20 11:41:15 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,13 +61,16 @@ tm_rl_draw_line(const std::string &prompt, const std::vector<char>& input_buffer
 	int term_width = get_terminal_width();
 	int line_count = calculate_line_count(prompt, input_buffer, term_width);
 
-(void)dprintf(tty_fd, "char_count %zu, term_width: %d, line_count: %d\n", input_buffer.size(), term_width, line_count);
+(void)dprintf(tty_fd, "char_count %zu, term_width: %d, line_count: %d\n", prompt.size() + input_buffer.size(), term_width, line_count);
 
 	for (int i = 0; i < line_count; i++)
 	{
-		std::cout << TM_RL_ER_LINE;  // Effacer la ligne actuelle
-		std::cout << TM_RL_MV_CURSOR_COL("0");  // Déplacer le curseur au début de la ligne
+		std::cout << TM_RL_ER_CURSOR_END;  // Déplacer le curseur au début de la ligne
+		if (i > 0)
+			std::cout << TM_RL_MV_CURSOR_PREV_LINE;  // Effacer la ligne actuelle
 	}
+
+	std::cout << TM_RL_MV_CURSOR_COL("0");
 
 (void)dprintf(tty_fd, "c: %zu, %d, %zu, (%s)\n", prompt.size(), cursor_pos, prompt.size() + 1 + cursor_pos, std::string(input_buffer.begin(), input_buffer.end()).c_str());
 
@@ -80,8 +83,12 @@ tm_rl_draw_line(const std::string &prompt, const std::vector<char>& input_buffer
 		std::cout << input_buffer[i];
 	}
 
-	int total_rows = (prompt.size() + input_buffer.size()) / term_width;  
-	int current_row = (prompt.size() + cursor_pos) / term_width;  
+	if ((prompt.size() + input_buffer.size()) % term_width == 0) {
+		std::cout << "\n";  // Ajoute une ligne fantôme (comme le fait Zsh)
+	}
+
+	int total_rows = (prompt.size() + input_buffer.size()) / term_width;
+	int current_row = (prompt.size() + cursor_pos) / term_width;
 	int row_offset = total_rows - current_row;
 
 	// Déplacer le curseur à la bonne ligne (remonter vers la ligne du prompt)
