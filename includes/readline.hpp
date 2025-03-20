@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:08:18 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/20 14:19:48 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/20 14:28:24 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,12 +67,12 @@
 #define TM_RL_MOD_ALT_LEFT		'b'
 #define TM_RL_MOD_ALT_RIGHT		'f'
 #endif /* __APPLE__ */
-#define TM_RL_MOD_ALT_DEL		100
+#define TM_RL_MOD_ALT_DEL		100 // Sequence for the delete key with the Alt key
 
-#define TM_RL_ARROW_UP		'A'
-#define TM_RL_ARROW_DOWN	'B'
-#define TM_RL_ARROW_RIGHT	'C'
-#define TM_RL_ARROW_LEFT	'D'
+#define TM_RL_ARROW_UP		'A' // Arrow key up
+#define TM_RL_ARROW_DOWN	'B' // Arrow key down
+#define TM_RL_ARROW_RIGHT	'C' // Arrow key right
+#define TM_RL_ARROW_LEFT	'D' // Arrow key left
 
 #define TM_RL_ESC_SEQ		"\033"
 #define TM_RL_CTRL_SEQ		"["
@@ -80,21 +80,21 @@
 
 #define TM_RL_ESC(seq) TM_RL_ESC_SEQ TM_RL_CTRL_SEQ seq
 
-#define TM_RL_MV_CURSOR_UP		TM_RL_ESC("A")
-#define TM_RL_MV_CURSOR_DOWN	TM_RL_ESC("B")
-#define TM_RL_MV_CURSOR_RIGHT	TM_RL_ESC("C")
-#define TM_RL_MV_CURSOR_LEFT	TM_RL_ESC("D")
-#define TM_RL_MV_CURSOR_COL(x)	TM_RL_ESC(x) "G"
+#define TM_RL_MV_CURSOR_UP		TM_RL_ESC("A") // Sequence to move the cursor up 
+#define TM_RL_MV_CURSOR_DOWN	TM_RL_ESC("B") // Sequence to move the cursor down
+#define TM_RL_MV_CURSOR_RIGHT	TM_RL_ESC("C") // Sequence to move the cursor right
+#define TM_RL_MV_CURSOR_LEFT	TM_RL_ESC("D") // Sequence to move the cursor left
+#define TM_RL_MV_CURSOR_COL(x)	TM_RL_ESC(x) "G" // Sequence to move the cursor to the column x
 
-#define TM_RL_MV_CURSOR_NEXT_LINE	TM_RL_ESC("E")
-#define TM_RL_MV_CURSOR_PREV_LINE	TM_RL_ESC("F")
+#define TM_RL_MV_CURSOR_NEXT_LINE	TM_RL_ESC("E") // Sequence to move the cursor to the next line
+#define TM_RL_MV_CURSOR_PREV_LINE	TM_RL_ESC("F") // Sequence to move the cursor to the previous line
 
-#define TM_RL_SV_CURSOR_POS		TM_RL_ESC("s")
-#define TM_RL_RS_CURSOR_POS		TM_RL_ESC("u")
+#define TM_RL_SV_CURSOR_POS		TM_RL_ESC("s") // Sequence to save the cursor position
+#define TM_RL_RS_CURSOR_POS		TM_RL_ESC("u") // Sequence to restore the cursor position
 
-#define TM_RL_ER_CURSOR_END		TM_RL_ESC("0K")
-#define TM_RL_ER_CURSOR_START	TM_RL_ESC("1K")
-#define TM_RL_ER_LINE			TM_RL_ESC("2K")
+#define TM_RL_ER_CURSOR_END		TM_RL_ESC("0K") // Sequence to erase the cursor to the end of the line
+#define TM_RL_ER_CURSOR_START	TM_RL_ESC("1K") // Sequence to erase the cursor to the start of the line
+#define TM_RL_ER_LINE			TM_RL_ESC("2K") // Sequence to erase the entire line
 
 typedef std::vector<std::string> (*tm_rl_autocomple_handler_t)(const std::string& input, size_t cursor_pos);
 
