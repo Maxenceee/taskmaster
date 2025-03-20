@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/20 12:20:01 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/20 14:22:54 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -356,6 +356,7 @@ tm_rl_process_escape_ctrl_arrows(const char ch, const std::string &prompt, std::
 static void
 tm_rl_process_modified_arrow(const std::string& prompt, std::vector<char>& input_buffer, size_t& cursor_pos, int modifier, char direction)
 {
+(void)dprintf(tty_fd, "mod: %c, dir: %c\n", modifier, direction);
 	switch (modifier)
 	{
 	case TM_RL_MOD_CTRL:
@@ -371,7 +372,9 @@ static void
 tm_rl_process_escape_sequence(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos)
 {
 	char ch = tm_rl_getch();
+
 (void)dprintf(tty_fd, "es ch: %c\n", ch);
+
 	switch (ch)
 	{
 #ifdef __APPLE__
@@ -394,6 +397,7 @@ tm_rl_process_escape_sequence(const std::string &prompt, std::vector<char>& inpu
 	}
 
 	ch = tm_rl_getch();
+	
 (void)dprintf(tty_fd, "es m ch: %c\n", ch);
 
 	// Check if the character is a modifier
@@ -429,7 +433,7 @@ static int
 tm_rl_process_input(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos)
 {
 	char ch = tm_rl_getch();
-(void)dprintf(tty_fd, "ch: %d\n", ch);
+(void)dprintf(tty_fd, "=====\nch: %d\n", ch);
 
 	switch (ch)
 	{
@@ -445,6 +449,10 @@ tm_rl_process_input(const std::string &prompt, std::vector<char>& input_buffer, 
 		{
 			std::cout << TM_RL_EOF_SEQ << std::endl;
 			return TM_RL_EOF;
+		}
+		else
+		{
+			tm_rl_right_suppr(prompt, input_buffer, cursor_pos);
 		}
 		break;
 	case TM_RL_CH_ENQ: // Ctrl + E
