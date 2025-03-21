@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/20 18:05:20 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/21 11:07:25 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -434,7 +434,7 @@ tm_rl_process_escape_sequence(const std::string &prompt, std::vector<char>& inpu
 	}
 
 	ch = tm_rl_getch();
-	
+
 (void)dprintf(tty_fd, "es m ch: %c\n", ch);
 
 	// Check if the character is a modifier
