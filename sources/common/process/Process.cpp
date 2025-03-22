@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/17 10:40:27 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/22 12:46:26 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,7 @@ Process::spawn(char* const* envp)
 	if (access(exec[0], F_OK | X_OK) == -1)
 	{
 		Logger::error("requested executable does not exist or is not executable");
+		this->_state = TM_P_FATAL;
 		return (TM_FAILURE);
 	}
 
@@ -77,7 +78,7 @@ Process::spawn(char* const* envp)
 int
 Process::stop(void)
 {
-	if (this->_signal > 0 || this->_state == TM_P_STOPPING || this->_state == TM_P_EXITED || this->pid == -1)
+	if (this->_signal > 0 || this->_state == TM_P_STOPPING || this->_state == TM_P_EXITED || this->_state == TM_P_FATAL || this->pid == -1)
 	{
 		return (TM_SUCCESS);
 	}
@@ -90,7 +91,7 @@ Process::stop(void)
 int
 Process::kill(void)
 {
-	if (this->_signal > 0 || this->_state == TM_P_EXITED || this->pid == -1)
+	if (this->_signal > 0 || this->_state == TM_P_EXITED || this->_state == TM_P_FATAL || this->pid == -1)
 	{
 		return (TM_SUCCESS);
 	}

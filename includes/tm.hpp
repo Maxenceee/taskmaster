@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 23:24:24 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/18 11:53:45 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/22 12:20:16 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,9 +75,11 @@
 
 // 
 
-#define TM_PROJECT "taskmaster"
-#define TM_VERSION "1.0"
-#define TM_AUTHOR "mgama"
+#define TM_PROJECT		"taskmaster"
+#define TM_PROJECTD		TM_PROJECT "d"
+#define TM_PROJECTCTL	TM_PROJECT "ctl"
+#define TM_VERSION		"1.0"
+#define TM_AUTHOR		"mgama"
 
 #define TM_PREFIX TM_PROJECT ": "
 

@@ -6,11 +6,12 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/17 10:44:36 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/22 12:44:48 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "signal.hpp"
+#include "utils/utils.hpp"
 #include "taskmaster/Taskmaster.hpp"
 #include "logger/Logger.hpp"
 
@@ -83,7 +84,7 @@ Taskmaster::launch(void)
 int
 Taskmaster::start(void)
 {
-	Logger::print("taskmasterd started with pid "+std::to_string(this->pid));
+	Logger::print(TM_PROJECTD " started with pid "+std::to_string(this->pid));
 
 	(void)this->launch();
 	
@@ -118,6 +119,8 @@ Taskmaster::kill(void)
 {
 	for(const auto& process : this->_processes)
 	{
+		std::string sig = getSignalName(process->getStopSignal());
+		Logger::info("StopSignal " + sig + " failed to stop child in 10 seconds, resorting to SIGKILL");
 		(void)process->kill();
 	}
 	return (TM_SUCCESS);

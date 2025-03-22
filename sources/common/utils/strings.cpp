@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 13:18:00 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/11 17:47:30 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/22 12:42:43 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -370,4 +370,12 @@ bool is_digits(const std::string &str)
 bool is_spaces(const std::string &str)
 {
     return std::all_of(str.begin(), str.end(), ::isspace);
+}
+
+std::string	getSignalName(int signal)
+{
+	if (signal < 0 || signal >= NSIG)
+		return ("Unknown signal");
+
+	return ("SIG" + to_upper(sys_signame[signal]));
 }

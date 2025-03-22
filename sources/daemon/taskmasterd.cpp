@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/17 10:45:40 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/22 12:24:14 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,9 +23,12 @@ bool running = true;
 void
 interruptHandler(int sig_int)
 {
-	(void)sig_int;
 	Logger::cout("\b\b"); // rm ^C from tty
 	Logger::print("Signal received: " + std::string(strsignal(sig_int)), B_GREEN);
+	if (running == false)
+	{
+		Logger::info(TM_PROJECTD " is already stopping");
+	}
 	running = false;
 }
 
@@ -132,7 +135,7 @@ start_main_loop(char* const* argv, char* const* envp)
 		}
 	} while (running);
 
-	Logger::print("taskmasterd stopping, this can take a while...", B_GREEN);
+	Logger::print(TM_PROJECTD " stopping, this can take a while...", B_GREEN);
 	(void)server.stop();
 	(void)master.stop();
 
@@ -146,11 +149,10 @@ start_main_loop(char* const* argv, char* const* envp)
 
 	if (!master.allStopped())
 	{
-		Logger::info("StopSignal SIGTERM failed to stop child in 10 seconds, resorting to SIGKILL");
 		(void)master.kill();
 	}
 
-	Logger::print("taskmasterd stopped", B_GREEN);
+	Logger::print(TM_PROJECTD " stopped", B_GREEN);
 }
 
 int
