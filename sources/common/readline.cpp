@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/22 17:02:46 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/22 17:05:38 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -506,7 +506,7 @@ static int
 tm_rl_process_input(const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos)
 {
 	char ch = tm_rl_getch();
-(void)dprintf(tty_fd, "=====\nch: %d\n", ch);
+(void)dprintf(tty_fd, "=====\npos %zu, ch: %d\n", cursor_pos, ch);
 
 	switch (ch)
 	{
