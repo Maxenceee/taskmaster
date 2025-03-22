@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:56 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/20 18:17:50 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/22 11:59:29 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ void	Logger::init(const char *action)
 		return ;
 
 #ifndef TM_DISABLE_SYSLOG
-	openlog(TM_PROJECT, LOG_PID | LOG_CONS, LOG_DAEMON);
+	openlog(TM_PROJECT, LOG_PID, LOG_DAEMON);
 #endif
 
 	std::cout << Logger::DisplayDate << TM_PREFIX << action << ": New logger session" << std::endl;
