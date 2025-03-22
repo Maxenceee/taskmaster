@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/22 16:53:19 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/22 16:59:16 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,10 @@ tm_rl_clear_line(const std::string &prompt)
 }
 
 static void
+/**
+ * FIXME:
+ * Fix le calcul lors du multi-line
+ */
 tm_rl_draw_line(const std::string &prompt, const std::vector<char>& input_buffer, int cursor_pos)
 {
 	int term_width = get_terminal_width();
