@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/22 12:46:26 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/22 12:49:24 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,6 +67,12 @@ Process::spawn(char* const* envp)
 		this->_state = TM_P_FATAL;
 		return (TM_FAILURE);
 	}
+
+	/**
+	 * TODO:
+	 * Add time check before considering the process as started, to avoid false positives
+	 * The wait time should be defined in the configuration file
+	 */
 
 	this->_state = TM_P_RUNNING;
 	std::cout << "Child spawned with pid " << this->pid << std::endl;
