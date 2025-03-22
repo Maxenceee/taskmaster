@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/22 16:59:16 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/22 17:02:46 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -230,7 +230,7 @@ tm_rl_left_suppr(const std::string &prompt, std::vector<char>& input_buffer, siz
 		input_buffer.erase(input_buffer.begin() + cursor_pos - count, input_buffer.begin() + cursor_pos);
 
 		cursor_pos -= count;
-		std::cout << TM_RL_MV_CURSOR_LEFT << TM_RL_ESC("1P");
+		std::cout << TM_RL_MV_CURSOR_LEFT << TM_RL_ER_CHAR;
 		// tm_rl_draw_line(prompt, input_buffer, cursor_pos);
 	}
 }
@@ -241,7 +241,7 @@ tm_rl_right_suppr(const std::string &prompt, std::vector<char>& input_buffer, si
 	if (cursor_pos < input_buffer.size())
 	{
 		input_buffer.erase(input_buffer.begin() + cursor_pos, input_buffer.begin() + cursor_pos + count);
-		std::cout << TM_RL_ESC("1P");
+		std::cout << TM_RL_ER_CHAR;
 		// tm_rl_draw_line(prompt, input_buffer, cursor_pos);
 	}
 }
@@ -308,20 +308,23 @@ tm_rl_move_cursor_right(const std::string &prompt, std::vector<char>& input_buff
 static void
 tm_rl_move_cursor_by_word(const std::vector<char>& input_buffer, size_t& cursor_pos, bool forward)
 {
+	size_t move = 0;
+
 	if (forward)
 	{
 		// Skip any spaces first
 		while (cursor_pos < input_buffer.size() && input_buffer[cursor_pos] == TM_RL_CH_SPACE)
 		{
 			cursor_pos++;
-			std::cout << TM_RL_MV_CURSOR_RIGHT;
+			move++;
 		}
 		// Then move to the end of the word
 		while (cursor_pos < input_buffer.size() && input_buffer[cursor_pos] != TM_RL_CH_SPACE)
 		{
 			cursor_pos++;
-			std::cout << TM_RL_MV_CURSOR_RIGHT;
+			move++;
 		}
+		std::cout << TM_RL_ESC_SEQ TM_RL_CTRL_SEQ << move << TM_RL_ARROW_RIGHT;
 	}
 	else 
 	{
@@ -329,14 +332,15 @@ tm_rl_move_cursor_by_word(const std::vector<char>& input_buffer, size_t& cursor_
 		while (cursor_pos > 0 && input_buffer[cursor_pos - 1] == TM_RL_CH_SPACE)
 		{
 			cursor_pos--;
-			std::cout << TM_RL_MV_CURSOR_LEFT;
+			move++;
 		}
 		// Then move to the beginning of the word
 		while (cursor_pos > 0 && input_buffer[cursor_pos - 1] != TM_RL_CH_SPACE)
 		{
 			cursor_pos--;
-			std::cout << TM_RL_MV_CURSOR_LEFT;
+			move++;
 		}
+		std::cout << TM_RL_ESC_SEQ TM_RL_CTRL_SEQ << move << TM_RL_ARROW_LEFT;
 	}
 }
 
@@ -345,7 +349,6 @@ tm_rl_delete_word(std::vector<char>& input_buffer, size_t& cursor_pos, bool forw
 {
 	size_t to_del = 0;
 
-(void)dprintf(tty_fd, "del word %s\n", forward ? "right" : "left");
 	if (forward) 
 	{
 		// Skip any spaces first
@@ -361,7 +364,7 @@ tm_rl_delete_word(std::vector<char>& input_buffer, size_t& cursor_pos, bool forw
 			to_del++;
 		}
 
-		std::cout << TM_RL_ESC_SEQ TM_RL_CTRL_SEQ << to_del << "P";
+		std::cout << TM_RL_ESC_SEQ TM_RL_CTRL_SEQ << to_del << TM_RL_DEL_CHAR;
 	}
 	else
 	{
@@ -381,9 +384,9 @@ tm_rl_delete_word(std::vector<char>& input_buffer, size_t& cursor_pos, bool forw
 		}
 
 		// Move cursor to the beginning of the word
-		std::cout << TM_RL_ESC_SEQ TM_RL_CTRL_SEQ << to_del << "D";
+		std::cout << TM_RL_ESC_SEQ TM_RL_CTRL_SEQ << to_del << TM_RL_ARROW_LEFT;
 		// Delete the word
-		std::cout << TM_RL_ESC_SEQ TM_RL_CTRL_SEQ << to_del << "P";
+		std::cout << TM_RL_ESC_SEQ TM_RL_CTRL_SEQ << to_del << TM_RL_DEL_CHAR;
 	}
 }
 
@@ -572,7 +575,6 @@ tm_rl_process_input(const std::string &prompt, std::vector<char>& input_buffer, 
 		// tm_rl_draw_line(prompt, input_buffer, cursor_pos);
 		break;
 	case TM_RL_CH_ETB: // Ctrl + W
-(void)dprintf(tty_fd, "ctrl + w\n");
 		tm_rl_delete_word(input_buffer, cursor_pos, false);
 		// tm_rl_draw_line(prompt, input_buffer, cursor_pos);
 		break;
