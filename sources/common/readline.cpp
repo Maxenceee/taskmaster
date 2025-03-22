@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/22 16:30:47 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/22 16:32:35 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -441,7 +441,7 @@ tm_rl_process_escape_sequence(const std::string &prompt, std::vector<char>& inpu
 #endif /* __APPLE__ */
 	case TM_RL_MOD_ALT_DEL: // Alt + Right Suppr
 		tm_rl_delete_word(input_buffer, cursor_pos, true);
-		// tm_rl_draw_line(prompt, input_buffer, cursor_pos);
+		tm_rl_draw_line(prompt, input_buffer, cursor_pos);
 		return;
 	case TM_RL_ESC_DELIM:
 		// If escape sequence break out of the statement
@@ -557,7 +557,7 @@ tm_rl_process_input(const std::string &prompt, std::vector<char>& input_buffer, 
 		break;
 	case TM_RL_CH_ETB: // Ctrl + W
 		tm_rl_delete_word(input_buffer, cursor_pos, false);
-		// tm_rl_draw_line(prompt, input_buffer, cursor_pos);
+		tm_rl_draw_line(prompt, input_buffer, cursor_pos);
 		break;
 	case TM_RL_CH_FF: // Ctrl + L
 	case TM_RL_CH_DC1: // Ctrl + Q
