@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/16 18:46:26 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/22 12:23:03 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,8 +73,10 @@ public:
 	pid_t	getPid() const;
 
 	bool	started(void) const;
+	bool	stopped(void) const;
 	bool	exited(void) const;
 	bool	fatal(void) const;
+	int		getStopSignal(void) const;
 };
 
 #endif /* PROCESS_HPP */

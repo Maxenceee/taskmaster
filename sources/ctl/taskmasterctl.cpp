@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/16 20:09:15 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/22 12:19:05 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -228,7 +228,7 @@ attach_readline()
 
 	do
 	{
-		auto rl_in = tm_readline("taskmasterctl> ");
+		auto rl_in = tm_readline(TM_PROJECTCTL "> ");
 		if (!rl_in) {
 			break;
 		}
@@ -281,7 +281,7 @@ main(int argc, char* const* argv)
 		return (TM_FAILURE);
 	}
 
-	Logger::init("Starting taskmasterctl");
+	Logger::init("Starting " TM_PROJECTCTL);
 	Logger::setDebug(true);
 
 	try {

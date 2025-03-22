@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 11:38:42 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/02 13:37:22 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/22 12:43:52 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ std::string					&pop(std::string &str);
 std::string					&shift(std::string &str);
 std::string					&trim(std::string &str, char c = ' ');
 std::string					&to_upper(std::string &str);
+std::string					to_upper(const std::string &str);
 std::string					&to_lower(std::string &str);
 std::string					&capitalize(std::string &str);
 std::string					&replace(std::string &buffer, const std::string &searchValue, const std::string &replaceValue);
@@ -48,6 +49,8 @@ std::string					getSize(int size);
 
 time_t						parseTime(const std::string &timeStr);
 std::string					getTime(time_t time);
+
+std::string					getSignalName(int signal);
 
 /* uri */
 
