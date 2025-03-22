@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/22 16:45:29 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/22 16:53:19 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,9 +70,9 @@ tm_rl_mv_cursor(const std::string &prompt, int offset)
 }
 
 static void
-tm_rl_clear_line()
+tm_rl_clear_line(const std::string &prompt)
 {
-	
+	std::cout << prompt;
 }
 
 static void
@@ -339,6 +339,8 @@ tm_rl_move_cursor_by_word(const std::vector<char>& input_buffer, size_t& cursor_
 static void
 tm_rl_delete_word(std::vector<char>& input_buffer, size_t& cursor_pos, bool forward)
 {
+	size_t to_del = 0;
+
 (void)dprintf(tty_fd, "del word %s\n", forward ? "right" : "left");
 	if (forward) 
 	{
@@ -346,18 +348,19 @@ tm_rl_delete_word(std::vector<char>& input_buffer, size_t& cursor_pos, bool forw
 		while (cursor_pos < input_buffer.size() && input_buffer[cursor_pos] == TM_RL_CH_SPACE)
 		{
 			input_buffer.erase(input_buffer.begin() + cursor_pos);
+			to_del++;
 		}
 		// Then delete the word
 		while (cursor_pos < input_buffer.size() && input_buffer[cursor_pos] != TM_RL_CH_SPACE)
 		{
 			input_buffer.erase(input_buffer.begin() + cursor_pos);
+			to_del++;
 		}
 
-		// std::cout << TM_RL_ESC_SEQ TM_RL_CTRL_SEQ << "K";
+		std::cout << TM_RL_ESC_SEQ TM_RL_CTRL_SEQ << to_del << "P";
 	}
 	else
 	{
-		size_t to_del = 0;
 		// Skip any spaces first
 		while (cursor_pos > 0 && input_buffer[cursor_pos - 1] == TM_RL_CH_SPACE)
 		{
@@ -449,7 +452,7 @@ tm_rl_process_escape_sequence(const std::string &prompt, std::vector<char>& inpu
 	case TM_RL_MOD_ALT_DEL: // Alt + Right Suppr
 (void)dprintf(tty_fd, "alt del\n");
 		tm_rl_delete_word(input_buffer, cursor_pos, true);
-		tm_rl_draw_line(prompt, input_buffer, cursor_pos);
+		// tm_rl_draw_line(prompt, input_buffer, cursor_pos);
 		return;
 	case TM_RL_ESC_DELIM:
 		// If escape sequence break out of the statement
@@ -478,9 +481,10 @@ tm_rl_process_escape_sequence(const std::string &prompt, std::vector<char>& inpu
 		{
 			tm_rl_getch(); // Get modifier
 			tm_rl_getch(); // Get ~
-			input_buffer.clear();
-			cursor_pos = 0;
-			tm_rl_draw_line(prompt, input_buffer, cursor_pos);
+			// input_buffer.clear();
+			// cursor_pos = 0;
+			// tm_rl_draw_line(prompt, input_buffer, cursor_pos);
+			tm_rl_delete_word(input_buffer, cursor_pos, true);
 			break;
 		}
 		tm_rl_right_suppr(prompt, input_buffer, cursor_pos);
@@ -604,7 +608,7 @@ tm_readline(const std::string& prompt)
 	global_cursor_pos = 0;
 
 	// tm_rl_draw_line(global_prompt, global_input_buffer, global_cursor_pos);
-	std::cout << global_prompt;
+	tm_rl_clear_line(global_prompt);
 
 	while ((status = tm_rl_process_input(global_prompt, global_input_buffer, global_cursor_pos)) != TM_RL_NEW_LINE)
 	{
@@ -667,7 +671,8 @@ tm_rl_new_line()
 	previous_line_count = 1;
 
 	// Draw the new prompt line
-	tm_rl_draw_line(global_prompt, global_input_buffer, global_cursor_pos);
+	// tm_rl_draw_line(global_prompt, global_input_buffer, global_cursor_pos);
+	tm_rl_clear_line(global_prompt);
 }
 
 /**
