@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/17 10:40:27 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/22 12:07:46 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ Process::spawn(char* const* envp)
 	this->_state = TM_P_RUNNING;
 	std::cout << "Child spawned with pid " << this->pid << std::endl;
 	this->start_time = std::chrono::steady_clock::now();
-	
+
 	return (TM_SUCCESS);
 }
 
