@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/17 10:45:40 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/22 12:09:35 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,15 @@ create_pid_file(void)
 	}
 
 	return (TM_SUCCESS);
+}
+
+void
+remove_pid_file(void)
+{
+	if (unlink(TM_PID_FILE) == -1)
+	{
+		Logger::perror("unlink");
+	}
 }
 
 int
@@ -197,8 +206,11 @@ main(int argc, char* const* argv, char* const* envp)
 	catch (const std::exception& e)
 	{
 		Logger::error(e.what());
+		remove_pid_file();
 		return (TM_FAILURE);
 	}
+
+	remove_pid_file();
 
 	return (TM_SUCCESS);
 }

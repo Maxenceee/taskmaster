@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:08:18 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/20 17:56:40 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/22 17:02:18 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,8 @@
 #define TM_RL_ARROW_RIGHT	'C' // Arrow key right
 #define TM_RL_ARROW_LEFT	'D' // Arrow key left
 
+#define TM_RL_DEL_CHAR		'P' // Sequence to delete a character
+
 #define TM_RL_ESC_SEQ		"\033"
 #define TM_RL_CTRL_SEQ		"["
 #define TM_RL_EOF_SEQ		"^D"
@@ -95,6 +97,8 @@
 #define TM_RL_ER_CURSOR_END		TM_RL_ESC("0K") // Sequence to erase the cursor to the end of the line
 #define TM_RL_ER_CURSOR_START	TM_RL_ESC("1K") // Sequence to erase the cursor to the start of the line
 #define TM_RL_ER_LINE			TM_RL_ESC("2K") // Sequence to erase the entire line
+
+#define TM_RL_ER_CHAR			TM_RL_ESC("1P") // Sequence to erase the character under the cursor
 
 typedef std::vector<std::string> (*tm_rl_autocomple_handler_t)(const std::string& input, size_t cursor_pos);
 
