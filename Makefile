@@ -19,7 +19,8 @@ HEADERS			=	$(shell find $(HEADERS_DIR) -name "*.hpp") $(shell find $(SOURCES_DI
 RM				=	rm -f
 CC				=	g++
 CFLAGS			=	-g3 -std=c++20 -I $(HEADERS_DIR) -I $(COMMON_SOURCES_DIR) -I $(D_SOURCES_DIR) -I $(CTL_SOURCES_DIR) #-Wall -Wextra -Werror
-LIBS			=	-lpthread -lcrypto
+RLIBS			=	-lreadline -lhistory
+LIBS			=	-lpthread -lcrypto $(RLIBS)
 
 NAME_D			=	taskmasterd
 NAME_CTL		=	taskmasterctl

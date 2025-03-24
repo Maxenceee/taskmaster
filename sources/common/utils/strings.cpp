@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 13:18:00 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/24 14:48:21 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/24 14:57:20 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,12 @@ std::vector<std::string>	parseQuotedAndSplit(const std::string &input)
 	return result;
 }
 
-std::vector<std::string> tokenize(const std::string &line)
+std::vector<std::string>	tokenize(const char *line)
+{
+	return tokenize(std::string(line));
+}
+
+std::vector<std::string>	tokenize(const std::string &line)
 {
 	std::vector<std::string> tokens;
 	std::string token;
