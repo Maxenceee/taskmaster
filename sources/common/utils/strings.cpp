@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 13:18:00 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/22 12:42:43 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/24 14:48:21 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -377,5 +377,9 @@ std::string	getSignalName(int signal)
 	if (signal < 0 || signal >= NSIG)
 		return ("Unknown signal");
 
+#ifdef __APPLE__
 	return ("SIG" + to_upper(sys_signame[signal]));
+#else
+	return (std::string("SIG") + sigabbrev_np(signal));
+#endif /* __APPLE__ */
 }
