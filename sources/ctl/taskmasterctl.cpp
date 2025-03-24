@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/22 12:19:05 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/24 15:15:26 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 #include "readline.hpp"
 #include "utils/utils.hpp"
 #include "signal.hpp"
+#include <readline/readline.h>
+#include <readline/history.h>
 
 extern int tty_fd;
 
@@ -109,58 +111,100 @@ show_command_info(const std::string &cmd)
 	std::cout << "*** No help on " << cmd << "\n";
 }
 
-std::vector<std::string>
-autocomplete(const std::vector<CommandNode>& commands, const std::vector<std::string>& tokens, size_t cursor_pos)
+// std::vector<std::string>
+// autocomplete(const std::vector<CommandNode>& commands, const std::vector<std::string>& tokens, size_t cursor_pos)
+// {
+// 	std::vector<std::string> suggestions;
+
+// 	if (tokens.empty()) {
+// 		for (const auto& command : commands) {
+// 			suggestions.push_back(command.name);
+// 		}
+// 		return suggestions;
+// 	}
+
+// 	// Calculer la position du mot actuellement ciblé par le curseur
+// 	size_t word_start = 0, word_end = 0;
+// 	bool found_word = false;
+
+// 	size_t current_pos = 0;
+
+// 	// Déterminer le mot en cours d'édition
+// 	for (size_t i = 0, len = 0; i < tokens.size(); ++i) {
+// 		len += tokens[i].length();
+// 		if (cursor_pos <= len + i) { // Ajouter i pour les espaces séparateurs
+// 			word_start = i;
+// 			word_end = i;
+// 			found_word = true;
+// 			break;
+// 		}
+// 	}
+
+// 	// Si aucun mot trouvé, on est sur un nouveau mot
+// 	if (!found_word) {
+// 		return {};
+// 	}
+
+// 	// Le mot en cours d'édition
+// 	std::string current_word = tokens[word_start];
+// 	std::string prefix = current_word.substr(0, cursor_pos - word_start);
+
+// 	for (const auto& command : commands) {
+//         if (command.name.compare(0, prefix.size(), prefix) == 0) {
+//             suggestions.push_back(command.name);
+//         }
+//     }
+
+// 	return suggestions;
+// }
+
+char *command_generator(const char *text, int state) {
+	static size_t index;
+	static size_t len;
+
+(void)dprintf(tty_fd, "text: %s, state: %d\n", text, state);
+
+	if (state == 0) { // Réinitialisation lors du premier appel
+		index = 0;
+		len = strlen(text);
+	}
+
+	// Parcours des commandes pour trouver des correspondances
+	while (index < commands.size()) {
+		const std::string& cmd = commands[index].name;
+		index++;
+
+		if (cmd.compare(0, len, text) == 0) {
+			return strdup(cmd.c_str()); // Correspondance trouvée
+		}
+	}
+
+	return nullptr; // Plus de suggestions
+}
+
+static char**autocomplete(const char *text, int start, int end)
 {
-	std::vector<std::string> suggestions;
+	(void)end;
 
-	if (tokens.empty()) {
-		for (const auto& command : commands) {
-			suggestions.push_back(command.name);
-		}
-		return suggestions;
+(void)dprintf(tty_fd, "text: %s, %d, %d\n", text, start, end);
+
+	if (start > 0)
+	{
+		return nullptr;
 	}
 
-	// Calculer la position du mot actuellement ciblé par le curseur
-	size_t word_start = 0, word_end = 0;
-	bool found_word = false;
-
-	size_t current_pos = 0;
-
-	// Déterminer le mot en cours d'édition
-	for (size_t i = 0, len = 0; i < tokens.size(); ++i) {
-		len += tokens[i].length();
-		if (cursor_pos <= len + i) { // Ajouter i pour les espaces séparateurs
-			word_start = i;
-			word_end = i;
-			found_word = true;
-			break;
-		}
-	}
-
-	// Si aucun mot trouvé, on est sur un nouveau mot
-	if (!found_word) {
-		return {};
-	}
-
-	// Le mot en cours d'édition
-	std::string current_word = tokens[word_start];
-	std::string prefix = current_word.substr(0, cursor_pos - word_start);
-
-	for (const auto& command : commands) {
-        if (command.name.compare(0, prefix.size(), prefix) == 0) {
-            suggestions.push_back(command.name);
-        }
-    }
-
-	return suggestions;
+	return rl_completion_matches(text, command_generator);
 }
 
 static void
 interruptHandler(int sig_int)
 {
 	(void)sig_int;
-	tm_rl_new_line();
+	// tm_rl_new_line();
+	printf("\n");
+	rl_on_new_line();
+    rl_replace_line("", 0);
+    rl_redisplay();
 }
 
 ssize_t
@@ -214,11 +258,13 @@ connect_server(const std::string& unix_path)
 void
 attach_readline()
 {
-	tm_rl_add_autocomplete_handler([](const std::string& input, size_t cursor_pos) {
-		auto tokens = tokenize(input);
+	// tm_rl_add_autocomplete_handler([](const std::string& input, size_t cursor_pos) {
+	// 	auto tokens = tokenize(input);
 
-		return autocomplete(commands, tokens, cursor_pos);
-	});
+	// 	return autocomplete(commands, tokens, cursor_pos);
+	// });
+
+	rl_attempted_completion_function = autocomplete;
 
 	setup_signal(SIGINT, interruptHandler);
 	setup_signal(SIGPIPE, SIG_IGN);
@@ -228,24 +274,37 @@ attach_readline()
 
 	do
 	{
-		auto rl_in = tm_readline(TM_PROJECTCTL "> ");
-		if (!rl_in) {
+		// auto rl_in = tm_readline(TM_PROJECTCTL "> ");
+		char *rl_in = readline(TM_PROJECTCTL "> ");
+		// if (!rl_in) {
+		// 	break;
+		// }
+		// auto input = rl_in.value();
+
+		// (void)trim(input);
+
+		// if (input.empty()) {
+		// 	continue;
+		// }
+
+		if (NULL == rl_in)
+		{
 			break;
 		}
-		auto input = rl_in.value();
 
-		(void)trim(input);
-
-		if (input.empty()) {
+		if (!*rl_in)
+		{
 			continue;
 		}
 
-		tm_rl_add_history(input);
-		if (input == "exit") {
-			break;
-		}
+		add_history(rl_in);
 
-		std::vector<std::string> tokens = tokenize(input);
+		// tm_rl_add_history(input);
+		// if (input == "exit") {
+		// 	break;
+		// }
+
+		std::vector<std::string> tokens = tokenize(rl_in);
 		if (tokens.empty()) {
 			continue;
 		}
@@ -265,7 +324,7 @@ attach_readline()
 		}
 
 		// std::cout << "Input: (" << input << ")" << std::endl;
-		total_sent += send_message(socket_fd, input.c_str(), input.length());
+		total_sent += send_message(socket_fd, rl_in, strlen(rl_in));
 		total_recv += read_message(socket_fd);
 		close(socket_fd);
 	} while (true);
