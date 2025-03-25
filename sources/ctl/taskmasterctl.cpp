@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/24 15:15:26 by mgama            ###   ########.fr       */
+/*   Updated: 2025/03/25 11:36:18 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,6 +187,8 @@ static char**autocomplete(const char *text, int start, int end)
 	(void)end;
 
 (void)dprintf(tty_fd, "text: %s, %d, %d\n", text, start, end);
+
+	rl_attempted_completion_over = 1;
 
 	if (start > 0)
 	{
