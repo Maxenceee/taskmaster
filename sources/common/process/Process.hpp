@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/18 18:59:26 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/18 19:29:17 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,6 +87,7 @@ private:
 	int		_spawn(void);
 	int		_monitor_starting(void);
 	int		_monitor_running(void);
+	int		_monitor_stopping(void);
 
 public:
 	Process(char* const* exec, char* const* envp, pid_t ppid, int std_in_fd, int std_out_fd, int std_err_fd, tm_process_config &config);

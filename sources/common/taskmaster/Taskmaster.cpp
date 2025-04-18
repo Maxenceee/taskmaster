@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/18 19:11:30 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/18 19:21:38 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ Taskmaster::addChild(char* const* exec)
 		.autorestart = TM_CONF_AUTORESTART_TRUE,
 		.stopsignal = TERM,
 		.startsecs = 3,
-		.startretries = 3,
+		.startretries = 5,
 	};
 
 	Process* new_child = new Process(exec, this->envp, this->pid, -1, std_out_fd, -1, config);
@@ -126,7 +126,7 @@ Taskmaster::allStopped() const
 {
 	for(const auto& process : this->_processes)
 	{
-		if (false == process->exited() && false == process->fatal())
+		if (false == process->stopped() && false == process->exited() && false == process->fatal())
 			return (false);
 	}
 	return (true);

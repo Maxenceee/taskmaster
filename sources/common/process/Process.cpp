@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/18 19:10:55 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/18 19:30:55 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,7 @@ Process::stop(void)
 	}
 	this->_state = TM_P_STOPPING;
 
-	std::cout << "Stopping child with signal " << strsignal(this->config.stopsignal) << std::endl;
+	std::cout << "Stopping child " << this->pid << " with signal " << strsignal(this->config.stopsignal) << std::endl;
 	return (::kill(this->pid, this->config.stopsignal));
 }
 
@@ -144,8 +144,9 @@ Process::monitor(void)
 	case TM_P_BACKOFF:
 		return (this->_monitor_starting());
 	case TM_P_RUNNING:
-	case TM_P_STOPPING:
 		return (this->_monitor_running());
+	case TM_P_STOPPING:
+		return (this->_monitor_stopping());
 	case TM_P_EXITED:
 	case TM_P_FATAL:
 	case TM_P_UNKNOWN:
@@ -158,29 +159,31 @@ Process::monitor(void)
 int
 Process::_monitor_starting(void)
 {
-	if (this->_state == TM_P_STARTING)
+	if (this->_state != TM_P_STARTING)
 	{
-		if (this->_wait())
+		return (0);
+	}
+
+	if (this->_wait())
+	{
+		if (this->_retries < this->config.startretries)
 		{
-			if (this->_retries < this->config.startretries)
-			{
-				this->_state = TM_P_BACKOFF;
-				std::cout << "Child process " << this->pid << " failed to start" << std::endl;
-				return (this->_spawn());
-			}
-			else
-			{
-				std::cout << "Child process " << this->pid << " failed to start, giving up" << std::endl;
-				this->_state = TM_P_FATAL;
-			}
-			return (1);
+			this->_state = TM_P_BACKOFF;
+			std::cout << "Child process " << this->pid << " failed to start" << std::endl;
+			return (this->_spawn());
 		}
-		else if (std::chrono::system_clock::now() - this->start_time > std::chrono::seconds(this->config.startsecs))
+		else
 		{
-			this->_state = TM_P_RUNNING;
-			std::cout << "Child process " << this->pid << " started successfully" << std::endl;
-			return (1);
+			std::cout << "Child process " << this->pid << " failed to start, giving up" << std::endl;
+			this->_state = TM_P_FATAL;
 		}
+		return (1);
+	}
+	else if (std::chrono::system_clock::now() - this->start_time > std::chrono::seconds(this->config.startsecs))
+	{
+		this->_state = TM_P_RUNNING;
+		std::cout << "Child process " << this->pid << " started successfully" << std::endl;
+		return (1);
 	}
 
 	return (0);
@@ -189,10 +192,7 @@ Process::_monitor_starting(void)
 int
 Process::_monitor_running(void)
 {
-	if (this->_state != TM_P_RUNNING || this->pid == -1)
-		return (1);
-
-	if (this->_state == TM_P_RUNNING && this->_wait())
+	if (this->_wait())
 	{
 		this->_state = TM_P_EXITED;
 		if (this->config.autorestart)
@@ -201,6 +201,18 @@ Process::_monitor_running(void)
 			std::cout << "Child process " << this->pid << " exited, restarting" << std::endl;
 			return (this->_spawn());
 		}
+		return (1);
+	}
+
+	return (0);
+}
+
+int
+Process::_monitor_stopping(void)
+{
+	if (this->_wait())
+	{
+		this->_state = TM_P_EXITED;
 		return (1);
 	}
 
