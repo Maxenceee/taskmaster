@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/22 12:44:48 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/18 19:11:30 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,25 +39,16 @@ Taskmaster::addChild(char* const* exec)
 	}
 
 	tm_process_config config = {
-		.auto_restart = true
+		.autostart = true,
+		.autorestart = TM_CONF_AUTORESTART_TRUE,
+		.stopsignal = TERM,
+		.startsecs = 3,
+		.startretries = 3,
 	};
 
-	Process* new_child = new Process(exec, this->pid, -1, std_out_fd, -1, config);
+	Process* new_child = new Process(exec, this->envp, this->pid, -1, std_out_fd, -1, config);
 
 	this->_processes.push_back(new_child);
-	return (TM_SUCCESS);
-}
-
-int
-Taskmaster::launch(void)
-{
-	for(const auto& process : this->_processes)
-	{
-		if (process->spawn(this->envp))
-		{
-			std::cout << "Could not spawn child" << std::endl;
-		}
-	}
 	return (TM_SUCCESS);
 }
 
@@ -82,22 +73,26 @@ Taskmaster::launch(void)
 // }
 
 int
-Taskmaster::start(void)
-{
-	Logger::print(TM_PROJECTD " started with pid "+std::to_string(this->pid));
-
-	(void)this->launch();
-	
-	return (TM_SUCCESS);
-}
-
-int
 Taskmaster::cycle(void)
 {
-	int s;
 	for(const auto& process : this->_processes)
 	{
-		s = process->monitor();
+		(void)process->monitor();
+		// switch (process->monitor())
+		// {
+		// 	case 0:
+		// 		break;
+		// 	case 1:
+		// 		Logger::info("Child " + std::to_string(process->getPid()) + " exited");
+		// 		if (process->shouldRestart())
+		// 		{
+		// 			if (process->spawn(this->envp))
+		// 			{
+		// 				std::cout << "Could not spawn child" << std::endl;
+		// 			}
+		// 		}
+		// 		break;
+		// }
 		// std::cout << "Child " << process->getPid() << " monitor status: " << s << std::endl;
 	}
 
