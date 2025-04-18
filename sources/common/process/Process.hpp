@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/22 12:23:03 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/18 18:59:26 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,28 @@
 
 #include "tm.hpp"
 
+enum tm_config_auto_restart {
+	TM_CONF_AUTORESTART_FALSE		= 0,
+	TM_CONF_AUTORESTART_UNEXPECTED	= 1,
+	TM_CONF_AUTORESTART_TRUE		= 2,
+};
+
+enum tm_config_stop_signal {
+	TERM	= SIGTERM,
+	HUP		= SIGHUP,
+	INT		= SIGINT,
+	QUIT	= SIGQUIT,
+	KILL	= SIGKILL,
+	USR1	= SIGUSR1,
+	USR2	= SIGUSR2,
+};
+
 typedef struct tm_process_config {
-	bool	auto_restart;
+	bool					autostart;
+	tm_config_auto_restart	autorestart;
+	tm_config_stop_signal	stopsignal;
+	int						startsecs;
+	int						startretries;
 } tm_process_config;
 
 enum tm_process_state {
@@ -56,16 +76,22 @@ private:
 	int		std_out_fd;
 	int		std_err_fd;
 
-	bool	auto_restart;
-	int		stop_sig;
+	tm_process_config	config; 
+	int 				_retries;
 
 	char* const*	exec;
+	char* const*	envp;
+
+	int		_wait(void);
+
+	int		_spawn(void);
+	int		_monitor_starting(void);
+	int		_monitor_running(void);
 
 public:
-	Process(char* const* exec, pid_t ppid, int std_in_fd, int std_out_fd, int std_err_fd, tm_process_config &config);
+	Process(char* const* exec, char* const* envp, pid_t ppid, int std_in_fd, int std_out_fd, int std_err_fd, tm_process_config &config);
 	~Process(void);
 
-	int		spawn(char* const* envp);
 	int		stop(void);
 	int		kill(void);
 	int		monitor(void);
@@ -77,6 +103,7 @@ public:
 	bool	exited(void) const;
 	bool	fatal(void) const;
 	int		getStopSignal(void) const;
+	bool	shouldRestart(void) const;
 };
 
 #endif /* PROCESS_HPP */
