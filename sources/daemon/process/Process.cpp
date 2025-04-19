@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/19 12:25:27 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/19 13:17:02 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,15 @@ Process::_spawn(void)
 	std::cout << "Child spawned with pid " << this->pid << std::endl;
 
 	return (TM_SUCCESS);
+}
+
+void
+Process::setGroupId(pid_t pgid)
+{
+	if (pgid >= 0)
+	{
+		this->pgid = pgid;
+	}
 }
 
 int
