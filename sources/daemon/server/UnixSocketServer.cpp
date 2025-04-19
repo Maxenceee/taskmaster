@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 17:43:04 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/19 12:32:03 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/19 12:37:19 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,29 +177,32 @@ UnixSocketServer::serve(int client_fd)
 		Logger::debug("Client requested to exit");
 		Taskmaster::running = false;
 	}
-	if (strncmp(buffer, "status", 6) == 0)
+	else if (strncmp(buffer, "status", 6) == 0)
 	{
 		Logger::debug("Client requested status");
-		const std::string& s = this->_master.getStatus();
-		(void)send(client_fd, s.c_str(), s.size(), 0);
-		return (TM_SUCCESS);
 	}
-	if (strncmp(buffer, "stop", 4) == 0)
+	else if (strncmp(buffer, "stop", 4) == 0)
 	{
 		Logger::debug("Client requested to stop");
 		this->_master.stop();
 	}
-	if (strncmp(buffer, "start", 5) == 0)
+	else if (strncmp(buffer, "start", 5) == 0)
 	{
 		Logger::debug("Client requested to start");
 		this->_master.start();
 	}
-	if (strncmp(buffer, "restart", 7) == 0)
+	else if (strncmp(buffer, "restart", 7) == 0)
 	{
 		Logger::debug("Client requested to restart");
 		this->_master.restart();
 	}
+	else
+	{
+		(void)send(client_fd, "Unknown command", 15, 0);
+		return (TM_FAILURE);
+	}
 
-	(void)send(client_fd, "Data successfully received", 27, 0);
+	const std::string& s = this->_master.getStatus();
+	(void)send(client_fd, s.c_str(), s.size(), 0);
 	return (TM_SUCCESS);
 }
