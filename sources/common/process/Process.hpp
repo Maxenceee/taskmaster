@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/18 19:29:17 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/19 11:01:39 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,11 +32,78 @@ enum tm_config_stop_signal {
 };
 
 typedef struct tm_process_config {
+	/**
+	 * Start the process automatically when the taskmaster starts.
+	 * @default true
+	 */
 	bool					autostart;
+	/**
+	 * Automatically restart the process if it exits unexpectedly.
+	 * @default unexpected
+	 */
 	tm_config_auto_restart	autorestart;
+	/**
+	 * List of exit codes that are considered successful.
+	 */
+	uint8_t					exitcodes[256];
+	uint8_t					_exitcodes_len;
+	/**
+	 * Signal to send to the process when stopping it.
+	 * @default TERM
+	 */
 	tm_config_stop_signal	stopsignal;
+	/**
+	 * Number of seconds to wait before considering the process started.
+	 * @default 1
+	 */
 	int						startsecs;
+	/**
+	 * Number of retries to start the process if it fails to start.
+	 * @default 3
+	 */
 	int						startretries;
+
+	/**
+	 * Constructor to initialize the process configuration with default values.
+	 */
+	tm_process_config(
+		bool autostart = true,
+		tm_config_auto_restart autorestart = TM_CONF_AUTORESTART_UNEXPECTED,
+		const std::initializer_list<uint8_t> &init_exitcodes = { 0 },
+		tm_config_stop_signal stopsignal = TERM,
+		int startsecs = 1,
+		int startretries = 3
+	)
+	{
+		this->autostart = autostart;
+		this->autorestart = autorestart;
+		this->stopsignal = stopsignal;
+		this->startsecs = startsecs;
+		this->startretries = startretries;
+
+		if (init_exitcodes.size() > 256)
+		{
+			throw std::out_of_range("Exit codes length exceeds maximum size of 256");
+		}
+		this->_exitcodes_len = init_exitcodes.size();
+		size_t i = 0;
+		for (auto code : init_exitcodes)
+		{
+			this->exitcodes[i++] = code;
+		}
+	}
+
+	bool isExitCodeSuccessful(uint8_t exitcode) const
+	{
+		for (size_t i = 0; i < this->_exitcodes_len; ++i)
+		{
+			if (this->exitcodes[i] == exitcode)
+			{
+				return true;
+			}
+		}
+		return false;
+	}	
 } tm_process_config;
 
 enum tm_process_state {
@@ -68,6 +135,8 @@ private:
 	int		_signal;
 	int		_exit_code;
 	int		_state;
+
+	bool	_stop_requested;
 
 	time_point	start_time;
 	time_point	stop_time;

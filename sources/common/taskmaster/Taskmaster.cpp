@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/18 19:21:38 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/19 10:50:52 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,10 @@ Taskmaster::Taskmaster(char* const* envp)
 
 Taskmaster::~Taskmaster(void)
 {
+	for(const auto& process : this->_processes)
+	{
+		delete process;
+	}
 }
 
 int
@@ -38,13 +42,7 @@ Taskmaster::addChild(char* const* exec)
 		return (TM_FAILURE);
 	}
 
-	tm_process_config config = {
-		.autostart = true,
-		.autorestart = TM_CONF_AUTORESTART_TRUE,
-		.stopsignal = TERM,
-		.startsecs = 3,
-		.startretries = 5,
-	};
+	tm_process_config config(true, TM_CONF_AUTORESTART_UNEXPECTED, {0, 4}, TERM, 1, 3);
 
 	Process* new_child = new Process(exec, this->envp, this->pid, -1, std_out_fd, -1, config);
 

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/18 19:30:55 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/19 11:05:32 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,8 +80,10 @@ Process::_spawn(void)
 int
 Process::stop(void)
 {
+	this->_stop_requested = true;
 	if (this->_signal > 0 || this->_state == TM_P_STOPPING || this->_state == TM_P_EXITED || this->_state == TM_P_FATAL || this->pid == -1)
 	{
+		std::cout << "Process already stopping or stopped" << std::endl;
 		return (TM_SUCCESS);
 	}
 	this->_state = TM_P_STOPPING;
@@ -195,7 +197,9 @@ Process::_monitor_running(void)
 	if (this->_wait())
 	{
 		this->_state = TM_P_EXITED;
-		if (this->config.autorestart)
+		if (this->config.autorestart == TM_CONF_AUTORESTART_TRUE
+			|| (this->config.autorestart == TM_CONF_AUTORESTART_UNEXPECTED && false == this->config.isExitCodeSuccessful(this->_exit_code))
+			|| this->_signal != 0)
 		{
 			this->_retries = 0;
 			std::cout << "Child process " << this->pid << " exited, restarting" << std::endl;
