@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/19 11:46:48 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/19 12:32:16 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ Taskmaster::addChild(char* const* exec)
 		return (TM_FAILURE);
 	}
 
-	tm_process_config config(true, TM_CONF_AUTORESTART_UNEXPECTED, {0, 4}, TERM, 5, 3);
+	tm_process_config config(false, TM_CONF_AUTORESTART_UNEXPECTED, {0, 4}, TERM, 5, 3);
 
 	Process* new_child = new Process(exec, this->envp, this->pid, -1, std_out_fd, -1, config);
 
@@ -98,6 +98,26 @@ Taskmaster::cycle(void)
 }
 
 int
+Taskmaster::start(void)
+{
+	for(const auto& process : this->_processes)
+	{
+		(void)process->start();
+	}
+	return (TM_SUCCESS);
+}
+
+int
+Taskmaster::restart(void)
+{
+	for(const auto& process : this->_processes)
+	{
+		(void)process->restart();
+	}
+	return (TM_SUCCESS);
+}
+
+int
 Taskmaster::stop(void)
 {
 	for(const auto& process : this->_processes)
@@ -112,8 +132,6 @@ Taskmaster::kill(void)
 {
 	for(const auto& process : this->_processes)
 	{
-		std::string sig = getSignalName(process->getStopSignal());
-		Logger::info("StopSignal " + sig + " failed to stop child in 10 seconds, resorting to SIGKILL");
 		(void)process->kill();
 	}
 	return (TM_SUCCESS);

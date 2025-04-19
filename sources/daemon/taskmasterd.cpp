@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/19 11:35:33 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/19 12:18:38 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,15 +149,10 @@ start_main_loop(char* const* argv, char* const* envp)
 
 	const auto current_time = std::chrono::system_clock::now();
 
-	while (!master.allStopped() && std::chrono::system_clock::now() - current_time < std::chrono::seconds(10))
+	while (!master.allStopped())
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		(void)master.cycle();
-	}
-
-	if (!master.allStopped())
-	{
-		(void)master.kill();
 	}
 
 	Logger::print(TM_PROJECTD " stopped", B_GREEN);
