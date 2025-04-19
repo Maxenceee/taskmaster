@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 23:24:24 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/18 18:43:07 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/19 12:11:25 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,5 +102,6 @@
 // Global types
 
 typedef std::chrono::system_clock::time_point time_point;
+typedef std::chrono::steady_clock::time_point time_point_steady;
 
 #endif /* TM_HPP */

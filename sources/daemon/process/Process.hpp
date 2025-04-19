@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/19 11:48:36 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/19 12:14:43 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,11 @@ typedef struct tm_process_config {
 	 * @default 3
 	 */
 	int						startretries;
+	/**
+	 * Number of seconds to wait for the process to stop before forcefully killing it.
+	 * @default 10
+	 */
+	int						stopwaitsecs;
 
 	/**
 	 * Constructor to initialize the process configuration with default values.
@@ -72,7 +77,8 @@ typedef struct tm_process_config {
 		const std::initializer_list<uint8_t> &init_exitcodes = { 0 },
 		tm_config_stop_signal stopsignal = TERM,
 		int startsecs = 1,
-		int startretries = 3
+		int startretries = 3,
+		int stopwaitsecs = 10
 	)
 	{
 		this->autostart = autostart;
@@ -91,6 +97,8 @@ typedef struct tm_process_config {
 		{
 			this->exitcodes[i++] = code;
 		}
+
+		this->stopwaitsecs = stopwaitsecs;
 	}
 
 	bool isExitCodeSuccessful(uint8_t exitcode) const
@@ -139,6 +147,9 @@ private:
 	time_point	start_time;
 	time_point	stop_time;
 
+	time_point_steady	request_stop_time;
+	bool				waiting_restart;
+
 	int		std_in_fd;
 	int		std_out_fd;
 	int		std_err_fd;
@@ -160,7 +171,10 @@ public:
 	Process(char* const* exec, char* const* envp, pid_t ppid, int std_in_fd, int std_out_fd, int std_err_fd, tm_process_config &config);
 	~Process(void);
 
+	int		start(void);
+	int		restart(void);
 	int		stop(void);
+	int		signal(int sig);
 	int		kill(void);
 	int		monitor(void);
 

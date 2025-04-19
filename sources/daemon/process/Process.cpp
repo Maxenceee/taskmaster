@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/19 11:48:33 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/19 12:25:27 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,34 @@ Process::_spawn(void)
 }
 
 int
+Process::start(void)
+{
+	if (this->_state == TM_P_RUNNING || this->_state == TM_P_STARTING || this->_state == TM_P_STOPPING)
+	{
+		std::cout << "Process already started" << std::endl;
+		return (TM_FAILURE);
+	}
+
+	this->_retries = 0;
+	return (this->_spawn());
+}
+
+int
+Process::restart(void)
+{
+	this->waiting_restart = true;
+
+	if (this->_state == TM_P_STOPPED || this->_state == TM_P_EXITED || this->_state == TM_P_FATAL)
+	{
+		std::cout << "Process already exited or in fatal state" << std::endl;
+		this->_state = TM_P_EXITED;
+		return (TM_SUCCESS);
+	}
+
+	return (this->stop());
+}
+
+int
 Process::stop(void)
 {
 	if (this->_signal > 0 || this->_state == TM_P_STOPPING || this->_state == TM_P_EXITED || this->_state == TM_P_FATAL || this->pid == -1)
@@ -88,9 +116,22 @@ Process::stop(void)
 		return (TM_SUCCESS);
 	}
 	this->_state = TM_P_STOPPING;
+	this->request_stop_time = std::chrono::steady_clock::now();
 
 	std::cout << "Stopping child " << this->pid << " with signal " << strsignal(this->config.stopsignal) << std::endl;
 	return (::kill(this->pid, this->config.stopsignal));
+}
+
+int
+Process::signal(int sig)
+{
+	if (this->_state != TM_P_RUNNING || this->pid == -1)
+	{
+		std::cout << "Process already stopping or stopped" << std::endl;
+		return (TM_SUCCESS);
+	}
+	std::cout << "Sending signal " << strsignal(sig) << " to child " << this->pid << std::endl;
+	return (::kill(this->pid, sig));
 }
 
 int
@@ -100,6 +141,7 @@ Process::kill(void)
 	{
 		return (TM_SUCCESS);
 	}
+	this->_state = TM_P_EXITED;
 
 	std::cout << "Killing child " << this->pid << std::endl;
 	return (::kill(this->pid, SIGKILL));
@@ -151,6 +193,13 @@ Process::monitor(void)
 	case TM_P_STOPPING:
 		return (this->_monitor_stopping());
 	case TM_P_EXITED:
+		if (this->waiting_restart)
+		{
+			this->_retries = 0;
+			this->waiting_restart = false;
+			return (this->_spawn());
+		}
+		break;
 	case TM_P_FATAL:
 	case TM_P_UNKNOWN:
 		break;
@@ -202,9 +251,10 @@ Process::_monitor_running(void)
 			|| (this->config.autorestart == TM_CONF_AUTORESTART_UNEXPECTED && false == this->config.isExitCodeSuccessful(this->_exit_code))
 			|| this->_signal != 0)
 		{
-			this->_retries = 0;
+			// this->_retries = 0;
 			std::cout << "Child process " << this->pid << " exited, restarting" << std::endl;
-			return (this->_spawn());
+			// return (this->_spawn());
+			this->waiting_restart = true;
 		}
 		return (1);
 	}
@@ -219,6 +269,12 @@ Process::_monitor_stopping(void)
 	{
 		this->_state = TM_P_EXITED;
 		return (1);
+	}
+	else if (std::chrono::steady_clock::now() - this->request_stop_time > std::chrono::seconds(this->config.stopwaitsecs))
+	{
+		std::string sig = getSignalName(this->config.stopsignal);
+		Logger::info("StopSignal " + sig + " failed to stop child in 10 seconds, resorting to SIGKILL");
+		return (this->kill());
 	}
 
 	return (0);
