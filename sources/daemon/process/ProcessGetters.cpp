@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 19:44:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/18 19:02:42 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/19 11:43:18 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,18 @@ Process::getStopSignal(void) const
 	return (this->config.stopsignal);
 }
 
+int
+Process::getSignal(void) const
+{
+	return (this->_signal);
+}
+
+int
+Process::getExitCode(void) const
+{
+	return (this->_exit_code);
+}
+
 bool
 Process::shouldRestart(void) const
 {
@@ -56,4 +68,38 @@ Process::shouldRestart(void) const
 	 * handler exit code check when TM_CONF_AUTORESTART_UNEXPECTED
 	 */
 	return (this->config.autorestart == TM_CONF_AUTORESTART_TRUE || this->config.autorestart == TM_CONF_AUTORESTART_UNEXPECTED);
+}
+
+std::string
+Process::getState(void) const
+{
+	switch (this->_state)
+	{
+	case TM_P_STOPPED:
+		return ("STOPPED");
+	case TM_P_STARTING:
+		return ("STARTING");
+	case TM_P_RUNNING:
+		return ("RUNNING");
+	case TM_P_STOPPING:
+		return ("STOPPING");
+	case TM_P_EXITED:
+		return ("EXITED");
+	case TM_P_FATAL:
+		return ("FATAL");
+	default:
+		return ("UNKNOWN");
+	}
+}
+
+char const*
+Process::getProgramName(void) const
+{
+	return (this->exec[0]);
+}
+
+char* const*
+Process::getProgramArgs(void) const
+{
+	return (this->exec + 1);
 }

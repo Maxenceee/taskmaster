@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/19 11:01:39 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/19 11:48:36 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,8 +136,6 @@ private:
 	int		_exit_code;
 	int		_state;
 
-	bool	_stop_requested;
-
 	time_point	start_time;
 	time_point	stop_time;
 
@@ -172,8 +170,15 @@ public:
 	bool	stopped(void) const;
 	bool	exited(void) const;
 	bool	fatal(void) const;
-	int		getStopSignal(void) const;
 	bool	shouldRestart(void) const;
+
+	int			getStopSignal(void) const;
+	int			getSignal(void) const;
+	int			getExitCode(void) const;
+	std::string	getState(void) const;
+
+	char const*		getProgramName(void) const;
+	char* const*	getProgramArgs(void) const;
 };
 
 #endif /* PROCESS_HPP */

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/19 10:50:52 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/19 11:46:48 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 
 Taskmaster::Taskmaster(char* const* envp)
 {
-	this->exit = false;
+	this->running = true;
 
 	this->envp = envp;
 
@@ -42,7 +42,7 @@ Taskmaster::addChild(char* const* exec)
 		return (TM_FAILURE);
 	}
 
-	tm_process_config config(true, TM_CONF_AUTORESTART_UNEXPECTED, {0, 4}, TERM, 1, 3);
+	tm_process_config config(true, TM_CONF_AUTORESTART_UNEXPECTED, {0, 4}, TERM, 5, 3);
 
 	Process* new_child = new Process(exec, this->envp, this->pid, -1, std_out_fd, -1, config);
 
@@ -128,4 +128,31 @@ Taskmaster::allStopped() const
 			return (false);
 	}
 	return (true);
+}
+
+std::string
+Taskmaster::getStatus(void) const
+{
+	std::ostringstream oss;
+	oss << "{\n";
+	oss << "  PID: " << this->pid << ";\n";
+	oss << "  Processes: {\n";
+	for (const auto& process : this->_processes)
+	{
+		oss << "    - PID: " << process->getPid() << ";\n";
+		oss << "      State: " << process->getState() << ";\n";
+		oss << "      Signal: " << process->getSignal() << ";\n";
+		oss << "      Exit code: " << process->getExitCode() << ";\n";
+		oss << "      Program: " << process->getProgramName() << ";\n";
+		oss << "      ProgramArguments: (" << "\n";
+		for (char* const* arg = process->getProgramArgs(); *arg != nullptr; ++arg)
+		{
+			oss << "        " << *arg << ";\n";
+		}
+		oss << "      );\n";
+	}
+	oss << "  };\n";
+	oss << "  Running: " << (this->running ? "true" : "false") << ";\n";
+	oss << "}\n";
+	return oss.str();
 }
