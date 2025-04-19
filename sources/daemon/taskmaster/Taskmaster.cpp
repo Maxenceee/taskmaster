@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/19 12:32:16 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/19 19:16:48 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,33 +42,30 @@ Taskmaster::addChild(char* const* exec)
 		return (TM_FAILURE);
 	}
 
-	tm_process_config config(false, TM_CONF_AUTORESTART_UNEXPECTED, {0, 4}, TERM, 5, 3);
+	tm_process_config config(
+		1,
+		false,
+		TM_CONF_AUTORESTART_UNEXPECTED,
+		{0, 4},
+		TERM,
+		5,
+		3
+	);
 
-	Process* new_child = new Process(exec, this->envp, this->pid, -1, std_out_fd, -1, config);
+	Process* new_child = new Process(exec, this->envp, "child_key", config, this->pid);
+	new_child->setStdOutFd(std_out_fd); // temp
 
 	this->_processes.push_back(new_child);
+
+	for (int i = 1; i < new_child->getNumProcs(); ++i)
+	{
+		Process* new_child = new Process(exec, this->envp, "child_key", config, this->pid);
+		new_child->setStdOutFd(std_out_fd);  // temp
+		new_child->setGroupId(i);
+		this->_processes.push_back(new_child);
+	}
 	return (TM_SUCCESS);
 }
-
-// bool
-// stdinHasData()
-// {
-// 	// using a timeout of 0 so we aren't waiting:
-// 	struct timespec timeout{ 0l, 0l };
-
-// 	// create a file descriptor set
-// 	fd_set fds{};
-
-// 	// initialize the fd_set to 0
-// 	FD_ZERO(&fds);
-// 	// set the fd_set to target file descriptor 0 (STDIN)
-// 	FD_SET(STDIN_FILENO, &fds);
-
-// 	// pselect the number of file descriptors that are ready, since
-// 	//  we're only passing in 1 file descriptor, it will return either
-// 	//  a 0 if STDIN isn't ready, or a 1 if it is.
-// 	return pselect(0 + 1, &fds, nullptr, nullptr, &timeout, nullptr) == 1;
-// }
 
 int
 Taskmaster::cycle(void)
@@ -76,22 +73,6 @@ Taskmaster::cycle(void)
 	for(const auto& process : this->_processes)
 	{
 		(void)process->monitor();
-		// switch (process->monitor())
-		// {
-		// 	case 0:
-		// 		break;
-		// 	case 1:
-		// 		Logger::info("Child " + std::to_string(process->getPid()) + " exited");
-		// 		if (process->shouldRestart())
-		// 		{
-		// 			if (process->spawn(this->envp))
-		// 			{
-		// 				std::cout << "Could not spawn child" << std::endl;
-		// 			}
-		// 		}
-		// 		break;
-		// }
-		// std::cout << "Child " << process->getPid() << " monitor status: " << s << std::endl;
 	}
 
 	return (TM_SUCCESS);
@@ -128,6 +109,16 @@ Taskmaster::stop(void)
 }
 
 int
+Taskmaster::signal(int sig)
+{
+	for(const auto& process : this->_processes)
+	{
+		(void)process->signal(sig);
+	}
+	return (TM_SUCCESS);
+}
+
+int
 Taskmaster::kill(void)
 {
 	for(const auto& process : this->_processes)
@@ -148,6 +139,12 @@ Taskmaster::allStopped() const
 	return (true);
 }
 
+size_t
+Taskmaster::getNumProcesses(void) const
+{
+	return (this->_processes.size());
+}
+
 std::string
 Taskmaster::getStatus(void) const
 {
@@ -157,13 +154,14 @@ Taskmaster::getStatus(void) const
 	oss << "  Processes: {\n";
 	for (const auto& process : this->_processes)
 	{
-		oss << "    - PID: " << process->getPid() << ";\n";
+		oss << "    - Name: " << process->getProgramName() << ";\n";
+		oss << "      PID: " << process->getPid() << ";\n";
 		oss << "      State: " << process->getState() << ";\n";
 		oss << "      Signal: " << process->getSignal() << ";\n";
 		oss << "      Exit code: " << process->getExitCode() << ";\n";
-		oss << "      Program: " << process->getProgramName() << ";\n";
+		oss << "      Program: " << process->getExecName() << ";\n";
 		oss << "      ProgramArguments: (" << "\n";
-		for (char* const* arg = process->getProgramArgs(); *arg != nullptr; ++arg)
+		for (char* const* arg = process->getExecArgs(); *arg != nullptr; ++arg)
 		{
 			oss << "        " << *arg << ";\n";
 		}

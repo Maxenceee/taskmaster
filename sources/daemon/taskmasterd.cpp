@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/19 12:18:38 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/19 18:56:28 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,6 +130,8 @@ start_main_loop(char* const* argv, char* const* envp)
 	setup_signal(SIGTERM, interruptHandler);
 
 	(void)master.addChild(argv + 1);
+
+	std::cout << "Starting with " << master.getNumProcesses() << " processes" << std::endl;
 
 	do
 	{

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:51 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/19 12:28:54 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/19 19:05:39 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,12 +36,13 @@ public:
 	int		start(void);
 	int		restart(void);
 	int		stop(void);
+	int		signal(int sig);
 	int		kill(void);
 	int		cycle(void);
 
-
 	bool	allStopped(void) const;
 
+	size_t		getNumProcesses(void) const;
 	std::string	getStatus(void) const;
 };
 

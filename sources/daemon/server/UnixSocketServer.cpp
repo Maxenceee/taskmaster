@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 17:43:04 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/19 12:37:19 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/19 19:09:05 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -195,6 +195,18 @@ UnixSocketServer::serve(int client_fd)
 	{
 		Logger::debug("Client requested to restart");
 		this->_master.restart();
+	}
+	else if (strncmp(buffer, "signal", 6) == 0)
+	{
+		Logger::debug("Client requested to signal");
+		int signal = atoi(buffer + 7);
+		if (signal < 1 || signal > 64)
+		{
+			Logger::error("Invalid signal number " + std::to_string(signal));
+			(void)send(client_fd, "Invalid signal number", 21, 0);
+			return (TM_FAILURE);
+		}
+		this->_master.signal(signal);
 	}
 	else
 	{

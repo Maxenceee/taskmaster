@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/19 13:13:17 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/19 18:58:14 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,11 @@ enum tm_config_stop_signal {
 
 typedef struct tm_process_config {
 	/**
+	 * The number of repalicas to start for this process.
+	 * @default 1
+	 */
+	uint16_t				numprocs;
+	/**
 	 * Start the process automatically when the taskmaster starts.
 	 * @default true
 	 */
@@ -56,31 +61,33 @@ typedef struct tm_process_config {
 	 * Number of seconds to wait before considering the process started.
 	 * @default 1
 	 */
-	int						startsecs;
+	uint16_t				startsecs;
 	/**
 	 * Number of retries to start the process if it fails to start.
 	 * @default 3
 	 */
-	int						startretries;
+	uint16_t				startretries;
 	/**
 	 * Number of seconds to wait for the process to stop before forcefully killing it.
 	 * @default 10
 	 */
-	int						stopwaitsecs;
+	uint16_t				stopwaitsecs;
 
 	/**
 	 * Constructor to initialize the process configuration with default values.
 	 */
 	tm_process_config(
+		uint16_t numprocs = 1,
 		bool autostart = true,
 		tm_config_auto_restart autorestart = TM_CONF_AUTORESTART_UNEXPECTED,
 		const std::initializer_list<uint8_t> &init_exitcodes = { 0 },
 		tm_config_stop_signal stopsignal = TERM,
-		int startsecs = 1,
-		int startretries = 3,
-		int stopwaitsecs = 10
+		uint16_t startsecs = 1,
+		uint16_t startretries = 3,
+		uint16_t stopwaitsecs = 10
 	)
 	{
+		this->numprocs = numprocs;
 		this->autostart = autostart;
 		this->autorestart = autorestart;
 		this->stopsignal = stopsignal;
@@ -144,6 +151,9 @@ private:
 	int		_exit_code;
 	int		_state;
 
+	const std::string	_program_name;
+	int					_process_group_id;
+
 	time_point	start_time;
 	time_point	stop_time;
 
@@ -168,8 +178,14 @@ private:
 	int		_monitor_stopping(void);
 
 public:
-	Process(char* const* exec, char* const* envp, pid_t ppid, int std_in_fd, int std_out_fd, int std_err_fd, tm_process_config &config);
+	Process(char* const* exec, char* const* envp, const char* program_name, tm_process_config &config, pid_t ppid, pid_t pgid = 0);
 	~Process(void);
+
+	void	setStdInFd(int std_in_fd);
+	void	setStdOutFd(int std_out_fd);
+	void	setStdErrFd(int std_err_fd);
+
+	void	setGroupId(int id);
 
 	int		start(void);
 	int		restart(void);
@@ -180,21 +196,21 @@ public:
 
 	pid_t	getPid() const;
 
-	void	setGroupId(pid_t pgid);
-
 	bool	started(void) const;
 	bool	stopped(void) const;
 	bool	exited(void) const;
 	bool	fatal(void) const;
 	bool	shouldRestart(void) const;
 
+	const std::string&	getProgramName(void) const;
+	int			getNumProcs(void) const;
 	int			getStopSignal(void) const;
 	int			getSignal(void) const;
 	int			getExitCode(void) const;
 	std::string	getState(void) const;
 
-	char const*		getProgramName(void) const;
-	char* const*	getProgramArgs(void) const;
+	char const*		getExecName(void) const;
+	char* const*	getExecArgs(void) const;
 };
 
 #endif /* PROCESS_HPP */

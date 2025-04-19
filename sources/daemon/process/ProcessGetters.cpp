@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 19:44:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/19 11:43:18 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/19 18:36:06 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,18 @@ bool
 Process::fatal(void) const
 {
 	return (this->_state == TM_P_FATAL);
+}
+
+const std::string&
+Process::getProgramName(void) const
+{
+	return (this->_program_name);
+}
+
+int
+Process::getNumProcs(void) const
+{
+	return (this->config.numprocs);
 }
 
 int
@@ -93,13 +105,13 @@ Process::getState(void) const
 }
 
 char const*
-Process::getProgramName(void) const
+Process::getExecName(void) const
 {
 	return (this->exec[0]);
 }
 
 char* const*
-Process::getProgramArgs(void) const
+Process::getExecArgs(void) const
 {
 	return (this->exec + 1);
 }
