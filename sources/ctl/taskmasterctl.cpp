@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/19 11:33:36 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/19 13:07:17 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,10 +27,10 @@ struct CommandNodeUsage {
 };
 
 struct CommandNode {
-	std::string								name;				// Nom de la commande
-	std::vector<struct CommandNodeUsage> 	usages;				// Liste des variantes d'usage de la commande
-	bool									visible;			// Indique si la commande doit être affichée dans l'aide
-	bool									ripple_autocomplete;// Indique si l'autocomplétion doit être propagée aux sous-commandes
+	std::string								name;					// Nom de la commande
+	std::vector<struct CommandNodeUsage> 	usages;					// Liste des variantes d'usage de la commande
+	bool									visible;				// Indique si la commande doit être affichée dans l'aide
+	bool									ripple_autocomplete;	// Indique si l'autocomplétion doit être propagée aux sous-commandes
 };
 
 const std::vector<CommandNode> commands = {
@@ -278,17 +278,6 @@ attach_readline()
 	{
 		// auto rl_in = tm_readline(TM_PROJECTCTL "> ");
 		char *rl_in = readline(TM_PROJECTCTL "> ");
-		// if (!rl_in) {
-		// 	break;
-		// }
-		// auto input = rl_in.value();
-
-		// (void)trim(input);
-
-		// if (input.empty()) {
-		// 	continue;
-		// }
-
 		if (NULL == rl_in)
 		{
 			break;
@@ -299,7 +288,12 @@ attach_readline()
 			continue;
 		}
 
-		add_history(rl_in);
+		// Check if the current input is the same as the last history entry
+		HIST_ENTRY *last_entry = history_get(history_length);
+		if (!last_entry || strcmp(last_entry->line, rl_in) != 0) {
+			add_history(rl_in);
+		}
+
 
 		// tm_rl_add_history(input);
 		// if (input == "exit") {
@@ -307,6 +301,7 @@ attach_readline()
 		// }
 
 		std::vector<std::string> tokens = tokenize(rl_in);
+		free(rl_in);
 		if (tokens.empty()) {
 			continue;
 		}
@@ -325,8 +320,10 @@ attach_readline()
 			continue;
 		}
 
+		std::string message = join(tokens, " ");
+
 		// std::cout << "Input: (" << input << ")" << std::endl;
-		total_sent += send_message(socket_fd, rl_in, strlen(rl_in));
+		total_sent += send_message(socket_fd, message.c_str(), message.length());
 		total_recv += read_message(socket_fd);
 		close(socket_fd);
 	} while (true);
