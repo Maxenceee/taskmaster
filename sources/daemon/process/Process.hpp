@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/19 12:14:43 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/19 13:13:17 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -179,6 +179,8 @@ public:
 	int		monitor(void);
 
 	pid_t	getPid() const;
+
+	void	setGroupId(pid_t pgid);
 
 	bool	started(void) const;
 	bool	stopped(void) const;
