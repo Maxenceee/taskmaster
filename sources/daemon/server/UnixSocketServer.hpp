@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:45:59 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/06 19:24:03 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/19 11:13:58 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define UNIXSOCKETSERVER_HPP
 
 #include "unix_socket/UnixSocket.hpp"
+#include "taskmaster/Taskmaster.hpp"
 
 enum tm_polltype {
 	TM_POLL_SERVER	= 0x00,	// A server socket
@@ -38,14 +39,15 @@ typedef struct tm_pollclient {
 class UnixSocketServer: public UnixSocket
 {
 private:
-	bool	_running;
+	bool		_running;
+	Taskmaster	&_master;
 
 	std::map<int, tm_pollclient>	_poll_clients;
 
 	int	serve(int client);
 
 public:
-	UnixSocketServer(const char* socket_path);
+	UnixSocketServer(const char* socket_path, Taskmaster &master);
 	~UnixSocketServer(void);
 
 	int	listen(void);

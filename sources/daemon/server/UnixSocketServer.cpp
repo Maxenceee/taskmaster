@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 17:43:04 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/06 19:25:11 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/19 11:21:04 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,7 @@
 #include "logger/Logger.hpp"
 #include "utils/utils.hpp"
 
-extern bool running;
-
-UnixSocketServer::UnixSocketServer(const char* unix_path): UnixSocket(unix_path)
+UnixSocketServer::UnixSocketServer(const char* unix_path, Taskmaster &master): UnixSocket(unix_path), _master(master)
 {
 	this->sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (this->sockfd == -1)
@@ -114,7 +112,7 @@ read_from_client(int client_fd, char *buffer, size_t buffer_size)
 }
 
 int
-UnixSocketServer::cycle(void)
+UnixSocketServer::cycle()
 {
 	int newclient;
 	std::vector<int>	to_remove;
@@ -177,7 +175,14 @@ UnixSocketServer::serve(int client_fd)
 	if (strncmp(buffer, "kill", 4) == 0)
 	{
 		Logger::debug("Client requested to exit");
-		running = false;
+		Taskmaster::running = false;
+	}
+	if (strncmp(buffer, "status", 4) == 0)
+	{
+		Logger::debug("Client requested status");
+		const std::string& s = this->_master.getStatus();
+		(void)send(client_fd, s.c_str(), s.size(), 0);
+		return (TM_SUCCESS);
 	}
 
 	(void)send(client_fd, "Data successfully received", 27, 0);

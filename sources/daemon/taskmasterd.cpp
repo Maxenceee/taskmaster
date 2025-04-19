@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/18 19:01:15 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/19 11:35:33 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,18 +18,18 @@
 #include "server/UnixSocketServer.hpp"
 #include "daemon/daemon.hpp"
 
-bool running = true;
+bool	Taskmaster::running = false;
 
 void
 interruptHandler(int sig_int)
 {
 	Logger::cout("\b\b"); // rm ^C from tty
 	Logger::print("Signal received: " + std::string(strsignal(sig_int)), B_GREEN);
-	if (running == false)
+	if (Taskmaster::running == false)
 	{
 		Logger::info(TM_PROJECTD " is already stopping");
 	}
-	running = false;
+	Taskmaster::running = false;
 }
 
 int
@@ -120,14 +120,14 @@ check_pid_file(void)
 void
 start_main_loop(char* const* argv, char* const* envp)
 {
-	UnixSocketServer server(TM_SOCKET_PATH);
+	Taskmaster master(envp);
+
+	UnixSocketServer server(TM_SOCKET_PATH, master);
 	server.listen();
 
 	setup_signal(SIGINT, interruptHandler);
 	setup_signal(SIGQUIT, interruptHandler);
 	setup_signal(SIGTERM, interruptHandler);
-
-	Taskmaster master(envp);
 
 	(void)master.addChild(argv + 1);
 
@@ -141,7 +141,7 @@ start_main_loop(char* const* argv, char* const* envp)
 		{
 			break;
 		}
-	} while (running);
+	} while (Taskmaster::running);
 
 	Logger::print(TM_PROJECTD " stopping, this can take a while...", B_GREEN);
 	(void)server.stop();

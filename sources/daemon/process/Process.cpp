@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/19 11:05:32 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/19 11:48:33 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,8 @@ Process::_spawn(void)
 	}
 
 	this->pid = -1;
+	this->_signal = 0;
+	this->_exit_code = 0;
 	this->_state = TM_P_STARTING;
 	this->_retries++;
 	this->start_time = std::chrono::system_clock::now();
@@ -80,7 +82,6 @@ Process::_spawn(void)
 int
 Process::stop(void)
 {
-	this->_stop_requested = true;
 	if (this->_signal > 0 || this->_state == TM_P_STOPPING || this->_state == TM_P_EXITED || this->_state == TM_P_FATAL || this->pid == -1)
 	{
 		std::cout << "Process already stopping or stopped" << std::endl;
