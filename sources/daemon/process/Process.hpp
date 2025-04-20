@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 12:10:44 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 13:06:12 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,10 @@ typedef struct tm_process_config {
 	 * @default 10
 	 */
 	uint16_t				stopwaitsecs;
+	/**
+	 * Working directory to chdir to before executing the process.
+	 */
+	char					directory[PATH_MAX + 1];
 
 	/**
 	 * Constructor to initialize the process configuration with default values.
@@ -84,7 +88,8 @@ typedef struct tm_process_config {
 		tm_config_stop_signal stopsignal = TERM,
 		uint16_t startsecs = 1,
 		uint16_t startretries = 3,
-		uint16_t stopwaitsecs = 10
+		uint16_t stopwaitsecs = 10,
+		const char* directory = nullptr
 	)
 	{
 		this->numprocs = numprocs;
@@ -106,6 +111,15 @@ typedef struct tm_process_config {
 		}
 
 		this->stopwaitsecs = stopwaitsecs;
+		if (directory != nullptr)
+		{
+			strncpy(this->directory, directory, PATH_MAX);
+			this->directory[PATH_MAX] = '\0';
+		}
+		else
+		{
+			this->directory[0] = '\0';
+		}
 	}
 
 	bool isExitCodeSuccessful(uint8_t exitcode) const
