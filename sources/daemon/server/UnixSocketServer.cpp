@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 17:43:04 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 18:17:08 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 18:33:02 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -371,6 +371,18 @@ UnixSocketServer::Client::parse(const char* buff)
 		{
 			this->desired_state = TM_P_EXITED;
 			(void)p->stop();
+		}
+		else if (this->input[0] == "signal")
+		{
+			int signal = std::stoi(this->input[2]);
+			if (p->getState() != TM_P_RUNNING)
+			{
+				this->send("The process is not running");
+				return (TM_POLL_CLIENT_DISCONNECT);
+			}
+			this->send("Sending signal " + std::to_string(signal) + " to process " + this->input[1]);
+			(void)p->signal(signal);
+			return (TM_POLL_CLIENT_DISCONNECT);
 		}
 	}
 
