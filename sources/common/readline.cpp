@@ -6,14 +6,14 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/25 11:24:39 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 14:53:33 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "readline.hpp"
 #include "utils/utils.hpp"
 
-int tty_fd = open("/dev/pts/10", O_RDWR);
+int tty_fd = open("/dev/ttys015", O_RDWR);
 
 enum tm_rl_ev {
 	TM_RL_NEW_LINE = 0,
