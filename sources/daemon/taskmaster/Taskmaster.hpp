@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:51 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/19 19:05:39 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 12:11:15 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ public:
 
 	size_t		getNumProcesses(void) const;
 	std::string	getStatus(void) const;
+	Process*	getProcess(const std::string& progname, int replicas = 0) const;
 };
 
 #endif /* TASKMASTER_HPP */

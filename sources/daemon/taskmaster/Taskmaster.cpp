@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/19 19:16:48 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 12:17:04 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ Taskmaster::addChild(char* const* exec)
 
 	tm_process_config config(
 		1,
-		false,
+		true,
 		TM_CONF_AUTORESTART_UNEXPECTED,
 		{0, 4},
 		TERM,
@@ -53,14 +53,14 @@ Taskmaster::addChild(char* const* exec)
 	);
 
 	Process* new_child = new Process(exec, this->envp, "child_key", config, this->pid);
-	new_child->setStdOutFd(std_out_fd); // temp
+	// new_child->setStdOutFd(std_out_fd); // temp
 
 	this->_processes.push_back(new_child);
 
 	for (int i = 1; i < new_child->getNumProcs(); ++i)
 	{
 		Process* new_child = new Process(exec, this->envp, "child_key", config, this->pid);
-		new_child->setStdOutFd(std_out_fd);  // temp
+		// new_child->setStdOutFd(std_out_fd);  // temp
 		new_child->setGroupId(i);
 		this->_processes.push_back(new_child);
 	}
@@ -143,6 +143,17 @@ size_t
 Taskmaster::getNumProcesses(void) const
 {
 	return (this->_processes.size());
+}
+
+Process*
+Taskmaster::getProcess(const std::string& progname, int replicas) const
+{
+	for (const auto& process : this->_processes)
+	{
+		if (process->getProgramName() == progname && process->getGroupId() == replicas)
+			return (process);
+	}
+	return (nullptr);
 }
 
 std::string

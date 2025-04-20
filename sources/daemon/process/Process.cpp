@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/19 19:02:46 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 12:23:27 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,8 @@ Process::Process(char* const* exec, char* const* envp, const char* program_name,
 	this->_retries = 0;
 
 	this->std_in_fd = -1;
-	this->std_out_fd = -1;
-	this->std_err_fd = -1;
+	this->std_out_fd = tempfile("out");
+	this->std_err_fd = tempfile("err");
 
 	this->_process_group_id = 0; // 0 means it is the leader of the process group
 
