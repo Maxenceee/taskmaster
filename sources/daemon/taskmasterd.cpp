@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 12:56:09 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 12:57:30 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,6 +155,8 @@ main(int argc, char* const* argv, char* const* envp)
 	setup_signal(SIGTERM, SIG_IGN);
 
 	setup_signal(SIGPIPE, SIG_IGN);
+
+	Logger::print("Daemon started with pid: " + std::to_string(getpid()));
 
 	try
 	{
