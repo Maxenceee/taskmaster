@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 17:43:04 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 16:24:11 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 18:04:45 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include "logger/Logger.hpp"
 #include "utils/utils.hpp"
 
-UnixSocketServer::UnixSocketServer(const char* unix_path, Taskmaster &master): UnixSocket(unix_path), _master(master)
+UnixSocketServer::UnixSocketServer(const char* unix_path, const Taskmaster& master): UnixSocket(unix_path), _master(master)
 {
 	if (!_test_socket())
 		throw std::runtime_error("Another instance is already running!");
@@ -150,7 +150,6 @@ read_from_client(int client_fd, char *buffer, size_t buffer_size)
 		Logger::debug("Connection closed by the client");
 		return (TM_FAILURE);
 	}
-	Logger::debug("Data received: " + std::string(buffer, bytes_received));
 	return (TM_SUCCESS);
 }
 
@@ -164,6 +163,8 @@ UnixSocketServer::cycle()
 	{
 		return (TM_FAILURE);
 	}
+
+	UnixSocketServer::Client* client;
 
 	for (size_t i = 0; i < this->poll_fds.size(); ++i)
 	{
@@ -188,103 +189,188 @@ UnixSocketServer::cycle()
 					Logger::perror("server error: accept failed");
 					return (TM_SUCCESS);
 				}
-				this->_poll_clients[newclient] = (tm_pollclient){TM_POLL_CLIENT, nullptr};
+				this->_poll_clients[newclient] = (tm_pollclient){TM_POLL_CLIENT, new UnixSocketServer::Client(newclient, this->_master)};
 				this->poll_fds.push_back((pollfd){newclient, TM_POLL_EVENTS, TM_POLL_NO_EVENTS});
 				break;
-			
+
 			case TM_POLL_CLIENT:
-				(void)serve(this->poll_fds[i].fd);
-				to_remove.push_back(i);
+				client = reinterpret_cast<UnixSocketServer::Client *>(this->_poll_clients[this->poll_fds[i].fd].data);
+				if (!client || this->serve(*client) != TM_POLL_CLIENT_OK)
+				{
+					Logger::debug("Client disconnected (event POLLIN)");
+					to_remove.push_back(i);
+				}
 				break;
+			}
+		}
+		else if (this->_poll_clients[this->poll_fds[i].fd].type == TM_POLL_CLIENT)
+		{
+			client = reinterpret_cast<UnixSocketServer::Client *>(this->_poll_clients[this->poll_fds[i].fd].data);
+			if (!client || client->done() != TM_POLL_CLIENT_OK)
+			{
+				to_remove.push_back(i);
 			}
 		}
 	}
 
+	int clien_fd;
 	for (auto it = to_remove.rbegin(); it != to_remove.rend(); ++it)
 	{
-		(void)close(this->poll_fds[*it].fd);
+		clien_fd = this->poll_fds[*it].fd;
+		(void)close(clien_fd);
+		client = reinterpret_cast<UnixSocketServer::Client *>(this->_poll_clients[clien_fd].data);
+		delete client;
 		this->poll_fds.erase(this->poll_fds.begin() + *it);
-		this->_poll_clients.erase(this->poll_fds[*it].fd);
+		this->_poll_clients.erase(clien_fd);
 	}
 	return (TM_SUCCESS);
 }
 
 int
-UnixSocketServer::serve(int client_fd)
+UnixSocketServer::serve(UnixSocketServer::Client& client)
 {
 	char	buffer[TM_RECV_SIZE];
 
-	(void)read_from_client(client_fd, buffer, TM_RECV_SIZE);
+	if (read_from_client(client.getFd(), buffer, TM_RECV_SIZE))
+	{
+		return (TM_POLL_CLIENT_ERROR);
+	}
 
-	if (strncmp(buffer, "kill", 4) == 0)
+	if (client.parse(buffer))
 	{
-		Logger::debug("Client requested to exit");
-		Taskmaster::running = false;
+		return (TM_POLL_CLIENT_ERROR);
 	}
-	else if (strncmp(buffer, "status", 6) == 0)
+
+	return (TM_POLL_CLIENT_OK);
+}
+
+int
+UnixSocketServer::Client::send(const std::string& msg)
+{
+	return (this->send(msg.c_str()));
+}
+
+int
+UnixSocketServer::Client::send(const char* msg)
+{
+	if (::send(this->fd, msg, strlen(msg), 0) == -1)
 	{
-		Logger::debug("Client requested status");
-	}
-	else if (strncmp(buffer, "stop", 4) == 0)
-	{
-		Logger::debug("Client requested to stop");
-		this->_master.stop();
-	}
-	else if (strncmp(buffer, "start", 5) == 0)
-	{
-		Logger::debug("Client requested to start");
-		this->_master.start();
-	}
-	else if (strncmp(buffer, "restart", 7) == 0)
-	{
-		Logger::debug("Client requested to restart");
-		this->_master.restart();
-	}
-	else if (strncmp(buffer, "signal", 6) == 0)
-	{
-		Logger::debug("Client requested to signal");
-		int signal = atoi(buffer + 7);
-		if (signal < 1 || signal > 64)
-		{
-			Logger::error("Invalid signal number " + std::to_string(signal));
-			(void)send(client_fd, "Invalid signal number", 21, 0);
-			return (TM_FAILURE);
-		}
-		this->_master.signal(signal);
-	}
-	else if (strncmp(buffer, "tail", 4) == 0)
-	{
-		Logger::debug("Client requested to tail");
-		auto prog = this->_master.getProcess(buffer + 5);
-		if (prog == nullptr)
-		{
-			Logger::error("Process not found");
-			(void)send(client_fd, "Process not found", 17, 0);
-			return (TM_FAILURE);
-		}
-		int fd = prog->getStdOutFd();
-		size_t filesize = lseek(fd, 0, SEEK_END);
-		lseek(fd, 0, SEEK_SET);
-		char *buf = new char[filesize + 1];
-		ssize_t bytes_read = read(fd, buf, filesize);
-		if (bytes_read == -1)
-		{
-			Logger::perror("Error reading from file");
-			delete[] buf;
-			return (TM_FAILURE);
-		}
-		buf[bytes_read] = '\0';
-		(void)send(client_fd, buf, bytes_read, 0);
-		delete[] buf;
-		return (TM_SUCCESS);
-	}
-	else
-	{
-		(void)send(client_fd, "Unknown command", 15, 0);
+		Logger::perror("client error: send failed");
 		return (TM_FAILURE);
 	}
-
-	const std::string& s = this->_master.getStatus();
-	(void)send(client_fd, s.c_str(), s.size(), 0);
 	return (TM_SUCCESS);
+}
+
+int
+UnixSocketServer::Client::getFd(void) const
+{
+	return (this->fd);
+}
+
+int
+UnixSocketServer::Client::done(void)
+{
+	if (false == this->input_received)
+	{
+		return (TM_POLL_CLIENT_OK);
+	}
+
+	auto p = this->_master.get(this->puid);
+	if (!p)
+	{
+		Logger::error("The process could not be found");
+		return (TM_POLL_CLIENT_ERROR);
+	}
+
+	if (p->getState() == this->desired_state)
+	{
+		std::stringstream ss;
+		ss << "Process " << p->getPid() << " (" << p->getProgramName() << ") is now " << p->getStateName();
+
+		this->send(ss.str());
+		return (TM_POLL_CLIENT_DISCONNECT);	
+	}
+
+	if (p->getState() == TM_P_FATAL || p->getState() == TM_P_UNKNOWN)
+	{
+		Logger::error("The process is in a fatal state");
+		return (TM_POLL_CLIENT_ERROR);
+	}
+
+	return (TM_POLL_CLIENT_OK);
+}
+
+int
+UnixSocketServer::Client::parse(const char* buff)
+{
+	size_t pos = 0;
+	std::string buffer(buff);
+
+	if (this->input_received)
+	{
+		Logger::warning("A process is already running");
+		return (TM_POLL_CLIENT_OK);
+	}
+
+	while ((pos = buffer.find(TM_CRLF)) != std::string::npos)
+	{
+		std::string line = buffer.substr(0, pos);
+		buffer.erase(0, pos + 2);
+
+		if (line.empty())
+		{
+			this->input_received = true;
+			break;
+		}
+
+		this->input.push_back(line);
+	}
+
+	if (this->input_received)
+	{
+		if (this->input[0] == "shutdown")
+		{
+			this->send("Shutting down the daemon");
+			Taskmaster::running = false;
+			return (TM_POLL_CLIENT_DISCONNECT);
+		}
+		else if (this->input[0] == "reload")
+		{
+			this->send("Reloading the daemon");
+			Taskmaster::running = false;
+			return (TM_POLL_CLIENT_DISCONNECT);
+		}
+
+		auto p = this->_master.find(this->input[1]);
+		if (!p)
+		{
+			Logger::error("The process could not be found");
+			return (TM_POLL_CLIENT_ERROR);
+		}
+		this->puid = p->getUid();
+		this->initial_state = p->getState();
+
+		if (this->input[0] == "status")
+		{
+			this->send(p->getStatus());
+			return (TM_POLL_CLIENT_DISCONNECT);
+		}
+		else if (this->input[0] == "start")
+		{
+			this->desired_state = TM_P_RUNNING;
+			(void)p->start();
+		}
+		else if (this->input[0] == "restart")
+		{
+			this->desired_state = TM_P_RUNNING;
+			(void)p->restart();
+		}
+		else if (this->input[0] == "stop")
+		{
+			this->desired_state = TM_P_EXITED;
+			(void)p->stop();
+		}
+	}
+
+	return (TM_POLL_CLIENT_OK);
 }

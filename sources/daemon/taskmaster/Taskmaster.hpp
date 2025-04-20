@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:51 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 12:11:15 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 18:04:03 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,6 @@ private:
 
 	char* const*					envp;
 
-	// std::map<pid_t, Process*>		_processes;
 	std::vector<Process*>		_processes;
 
 public:
@@ -31,6 +30,7 @@ public:
 	~Taskmaster(void);
 
 	static bool	running;
+	static bool	reload;
 
 	int		addChild(char* const* exec);
 	int		start(void);
@@ -44,7 +44,8 @@ public:
 
 	size_t		getNumProcesses(void) const;
 	std::string	getStatus(void) const;
-	Process*	getProcess(const std::string& progname, int replicas = 0) const;
+	Process*	find(const std::string& progname) const;
+	Process*	get(const std::string& uid) const;
 };
 
 #endif /* TASKMASTER_HPP */

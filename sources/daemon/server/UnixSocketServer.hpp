@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:45:59 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 12:48:01 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 17:56:04 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,18 +38,44 @@ typedef struct tm_pollclient {
 
 class UnixSocketServer: public UnixSocket
 {
+public:
+	class Client
+	{
+	private:
+		int			fd;
+		bool		input_received;
+		
+		const Taskmaster&	_master;
+		int initial_state;
+		int desired_state;
+		std::string puid;
+
+		std::vector<std::string>		input;
+
+	public:
+		Client(int fd, const Taskmaster& master): fd(fd), input_received(false), _master(master) {}
+
+		int		send(const std::string& msg);
+		int		send(const char* msg);
+
+		int		getFd(void) const;
+		
+		int		done();
+		int		parse(const char* buff);
+	};
+
 private:
-	bool		_running;
-	Taskmaster	&_master;
+	bool				_running;
+	const Taskmaster&	_master;
 
 	std::map<int, tm_pollclient>	_poll_clients;
 
-	int	serve(int client);
+	int	serve(UnixSocketServer::Client& client);
 
 	bool	_test_socket();
 
 public:
-	UnixSocketServer(const char* socket_path, Taskmaster &master);
+	UnixSocketServer(const char* socket_path, const Taskmaster &master);
 	~UnixSocketServer(void);
 
 	int	listen(void);

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 16:22:09 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 17:49:53 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -386,7 +386,9 @@ attach_readline()
 				continue;
 			}
 
-			std::string message = join(tokens, " ");
+			std::string message = join(tokens, TM_CRLF);
+			message += TM_CRLF;
+			message += TM_CRLF;
 
 			// std::cout << "Input: (" << input << ")" << std::endl;
 			total_sent += send_message(socket_fd, message.c_str(), message.length());
