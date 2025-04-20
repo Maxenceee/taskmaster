@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:15:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/17 10:51:57 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 13:14:59 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,11 @@
 #include "logger/Logger.hpp"
 
 int
-spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, int stderr_fd, int pgid)
+spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, int stderr_fd
+#ifdef TM_SPAWN_CHILD_SUPPORT_PGID
+	, int pgid
+#endif /* TM_SPAWN_CHILD_SUPPORT_PGID */
+, const char* dir)
 {
 	pid_t pid;
 
@@ -60,6 +64,7 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 		return (-1);
 	}
 
+#ifdef TM_SPAWN_CHILD_SUPPORT_PGID
 	posix_spawnattr_setflags(&attr, POSIX_SPAWN_SETPGROUP);
 	if (posix_spawnattr_setpgroup(&attr, pgid) != 0)
 	{
@@ -67,6 +72,24 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 		posix_spawn_file_actions_destroy(&actions);
 		posix_spawnattr_destroy(&attr);
 		return (-1);
+	}
+#endif /* TM_SPAWN_CHILD_SUPPORT_PGID */
+
+	if (dir && dir[0] != '\0') {
+		// Vérifie si le dossier existe avant
+		if (access(dir, X_OK) != 0) {
+			Logger::perror("invalid working directory");
+			posix_spawn_file_actions_destroy(&actions);
+			posix_spawnattr_destroy(&attr);
+			return (-1);
+		}
+
+		if (posix_spawn_file_actions_addchdir_np(&actions, dir) != 0) {
+			Logger::perror("posix_spawn_file_actions_addchdir_np failed");
+			posix_spawn_file_actions_destroy(&actions);
+			posix_spawnattr_destroy(&attr);
+			return (-1);
+		}
 	}
 
 	// Spawn the child process
@@ -127,9 +150,23 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 		signal(SIGTERM, SIG_DFL);
 		signal(SIGPIPE, SIG_DFL);
 
+#ifdef TM_SPAWN_CHILD_SUPPORT_PGID
 		if (setpgid(0, pgid) == -1) {
 			perror("setpgid");
 			exit(TM_FAILURE);
+		}
+#endif /* TM_SPAWN_CHILD_SUPPORT_PGID */
+
+		if (dir && dir[0] != '\0') {
+			if (access(dir, X_OK) != 0) {
+				perror("invalid working directory");
+				exit(TM_FAILURE);
+			}
+
+			if (chdir(dir) != 0) {
+				perror("chdir failed");
+				exit(TM_FAILURE);
+			}
 		}
 
 		// Execute the child process
