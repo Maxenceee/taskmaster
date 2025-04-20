@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 18:04:11 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 18:12:15 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@
 #include "daemon/daemon.hpp"
 
 bool	Taskmaster::running = false;
-bool	Taskmaster::reload = false;
 
 static int g_pid_fd = -1;
 
@@ -161,11 +160,7 @@ main(int argc, char* const* argv, char* const* envp)
 
 	try
 	{
-		do
-		{
-			Taskmaster::reload = false;
-			start_main_loop(argv, envp);
-		} while (Taskmaster::reload);
+		start_main_loop(argv, envp);
 	}
 	catch (const std::exception& e)
 	{

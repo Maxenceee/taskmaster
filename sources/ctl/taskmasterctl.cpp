@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 17:49:53 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 18:27:47 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,6 @@ get_process_name(const char* text, int state)
 		len = strlen(text);
 		suggestions.clear();
 
-		suggestions.push_back("child");
 		suggestions.push_back("child_key");
 	}
 
@@ -269,10 +268,17 @@ interruptHandler(int sig_int)
 {
 	(void)sig_int;
 	// tm_rl_new_line();
-	printf("\n");
+	std::cout << "\n";
 	rl_on_new_line();
     rl_replace_line("", 0);
     rl_redisplay();
+}
+
+static void
+interruptHandlerWhenWorking(int sig_int)
+{
+	(void)sig_int;
+	rl_on_new_line();
 }
 
 ssize_t
@@ -288,6 +294,12 @@ read_message(int sockfd)
 
 	ssize_t n = recv(sockfd, buffer, sizeof(buffer) - 1, 0);
 	if (n < 0) {
+		if (errno == EINTR)
+		{
+			std::cout << "\b\b"; // rm ^C from tty
+			std::cout << "Signal received, the process has been moved in background task.\n";
+			return 0;
+		}
 		Logger::perror("recv failed");
 		(void)close(sockfd);
 		return (-1);
@@ -334,7 +346,6 @@ attach_readline()
 
 	rl_attempted_completion_function = autocomplete;
 
-	setup_signal(SIGINT, interruptHandler);
 	setup_signal(SIGPIPE, SIG_IGN);
 
 	size_t total_sent = 0;
@@ -342,6 +353,8 @@ attach_readline()
 
 	do
 	{
+		setup_signal(SIGINT, interruptHandler);
+
 		// auto rl_in = tm_readline(TM_PROJECTCTL "> ");
 		char *rl_in = readline(TM_PROJECTCTL "> ");
 		if (NULL == rl_in)
@@ -359,6 +372,8 @@ attach_readline()
 		if (!last_entry || strcmp(last_entry->line, rl_in) != 0) {
 			add_history(rl_in);
 		}
+
+		setup_signal(SIGINT, interruptHandlerWhenWorking);
 
 		try
 		{

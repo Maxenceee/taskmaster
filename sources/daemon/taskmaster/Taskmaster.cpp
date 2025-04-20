@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 17:37:29 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 18:14:52 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ Taskmaster::addChild(char* const* exec)
 }
 
 int
-Taskmaster::cycle(void)
+Taskmaster::cycle(void) const
 {
 	for(const auto& process : this->_processes)
 	{
@@ -80,7 +80,7 @@ Taskmaster::cycle(void)
 }
 
 int
-Taskmaster::start(void)
+Taskmaster::start(void) const
 {
 	for(const auto& process : this->_processes)
 	{
@@ -90,7 +90,7 @@ Taskmaster::start(void)
 }
 
 int
-Taskmaster::restart(void)
+Taskmaster::restart(void) const
 {
 	for(const auto& process : this->_processes)
 	{
@@ -100,7 +100,7 @@ Taskmaster::restart(void)
 }
 
 int
-Taskmaster::stop(void)
+Taskmaster::stop(void) const
 {
 	for(const auto& process : this->_processes)
 	{
@@ -110,7 +110,7 @@ Taskmaster::stop(void)
 }
 
 int
-Taskmaster::signal(int sig)
+Taskmaster::signal(int sig) const
 {
 	for(const auto& process : this->_processes)
 	{
@@ -120,7 +120,7 @@ Taskmaster::signal(int sig)
 }
 
 int
-Taskmaster::kill(void)
+Taskmaster::kill(void) const
 {
 	for(const auto& process : this->_processes)
 	{

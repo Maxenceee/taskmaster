@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:51 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 18:04:03 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 18:15:06 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,12 +33,12 @@ public:
 	static bool	reload;
 
 	int		addChild(char* const* exec);
-	int		start(void);
-	int		restart(void);
-	int		stop(void);
-	int		signal(int sig);
-	int		kill(void);
-	int		cycle(void);
+	int		start(void) const;
+	int		restart(void) const;
+	int		stop(void) const;
+	int		signal(int sig) const;
+	int		kill(void) const;
+	int		cycle(void) const;
 
 	bool	allStopped(void) const;
 
