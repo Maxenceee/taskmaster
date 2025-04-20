@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/19 18:56:28 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 12:56:09 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@
 #include "daemon/daemon.hpp"
 
 bool	Taskmaster::running = false;
+
+static int g_pid_fd = -1;
 
 void
 interruptHandler(int sig_int)
@@ -37,29 +39,30 @@ create_pid_file(void)
 {
 	int32_t	tm_pid;
 	int		pid_fd;
-	char	pid_str[TM_INT64_LEN + 2];
-	int		len;
 
 	tm_pid = getpid();
 
-	pid_fd = open(TM_PID_FILE, O_WRONLY | O_CREAT | O_TRUNC, TM_DEFAULT_FILE_MODE);
+	pid_fd = open(TM_PID_FILE, O_WRONLY | O_CREAT, TM_DEFAULT_FILE_MODE);
 	if (pid_fd == -1)
 	{
 		Logger::perror("open");
 		return (TM_FAILURE);
 	}
 
-	len = snprintf(pid_str, TM_INT64_LEN + 2, "%i", tm_pid);
-	if (len == -1)
-	{
-		Logger::perror("snprintf");
-		return (TM_FAILURE);
-	}
-	if (write(pid_fd, pid_str, len) == -1)
-	{
-		Logger::perror("write");
-		return (TM_FAILURE);
-	}
+	if (flock(pid_fd, LOCK_EX | LOCK_NB) == -1) {
+        if (errno == EWOULDBLOCK) {
+            Logger::error("Another instance is already running!");
+        } else {
+            Logger::perror("flock");
+        }
+        close(pid_fd);
+        return (TM_FAILURE);
+    }
+
+	ftruncate(pid_fd, 0);
+	dprintf(pid_fd, "%d\n", tm_pid);
+
+	g_pid_fd = pid_fd;
 
 	return (TM_SUCCESS);
 }
@@ -67,54 +70,16 @@ create_pid_file(void)
 void
 remove_pid_file(void)
 {
+	if (g_pid_fd != -1) {
+		flock(g_pid_fd, LOCK_UN);
+        close(g_pid_fd);
+        g_pid_fd = -1;
+    }
+
 	if (unlink(TM_PID_FILE) == -1)
 	{
 		Logger::perror("unlink");
 	}
-}
-
-int
-check_pid_file(void)
-{
-	int		pid_fd;
-	char	pid_str[TM_INT64_LEN + 2];
-	ssize_t	len;
-	pid_t	pid;
-
-	pid_fd = open(TM_PID_FILE, O_RDONLY);
-	if (pid_fd == -1)
-	{
-		if (errno == ENOENT)
-		{
-			return (TM_SUCCESS);
-		}
-		Logger::perror("open");
-		return (TM_FAILURE);
-	}
-
-	len = read(pid_fd, pid_str, TM_INT64_LEN + 2);
-	if (len == -1)
-	{
-		Logger::perror("read");
-		return (TM_FAILURE);
-	}
-
-	pid = atoi(pid_str);
-	if (pid < 1)
-	{
-		return (TM_SUCCESS);
-	}
-	if (kill(pid, 0) == -1)
-	{
-		if (errno == ESRCH)
-		{
-			return (TM_SUCCESS);
-		}
-		Logger::perror("kill");
-		return (TM_FAILURE);
-	}
-
-	return (TM_FAILURE);
 }
 
 void
@@ -179,12 +144,6 @@ main(int argc, char* const* argv, char* const* envp)
 
 	Logger::init("Starting daemon");
 	Logger::setDebug(true);
-
-	if (check_pid_file() == TM_FAILURE)
-	{
-		Logger::error("Another instance is already running!");
-		return (TM_FAILURE);
-	}
 
 	if (create_pid_file() == TM_FAILURE)
 	{

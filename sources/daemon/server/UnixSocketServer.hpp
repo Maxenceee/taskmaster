@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:45:59 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/19 11:13:58 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 12:48:01 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,8 @@ private:
 	std::map<int, tm_pollclient>	_poll_clients;
 
 	int	serve(int client);
+
+	bool	_test_socket();
 
 public:
 	UnixSocketServer(const char* socket_path, Taskmaster &master);

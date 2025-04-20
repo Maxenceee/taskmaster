@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 17:43:04 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 12:25:33 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 12:54:06 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,9 @@
 
 UnixSocketServer::UnixSocketServer(const char* unix_path, Taskmaster &master): UnixSocket(unix_path), _master(master)
 {
+	if (!_test_socket())
+		throw std::runtime_error("Another instance is already running!");
+
 	this->sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (this->sockfd == -1)
 	{
@@ -56,6 +59,46 @@ UnixSocketServer::~UnixSocketServer(void)
 	{
 		(void)this->stop();
 	}
+}
+
+bool UnixSocketServer::_test_socket()
+{
+	if (access(this->socket_path.c_str(), F_OK) != 0)
+	{
+		return (true);
+	}
+
+	int test_fd = socket(AF_UNIX, SOCK_STREAM, 0);
+	if (test_fd == -1)
+	{
+		Logger::perror("unix server: socket creation for testing failed");
+		return (false);
+	}
+
+	struct sockaddr_un test_addr;
+	memset(&test_addr, 0, sizeof(test_addr));
+	test_addr.sun_family = AF_UNIX;
+	strncpy(test_addr.sun_path, this->socket_path.c_str(), sizeof(test_addr.sun_path) - 1);
+
+	bool usable = true;
+	if (connect(test_fd, (struct sockaddr*)&test_addr, sizeof(test_addr)) == 0)
+	{
+		usable = (false);
+	}
+	else
+	{
+		if (errno == ECONNREFUSED || errno == ENOENT)
+		{
+			usable = (true);
+		}
+		else
+		{
+			usable = (false);
+		}
+	}
+
+	close(test_fd);
+	return (usable);
 }
 
 int
