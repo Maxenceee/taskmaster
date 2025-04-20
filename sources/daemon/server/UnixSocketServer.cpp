@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 17:43:04 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 18:04:45 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 18:17:08 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -294,6 +294,7 @@ UnixSocketServer::Client::done(void)
 	if (p->getState() == TM_P_FATAL || p->getState() == TM_P_UNKNOWN)
 	{
 		Logger::error("The process is in a fatal state");
+		this->send("The process is in a fatal state");
 		return (TM_POLL_CLIENT_ERROR);
 	}
 
@@ -337,7 +338,12 @@ UnixSocketServer::Client::parse(const char* buff)
 		else if (this->input[0] == "reload")
 		{
 			this->send("Reloading the daemon");
-			Taskmaster::running = false;
+			this->_master.restart();
+			return (TM_POLL_CLIENT_DISCONNECT);
+		}
+		else if (this->input[0] == "status")
+		{
+			this->send(this->_master.getStatus());
 			return (TM_POLL_CLIENT_DISCONNECT);
 		}
 
@@ -345,17 +351,13 @@ UnixSocketServer::Client::parse(const char* buff)
 		if (!p)
 		{
 			Logger::error("The process could not be found");
+			this->send("The process could not be found");
 			return (TM_POLL_CLIENT_ERROR);
 		}
 		this->puid = p->getUid();
 		this->initial_state = p->getState();
 
-		if (this->input[0] == "status")
-		{
-			this->send(p->getStatus());
-			return (TM_POLL_CLIENT_DISCONNECT);
-		}
-		else if (this->input[0] == "start")
+		if (this->input[0] == "start")
 		{
 			this->desired_state = TM_P_RUNNING;
 			(void)p->start();
