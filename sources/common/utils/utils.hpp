@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 11:38:42 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 12:23:33 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 17:13:25 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,10 @@ std::string	resolve_path(const std::string& url, const std::string& scheme);
 /* file */
 
 int tempfile(const char channel[3]);
+
+/* uuid */
+
+std::string	uuid_v4();
 
 /* time */
 

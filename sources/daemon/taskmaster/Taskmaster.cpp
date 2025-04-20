@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 16:05:19 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 17:37:29 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,11 +147,22 @@ Taskmaster::getNumProcesses(void) const
 }
 
 Process*
-Taskmaster::getProcess(const std::string& progname, int replicas) const
+Taskmaster::find(const std::string& progname) const
 {
 	for (const auto& process : this->_processes)
 	{
-		if (process->getProgramName() == progname && process->getGroupId() == replicas)
+		if (process->getProgramName() == progname)
+			return (process);
+	}
+	return (nullptr);
+}
+
+Process*
+Taskmaster::get(const std::string& uid) const
+{
+	for (const auto& process : this->_processes)
+	{
+		if (*process == uid)
 			return (process);
 	}
 	return (nullptr);
@@ -168,7 +179,7 @@ Taskmaster::getStatus(void) const
 	{
 		oss << "    - Name: " << process->getProgramName() << ";\n";
 		oss << "      PID: " << process->getPid() << ";\n";
-		oss << "      State: " << process->getState() << ";\n";
+		oss << "      State: " << process->getStateName() << ";\n";
 		oss << "      Signal: " << process->getSignal() << ";\n";
 		oss << "      Exit code: " << process->getExitCode() << ";\n";
 		oss << "      Program: " << process->getExecName() << ";\n";

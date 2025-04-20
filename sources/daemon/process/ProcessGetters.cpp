@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 19:44:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 12:11:02 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 17:44:39 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,18 @@ pid_t
 Process::getPid(void) const
 {
 	return (this->pid);
+}
+
+const std::string&
+Process::getUid(void) const
+{
+	return (this->uid);
+}
+
+bool
+Process::operator==(const std::string& other) const
+{
+	return (this->uid == other);
 }
 
 bool
@@ -100,8 +112,14 @@ Process::shouldRestart(void) const
 	return (this->config.autorestart == TM_CONF_AUTORESTART_TRUE || this->config.autorestart == TM_CONF_AUTORESTART_UNEXPECTED);
 }
 
-std::string
+int
 Process::getState(void) const
+{
+	return (this->_state);
+}
+
+std::string
+Process::getStateName(void) const
 {
 	switch (this->_state)
 	{
@@ -132,4 +150,25 @@ char* const*
 Process::getExecArgs(void) const
 {
 	return (this->exec + 1);
+}
+
+std::string
+Process::getStatus(void) const
+{
+	std::ostringstream oss;
+	oss << "{\n";
+	oss << "  PID: " << this->pid << ";\n";
+	oss << "  State: " << this->getStateName() << ";\n";
+	oss << "  Signal: " << this->_signal << ";\n";
+	oss << "  Exit code: " << this->_exit_code << ";\n";
+	oss << "  Program: " << this->getExecName() << ";\n";
+	oss << "  ProgramArguments: (" << "\n";
+	for (char* const* arg = this->getExecArgs(); *arg != nullptr; ++arg)
+	{
+		oss << "    - \"" << *arg << "\"\n";
+	}
+	oss << "  );\n";
+	oss << "}";
+
+	return (oss.str());
 }
