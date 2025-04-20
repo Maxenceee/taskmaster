@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/19 13:07:17 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 15:34:48 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,28 +27,109 @@ struct CommandNodeUsage {
 };
 
 struct CommandNode {
-	std::string								name;					// Nom de la commande
-	std::vector<struct CommandNodeUsage> 	usages;					// Liste des variantes d'usage de la commande
-	bool									visible;				// Indique si la commande doit être affichée dans l'aide
-	bool									ripple_autocomplete;	// Indique si l'autocomplétion doit être propagée aux sous-commandes
+	std::string								name;							// Nom de la commande
+	std::vector<struct CommandNodeUsage> 	usages;							// Liste des variantes d'usage de la commande
+	bool									visible;						// Indique si la commande doit être affichée dans l'aide
+	bool									ripple_autocomplete;			// Indique si l'autocomplétion doit être propagée aux sous-commandes
+	char*									(*suggest)(const char*, int);	// Pointeur vers la fonction de rappel associée à la commande
 };
 
+char*
+get_process_name(const char* text, int state)
+{
+	static std::vector<std::string> suggestions;
+	static int index = 0;
+
+(void)dprintf(tty_fd, "text: %s, state: %d\n", text, state);
+
+	if (state == 0)
+	{
+		index = 0;
+		suggestions.clear();
+
+		suggestions.push_back("child_key");
+	}
+
+	if (index < suggestions.size()) {
+		return strdup(suggestions[index++].c_str());
+	}
+
+	return nullptr;
+}
+
 const std::vector<CommandNode> commands = {
-	{"list", {
-		{"list", "List all processes"},
-		{"list <name>", "List a specific process"},
-	}, true, false},
 	{"add", {
-		{"add <name> <cmd>", "Add a new process"},
-		{"add <name> <cmd> <numprocs>", "Add a new process with a specific number of instances"},
-	}, true, false},
+		{"add <name> [...]", "Activates any updates in config for process/group"},
+	}, true, false, &get_process_name},
+	{"avail", {
+		{"avail", "Display all configured processes"},
+	}, true, false, &get_process_name},
+	{"clear", {
+		{"clear <name>", "Clear a process' log files."},
+		{"clear <name> <name>", "Clear multiple process' log files"},
+		{"clear all", "Clear all process' log files"},
+	}, true, false, &get_process_name},
+	{"exit", {
+		{"exit", "Exit the " TM_PROJECT " shell."},
+	}, true, false, &get_process_name},
+	{"maintail", {
+		{"maintail", "tail of " TM_PROJECT " main log file"},
+	}, true, false, &get_process_name},
+	{"pid", {
+		{"pid", "Get the PID of " TM_PROJECTD "."},
+		{"pid <name>", "Get the PID of a single child process by name."},
+		{"pid all", "Get the PID of every child process, one per line."},
+	}, true, false, &get_process_name},
+	{"reload", {
+		{"reload", "Restart the remote " TM_PROJECTD "."},
+	}, true, false, &get_process_name},
 	{"remove", {
-		{"remove <name>", "Remove a process"},
-	}, true, false},
+		{"remove <name> [...]", "Removes process from active config"},
+	}, true, false, &get_process_name},
+	{"reread", {
+		{"reread", "Reload the daemon's configuration files without add/remove"},
+	}, true, false, &get_process_name},
+	{"restart", {
+		{"restart <name>", "Restart a process"},
+		{"restart <name> <name", "Restart multiple processes"},
+		{"restart all", "Restart all processes"},
+	}, true, false, &get_process_name},
+	{"shutdown", {
+		{"shutdown", "Shut the remote " TM_PROJECTD " down."},
+	}, true, false, &get_process_name},
+	{"signal", {
+		{"signal <signal name> <name>", "Signal a process"},
+		{"signal <signal name> <name> <name>", "Signal multiple processes"},
+		{"signal <signal name> all", "Signal all processes"},
+	}, true, false, &get_process_name},
+	{"start", {
+		{"start <name>", "Start a process"},
+		{"start <name> <name", "Start multiple processes"},
+		{"start all", "Start all processes"},
+	}, true, false, &get_process_name},
+	{"status", {
+		{"status <name>", "Get status for a single process"},
+		{"status <name> <name", "Get status for multiple named processes"},
+		{"status", "Get all process status info"},
+	}, true, false, &get_process_name},
+	{"stop", {
+		{"stop <name>", "Stop a process"},
+		{"stop <name> <name", "Stop multiple processes"},
+		{"stop all", "Stop all processes"},
+	}, true, false, &get_process_name},
+	{"tail", {
+		{"tail <name> [stdout|stderr] (default stdout)", ""},
+	}, true, false, &get_process_name},
+	{"update", {
+		{"update", "Reload config and add/remove as necessary, and will restart affected programs"},
+	}, true, false, &get_process_name},
+	{"version", {
+		{"version", "Show the version of the remote " TM_PROJECTD " process"},
+	}, true, false, &get_process_name},
 	{"help", {
 		{"help", "Show help"},
 		{"help <command>", "Show help for a specific command"},
-	}, false, true},
+	}, false, true, nullptr},
 };
 
 static void
@@ -111,54 +192,9 @@ show_command_info(const std::string &cmd)
 	std::cout << "*** No help on " << cmd << "\n";
 }
 
-// std::vector<std::string>
-// autocomplete(const std::vector<CommandNode>& commands, const std::vector<std::string>& tokens, size_t cursor_pos)
-// {
-// 	std::vector<std::string> suggestions;
-
-// 	if (tokens.empty()) {
-// 		for (const auto& command : commands) {
-// 			suggestions.push_back(command.name);
-// 		}
-// 		return suggestions;
-// 	}
-
-// 	// Calculer la position du mot actuellement ciblé par le curseur
-// 	size_t word_start = 0, word_end = 0;
-// 	bool found_word = false;
-
-// 	size_t current_pos = 0;
-
-// 	// Déterminer le mot en cours d'édition
-// 	for (size_t i = 0, len = 0; i < tokens.size(); ++i) {
-// 		len += tokens[i].length();
-// 		if (cursor_pos <= len + i) { // Ajouter i pour les espaces séparateurs
-// 			word_start = i;
-// 			word_end = i;
-// 			found_word = true;
-// 			break;
-// 		}
-// 	}
-
-// 	// Si aucun mot trouvé, on est sur un nouveau mot
-// 	if (!found_word) {
-// 		return {};
-// 	}
-
-// 	// Le mot en cours d'édition
-// 	std::string current_word = tokens[word_start];
-// 	std::string prefix = current_word.substr(0, cursor_pos - word_start);
-
-// 	for (const auto& command : commands) {
-//         if (command.name.compare(0, prefix.size(), prefix) == 0) {
-//             suggestions.push_back(command.name);
-//         }
-//     }
-
-// 	return suggestions;
-// }
-
-char *command_generator(const char *text, int state) {
+char *
+command_generator(const char *text, int state)
+{
 	static size_t index;
 	static size_t len;
 
@@ -182,7 +218,8 @@ char *command_generator(const char *text, int state) {
 	return nullptr; // Plus de suggestions
 }
 
-static char**autocomplete(const char *text, int start, int end)
+static char**
+autocomplete(const char *text, int start, int end)
 {
 	(void)end;
 
@@ -190,12 +227,25 @@ static char**autocomplete(const char *text, int start, int end)
 
 	rl_attempted_completion_over = 1;
 
-	if (start > 0)
+	if (start == 0)
 	{
-		return nullptr;
+		return rl_completion_matches(text, command_generator);
 	}
 
-	return rl_completion_matches(text, command_generator);
+	std::string cmd = std::string(rl_line_buffer).substr(0, std::string(rl_line_buffer).find(' '));
+	
+(void)dprintf(tty_fd, "rl_line_buffer: %s\n", rl_line_buffer);
+(void)dprintf(tty_fd, "cmd: %s\n", cmd.c_str());
+
+	// Chercher la commande correspondante dans `commands`
+	for (const auto& node : commands) {
+		if (node.name == cmd && node.suggest) {
+			// On retourne une fonction de complétion spécifique pour les noms de processus
+			return rl_completion_matches(text, node.suggest);
+		}
+	}
+
+	return nullptr;
 }
 
 static void
