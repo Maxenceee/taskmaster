@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 17:43:04 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/19 19:09:05 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 12:25:33 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -207,6 +207,32 @@ UnixSocketServer::serve(int client_fd)
 			return (TM_FAILURE);
 		}
 		this->_master.signal(signal);
+	}
+	else if (strncmp(buffer, "tail", 4) == 0)
+	{
+		Logger::debug("Client requested to tail");
+		auto prog = this->_master.getProcess(buffer + 5);
+		if (prog == nullptr)
+		{
+			Logger::error("Process not found");
+			(void)send(client_fd, "Process not found", 17, 0);
+			return (TM_FAILURE);
+		}
+		int fd = prog->getStdOutFd();
+		size_t filesize = lseek(fd, 0, SEEK_END);
+		lseek(fd, 0, SEEK_SET);
+		char *buf = new char[filesize + 1];
+		ssize_t bytes_read = read(fd, buf, filesize);
+		if (bytes_read == -1)
+		{
+			Logger::perror("Error reading from file");
+			delete[] buf;
+			return (TM_FAILURE);
+		}
+		buf[bytes_read] = '\0';
+		(void)send(client_fd, buf, bytes_read, 0);
+		delete[] buf;
+		return (TM_SUCCESS);
 	}
 	else
 	{

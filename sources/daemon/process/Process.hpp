@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/19 18:58:14 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 12:10:44 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -202,7 +202,11 @@ public:
 	bool	fatal(void) const;
 	bool	shouldRestart(void) const;
 
+	int		getStdOutFd(void) const;
+	int		getStdErrFd(void) const;
+
 	const std::string&	getProgramName(void) const;
+	int			getGroupId(void) const;
 	int			getNumProcs(void) const;
 	int			getStopSignal(void) const;
 	int			getSignal(void) const;

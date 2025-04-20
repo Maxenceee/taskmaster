@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 19:44:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/19 18:36:06 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 12:11:02 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,9 +43,15 @@ Process::fatal(void) const
 }
 
 const std::string&
-Process::getProgramName(void) const
+Process::getProgramName() const
 {
 	return (this->_program_name);
+}
+
+int
+Process::getGroupId(void) const
+{
+	return (this->_process_group_id);
 }
 
 int
@@ -70,6 +76,18 @@ int
 Process::getExitCode(void) const
 {
 	return (this->_exit_code);
+}
+
+int
+Process::getStdOutFd(void) const
+{
+	return (this->std_out_fd);
+}
+
+int
+Process::getStdErrFd(void) const
+{
+	return (this->std_err_fd);
 }
 
 bool
