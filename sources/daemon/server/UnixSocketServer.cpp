@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 17:43:04 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 12:54:06 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 16:24:11 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -215,6 +215,7 @@ UnixSocketServer::serve(int client_fd)
 	char	buffer[TM_RECV_SIZE];
 
 	(void)read_from_client(client_fd, buffer, TM_RECV_SIZE);
+
 	if (strncmp(buffer, "kill", 4) == 0)
 	{
 		Logger::debug("Client requested to exit");
