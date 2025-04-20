@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 15:45:41 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 16:22:09 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,7 +99,7 @@ const std::vector<CommandNode> commands = {
 	}, true, false, &get_process_name},
 	{"restart", {
 		{"restart <name>", "Restart a process"},
-		{"restart <name> <name", "Restart multiple processes"},
+		{"restart <name> <name>", "Restart multiple processes"},
 		{"restart all", "Restart all processes"},
 	}, true, false, &get_process_name},
 	{"shutdown", {
@@ -112,17 +112,17 @@ const std::vector<CommandNode> commands = {
 	}, true, false, &get_process_name},
 	{"start", {
 		{"start <name>", "Start a process"},
-		{"start <name> <name", "Start multiple processes"},
+		{"start <name> <name>", "Start multiple processes"},
 		{"start all", "Start all processes"},
 	}, true, false, &get_process_name},
 	{"status", {
 		{"status <name>", "Get status for a single process"},
-		{"status <name> <name", "Get status for multiple named processes"},
+		{"status <name> <name>", "Get status for multiple named processes"},
 		{"status", "Get all process status info"},
 	}, true, false, &get_process_name},
 	{"stop", {
 		{"stop <name>", "Stop a process"},
-		{"stop <name> <name", "Stop multiple processes"},
+		{"stop <name> <name>", "Stop multiple processes"},
 		{"stop all", "Stop all processes"},
 	}, true, false, &get_process_name},
 	{"tail", {
@@ -189,10 +189,18 @@ show_help()
 static void
 show_command_info(const std::string &cmd)
 {
+	size_t maxlen = 0;
+
 	for (const auto& command : commands) {
 		if (command.name == cmd) {
 			for (const auto& usage : command.usages) {
-				std::cout << std::setw(17) << std::left << usage.usage << usage.description << "\n";
+				if (usage.usage.length() > maxlen) {
+					maxlen = usage.usage.length();
+				}
+			}
+			maxlen += 2; // Ajouter un espace pour l'alignement
+			for (const auto& usage : command.usages) {
+				std::cout << std::setw(maxlen) << std::left << usage.usage << usage.description << "\n";
 			}
 			return;
 		}
@@ -352,38 +360,45 @@ attach_readline()
 			add_history(rl_in);
 		}
 
-
-		// tm_rl_add_history(input);
-		// if (input == "exit") {
-		// 	break;
-		// }
-
-		std::vector<std::string> tokens = tokenize(rl_in);
-		free(rl_in);
-		if (tokens.empty()) {
-			continue;
-		}
-
-		if (tokens[0] == "help") {
-			if (tokens.size() > 1) {
-				show_command_info(tokens[1]);
-			} else {
-				show_help();
+		try
+		{
+			std::vector<std::string> tokens = tokenize(rl_in);
+			free(rl_in);
+			if (tokens.empty()) {
+				continue;
 			}
-			continue;
+
+			if (tokens[0] == "exit") {
+				break;
+			}
+
+			if (tokens[0] == "help") {
+				if (tokens.size() == 2) {
+					show_command_info(tokens[1]);
+				} else {
+					show_help();
+				}
+				continue;
+			}
+
+			int socket_fd = connect_server(TM_SOCKET_PATH);
+			if (socket_fd == -1) {
+				continue;
+			}
+
+			std::string message = join(tokens, " ");
+
+			// std::cout << "Input: (" << input << ")" << std::endl;
+			total_sent += send_message(socket_fd, message.c_str(), message.length());
+			total_recv += read_message(socket_fd);
+			close(socket_fd);
 		}
-
-		int socket_fd = connect_server(TM_SOCKET_PATH);
-		if (socket_fd == -1) {
-			continue;
+		catch(...)
+		{
+			std::cerr << "*** Invalid command\n";
+			rl_on_new_line();
 		}
-
-		std::string message = join(tokens, " ");
-
-		// std::cout << "Input: (" << input << ")" << std::endl;
-		total_sent += send_message(socket_fd, message.c_str(), message.length());
-		total_recv += read_message(socket_fd);
-		close(socket_fd);
+		
 	} while (true);
 }
 

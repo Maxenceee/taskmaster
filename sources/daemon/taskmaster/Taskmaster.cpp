@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 13:21:48 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 16:05:19 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ Taskmaster::addChild(char* const* exec)
 
 	tm_process_config config(
 		1,
-		true,
+		false,
 		TM_CONF_AUTORESTART_UNEXPECTED,
 		{0, 4},
 		TERM,

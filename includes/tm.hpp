@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 23:24:24 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 15:38:01 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 16:02:29 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,10 @@
 
 #define TM_INT32_LEN   (sizeof("-2147483648") - 1)
 #define TM_INT64_LEN   (sizeof("-9223372036854775808") - 1)
+
+#define TM_CR	"\r"
+#define TM_LF	"\n"
+#define TM_CRLF	TM_CR TM_LF
 
 #define TM_DEFAULT_FILE_MODE 0644
 
