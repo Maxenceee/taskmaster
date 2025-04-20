@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 12:17:04 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 13:18:09 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,9 @@ Taskmaster::addChild(char* const* exec)
 		{0, 4},
 		TERM,
 		5,
-		3
+		3,
+		10,
+		"/"
 	);
 
 	Process* new_child = new Process(exec, this->envp, "child_key", config, this->pid);
