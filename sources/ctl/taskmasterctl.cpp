@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 15:34:48 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/20 15:45:41 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,19 +39,27 @@ get_process_name(const char* text, int state)
 {
 	static std::vector<std::string> suggestions;
 	static int index = 0;
+	static size_t len;
 
 (void)dprintf(tty_fd, "text: %s, state: %d\n", text, state);
 
 	if (state == 0)
 	{
 		index = 0;
+		len = strlen(text);
 		suggestions.clear();
 
+		suggestions.push_back("child");
 		suggestions.push_back("child_key");
 	}
 
-	if (index < suggestions.size()) {
-		return strdup(suggestions[index++].c_str());
+	while (index < suggestions.size()) {
+		const std::string& cmd = suggestions[index];
+		index++;
+
+		if (cmd.compare(0, len, text) == 0) {
+			return strdup(cmd.c_str());
+		}
 	}
 
 	return nullptr;
