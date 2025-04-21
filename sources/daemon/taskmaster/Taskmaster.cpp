@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 19:29:52 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 19:59:03 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,6 +171,7 @@ Taskmaster::getStatus(void) const
 		oss << "      State: " << Process::getStateName(process->getState()) << ";\n";
 		oss << "      Signal: " << process->getSignal() << ";\n";
 		oss << "      Exit code: " << process->getExitCode() << ";\n";
+		oss << "      Uptime: " << format_duration(process->uptime()) << ";\n";
 		oss << "      Program: " << process->getExecName() << ";\n";
 		oss << "      ProgramArguments: (" << "\n";
 		for (char* const* arg = process->getExecArgs(); *arg != nullptr; ++arg)

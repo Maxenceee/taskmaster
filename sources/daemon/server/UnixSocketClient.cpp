@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:40:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 19:47:09 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 19:58:11 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,7 +100,7 @@ UnixSocketServer::Client::_work(struct tm_pollclient_process_handler& ps)
 	if (p->reachedDesiredState())
 	{
 		std::stringstream ss;
-		ss << "Process " << p->getPid() << " (" << p->getProgramName() << ") is now " << Process::getStateName(p->getState()) << " [" << Process::getStateName(p->getDesiredState()) << "]" << "\n";
+		ss << "Process " << p->getPid() << " (" << p->getProgramName() << ") is now " << Process::getStateName(p->getState()) << " [" << Process::getStateName(p->getDesiredState()) << "]" << " - " << format_duration(p->uptime()) << "\n";
 
 		this->send(ss.str());
 		ps.done = true;

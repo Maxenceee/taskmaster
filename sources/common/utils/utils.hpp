@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 11:38:42 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 17:25:48 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 19:57:07 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,5 +69,6 @@ uint16_t	u_uint16();
 /* time */
 
 int64_t	getTimestamp();
+std::string	format_duration(time_duration duration);
 
 #endif /* UTILS_HPP */
