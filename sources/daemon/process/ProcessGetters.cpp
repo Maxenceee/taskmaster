@@ -6,11 +6,12 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 19:44:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 19:55:30 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 19:59:55 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "process/Process.hpp"
+#include "utils/utils.hpp"
 
 pid_t
 Process::getPid(void) const
@@ -183,6 +184,7 @@ Process::getStatus(void) const
 	oss << "  State: " << Process::getStateName(this->_state) << ";\n";
 	oss << "  Signal: " << this->_signal << ";\n";
 	oss << "  Exit code: " << this->_exit_code << ";\n";
+	oss << "  Uptime: " << format_duration(this->uptime()) << ";\n";
 	oss << "  Program: " << this->getExecName() << ";\n";
 	oss << "  ProgramArguments: (" << "\n";
 	for (char* const* arg = this->getExecArgs(); *arg != nullptr; ++arg)
