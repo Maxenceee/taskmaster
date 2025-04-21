@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:40:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 19:23:13 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 19:47:09 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ UnixSocketServer::Client::done(void)
 int
 UnixSocketServer::Client::_work(struct tm_pollclient_process_handler& ps)
 {
-	if (ps.done)
+	if (ps.done || ps.requested_state == -1)
 	{
 		return (TM_POLL_CLIENT_DISCONNECT);
 	}
