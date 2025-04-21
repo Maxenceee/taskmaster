@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 13:18:15 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 13:23:23 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -281,95 +281,9 @@ interruptHandlerWhenWorking(int sig_int)
 	rl_on_new_line();
 }
 
-ssize_t
-send_message(int sockfd, const char* message, size_t strlen)
-{
-	return send(sockfd, message, strlen, 0);
-}
-
-ssize_t read_message(int sockfd)
-{
-	char buffer[1024];
-	ssize_t total_bytes = 0;
-
-	struct pollfd pfd;
-	pfd.fd = sockfd;
-	pfd.events = TM_POLL_EVENTS;
-	pfd.revents = TM_POLL_NO_EVENTS;
-
-	while (true)
-	{
-		int ret = poll(&pfd, 1, TM_POLL_TIMEOUT);
-		if (ret < 0)
-		{
-			if (errno == EINTR)
-			{
-				std::cout << "\b\b"; // Remove ^C
-				std::cout << "Signal received, process has been moved to background task.\n";
-				break;
-			}
-			Logger::perror("poll failed");
-			break;
-		}
-
-		if (pfd.revents & POLLIN)
-		{
-			ssize_t n = recv(sockfd, buffer, sizeof(buffer) - 1, 0);
-			if (n <= 0)
-			{
-				if (n < 0)
-					Logger::perror("recv failed");
-				break;
-			}
-
-			buffer[n] = '\0';
-			std::cout << buffer << std::flush;
-			total_bytes += n;
-		}
-		else if (pfd.revents & (POLLHUP | POLLERR | POLLNVAL))
-		{
-			break;
-		}
-	}
-
-	return total_bytes;
-}
-
-int
-connect_server(const std::string& unix_path)
-{
-	int sockfd;
-	struct sockaddr_un servaddr;
-
-	if ((sockfd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
-		Logger::perror("socket creation failed");
-		return (-1);
-	}
-
-	const auto socket_path = resolve_path(unix_path, "unix://");
-
-	(void)memset(&servaddr, 0, sizeof(servaddr));
-	servaddr.sun_family = AF_UNIX;
-	(void)strncpy(servaddr.sun_path, socket_path.c_str(), sizeof(servaddr.sun_path) - 1);
-
-	if (connect(sockfd, (struct sockaddr*)&servaddr, sizeof(servaddr)) < 0) {
-		std::cout << "Cannot connect to the Taskmaster daemon at " << unix_path << ". Is the daemon running?" << std::endl;
-		(void)close(sockfd);
-		return (-1);
-	}
-
-	return sockfd;
-}
-
 void
 attach_readline()
 {
-	// tm_rl_add_autocomplete_handler([](const std::string& input, size_t cursor_pos) {
-	// 	auto tokens = tokenize(input);
-
-	// 	return autocomplete(commands, tokens, cursor_pos);
-	// });
-
 	rl_attempted_completion_function = autocomplete;
 
 	setup_signal(SIGPIPE, SIG_IGN);
@@ -381,7 +295,6 @@ attach_readline()
 	{
 		setup_signal(SIGINT, interruptHandler);
 
-		// auto rl_in = tm_readline(TM_PROJECTCTL "> ");
 		char *rl_in = readline(TM_PROJECTCTL "> ");
 		if (NULL == rl_in)
 		{
@@ -429,23 +342,8 @@ attach_readline()
 				continue;
 			}
 
-			// int socket_fd = connect_server(TM_SOCKET_PATH);
-			// if (socket_fd == -1) {
-			// 	continue;
-			// }
-
-			// std::string message = join(tokens, TM_CRLF);
-			// message += TM_CRLF;
-			// message += TM_CRLF;
-
 			(void)client.sendCmd(tokens);
 			(void)client.recv();
-
-			// std::cout << "Input: (" << input << ")" << std::endl;
-			// total_sent += send_message(socket_fd, message.c_str(), message.length());
-			// total_recv += read_message(socket_fd);
-
-			// (void)close(socket_fd);
 		}
 		catch(...)
 		{
@@ -479,19 +377,15 @@ handle_stdin_input(void)
 		return (TM_SUCCESS);
 	}
 
-	int socket_fd = connect_server(TM_SOCKET_PATH);
-	if (socket_fd == -1) {
+	UnixSocketClient client(TM_SOCKET_PATH);
+	if (client.connect() == TM_FAILURE)
+	{
+		std::cout << "Cannot connect to the Taskmaster daemon at unix://" << client.getSocketPath() << ". Is the daemon running?" << std::endl;
 		return (TM_FAILURE);
 	}
 
-	std::string message = join(tokens, TM_CRLF);
-	message += TM_CRLF;
-	message += TM_CRLF;
-
-	(void)send_message(socket_fd, message.c_str(), message.length());
-	(void)read_message(socket_fd);
-
-	(void)close(socket_fd);
+	(void)client.sendCmd(tokens);
+	(void)client.recv();
 
 	return (TM_SUCCESS);
 }
