@@ -6,21 +6,20 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 18:12:15 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 13:40:23 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "tm.hpp"
 #include "spawn.hpp"
 #include "signal.hpp"
+#include "pid.hpp"
 #include "taskmaster/Taskmaster.hpp"
 #include "logger/Logger.hpp"
 #include "server/UnixSocketServer.hpp"
 #include "daemon/daemon.hpp"
 
 bool	Taskmaster::running = false;
-
-static int g_pid_fd = -1;
 
 void
 interruptHandler(int sig_int)
@@ -32,54 +31,6 @@ interruptHandler(int sig_int)
 		Logger::info(TM_PROJECTD " is already stopping");
 	}
 	Taskmaster::running = false;
-}
-
-int
-create_pid_file(void)
-{
-	int32_t	tm_pid;
-	int		pid_fd;
-
-	tm_pid = getpid();
-
-	pid_fd = open(TM_PID_FILE, O_WRONLY | O_CREAT, TM_DEFAULT_FILE_MODE);
-	if (pid_fd == -1)
-	{
-		Logger::perror("open");
-		return (TM_FAILURE);
-	}
-
-	if (flock(pid_fd, LOCK_EX | LOCK_NB) == -1) {
-        if (errno == EWOULDBLOCK) {
-            Logger::error("Another instance is already running!");
-        } else {
-            Logger::perror("flock");
-        }
-        close(pid_fd);
-        return (TM_FAILURE);
-    }
-
-	ftruncate(pid_fd, 0);
-	dprintf(pid_fd, "%d\n", tm_pid);
-
-	g_pid_fd = pid_fd;
-
-	return (TM_SUCCESS);
-}
-
-void
-remove_pid_file(void)
-{
-	if (g_pid_fd != -1) {
-		flock(g_pid_fd, LOCK_UN);
-        close(g_pid_fd);
-        g_pid_fd = -1;
-    }
-
-	if (unlink(TM_PID_FILE) == -1)
-	{
-		Logger::perror("unlink");
-	}
 }
 
 void
@@ -111,8 +62,8 @@ start_main_loop(char* const* argv, char* const* envp)
 	} while (Taskmaster::running);
 
 	Logger::print(TM_PROJECTD " stopping, this can take a while...", B_GREEN);
-	(void)server.stop();
 	(void)master.stop();
+	(void)server.shutdown();
 
 	const auto current_time = std::chrono::system_clock::now();
 
@@ -121,6 +72,8 @@ start_main_loop(char* const* argv, char* const* envp)
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		(void)master.cycle();
 	}
+
+	(void)server.stop();
 
 	Logger::print(TM_PROJECTD " stopped", B_GREEN);
 }

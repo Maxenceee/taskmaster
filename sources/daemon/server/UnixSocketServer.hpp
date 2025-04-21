@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:45:59 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 12:31:50 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 13:39:09 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,7 @@ public:
 
 	int	listen(void);
 	int	cycle(void);
+	int	shutdown(void);
 	int	stop(void);
 };
 
