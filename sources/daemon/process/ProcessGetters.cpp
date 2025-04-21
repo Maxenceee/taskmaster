@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 19:44:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 11:53:52 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 18:20:21 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,14 +18,14 @@ Process::getPid(void) const
 	return (this->pid);
 }
 
-const std::string&
+uint16_t
 Process::getUid(void) const
 {
 	return (this->uid);
 }
 
 bool
-Process::operator==(const std::string& other) const
+Process::operator==(uint16_t other) const
 {
 	return (this->uid == other);
 }
@@ -170,7 +170,7 @@ Process::getStatus(void) const
 		oss << "    - \"" << *arg << "\"\n";
 	}
 	oss << "  );\n";
-	oss << "}";
+	oss << "}\n";
 
 	return (oss.str());
 }

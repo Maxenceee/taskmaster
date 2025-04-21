@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:51 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 18:15:06 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 17:58:13 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,8 +44,10 @@ public:
 
 	size_t		getNumProcesses(void) const;
 	std::string	getStatus(void) const;
+
+	const std::vector<Process*>&	all(void) const;
 	Process*	find(const std::string& progname) const;
-	Process*	get(const std::string& uid) const;
+	Process*	get(uint16_t uid) const;
 };
 
 #endif /* TASKMASTER_HPP */
