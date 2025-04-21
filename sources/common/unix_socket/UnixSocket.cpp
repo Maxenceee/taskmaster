@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/01 15:26:16 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/02 14:11:13 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 13:16:32 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,11 +21,13 @@ UnixSocket::poll(void)
 {
 	if (::poll(this->poll_fds.data(), this->poll_fds.size(), TM_POLL_TIMEOUT) == -1)
 	{
-		if (errno == EINTR) {
-			return (TM_SUCCESS);
-		}
-		Logger::perror("server error: an error occurred while poll'ing");
 		return (TM_FAILURE);
 	}
 	return (TM_SUCCESS);	
+}
+
+const std::string&
+UnixSocket::getSocketPath(void) const
+{
+	return (this->socket_path);
 }

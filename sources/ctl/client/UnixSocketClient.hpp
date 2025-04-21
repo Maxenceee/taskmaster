@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:58:50 by mgama             #+#    #+#             */
-/*   Updated: 2025/01/31 16:11:15 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 13:05:53 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,13 @@ public:
 	UnixSocketClient(const char* socket_path);
 	~UnixSocketClient(void);
 
-	int send(const char* msg);
-	int send(const std::string& msg);
+	int	connect(void);
+
+	ssize_t send(const char* msg, size_t len);
+	ssize_t send(const std::string& msg);
+	ssize_t sendCmd(const std::vector<std::string>& cmd);
+
+	ssize_t recv(void);
 };
 
 #endif /* UNIXSOCKETCLIENT_HPP */

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 17:43:04 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 12:49:57 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 13:13:19 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 
 UnixSocketServer::UnixSocketServer(const char* unix_path, const Taskmaster& master): UnixSocket(unix_path), _master(master)
 {
-	if (!_test_socket())
+	if (!this->_test_socket())
 		throw std::runtime_error("Another instance is already running!");
 
 	this->sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
@@ -61,7 +61,8 @@ UnixSocketServer::~UnixSocketServer(void)
 	}
 }
 
-bool UnixSocketServer::_test_socket()
+bool
+UnixSocketServer::_test_socket()
 {
 	if (access(this->socket_path.c_str(), F_OK) != 0)
 	{
@@ -76,28 +77,28 @@ bool UnixSocketServer::_test_socket()
 	}
 
 	struct sockaddr_un test_addr;
-	memset(&test_addr, 0, sizeof(test_addr));
+	bzero(&this->addr, sizeof(this->addr));
 	test_addr.sun_family = AF_UNIX;
-	strncpy(test_addr.sun_path, this->socket_path.c_str(), sizeof(test_addr.sun_path) - 1);
+	(void)strncpy(test_addr.sun_path, this->socket_path.c_str(), sizeof(test_addr.sun_path) - 1);
 
 	bool usable = true;
 	if (connect(test_fd, (struct sockaddr*)&test_addr, sizeof(test_addr)) == 0)
 	{
-		usable = (false);
+		usable = false;
 	}
 	else
 	{
 		if (errno == ECONNREFUSED || errno == ENOENT)
 		{
-			usable = (true);
+			usable = true;
 		}
 		else
 		{
-			usable = (false);
+			usable = false;
 		}
 	}
 
-	close(test_fd);
+	(void)close(test_fd);
 	return (usable);
 }
 
@@ -161,6 +162,10 @@ UnixSocketServer::cycle()
 
 	if (this->poll() == TM_FAILURE)
 	{
+		if (errno != EINTR)
+		{
+			Logger::perror("server error: an error occurred while poll'ing");
+		}
 		return (TM_FAILURE);
 	}
 
