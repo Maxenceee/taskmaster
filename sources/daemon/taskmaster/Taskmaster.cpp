@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 18:31:16 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 19:29:52 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ Taskmaster::~Taskmaster(void)
 }
 
 int
-Taskmaster::addChild(char* const* exec)
+Taskmaster::addChild(char* const* exec, struct tm_process_config& config)
 {
 	// Temp output file
 	int	std_out_fd = open("child_stdout.log", O_WRONLY | O_CREAT | O_APPEND, 0644);
@@ -42,26 +42,9 @@ Taskmaster::addChild(char* const* exec)
 		return (TM_FAILURE);
 	}
 
-	tm_process_config config(
-		2,
-		false,
-		TM_CONF_AUTORESTART_UNEXPECTED,
-		{0, 4},
-		TERM,
-		5,
-		3,
-		10
-	);
-
-	Process* new_child = new Process(exec, this->envp, "child_key_0", config, this->pid);
-	// new_child->setStdOutFd(std_out_fd); // temp
-
-	this->_processes.push_back(new_child);
-
-	for (int i = 1; i < new_child->getNumProcs(); ++i)
+	for (int i = 0; i < config.numprocs; ++i)
 	{
-		Process* new_child = new Process(exec, this->envp, "child_key_" + std::to_string(i), config, this->pid);
-		// new_child->setStdOutFd(std_out_fd);  // temp
+		Process* new_child = new Process(exec, this->envp, std::string(exec[0]) + "_" + std::to_string(i), config, this->pid);
 		new_child->setGroupId(i);
 		this->_processes.push_back(new_child);
 	}

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:51 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 17:58:13 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 19:28:27 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ public:
 	static bool	running;
 	static bool	reload;
 
-	int		addChild(char* const* exec);
+	int		addChild(char* const* exec, struct tm_process_config& config);
 	int		start(void) const;
 	int		restart(void) const;
 	int		stop(void) const;
