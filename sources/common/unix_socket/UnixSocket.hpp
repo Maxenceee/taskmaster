@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:37:52 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 12:32:04 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 13:16:35 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,13 +47,15 @@ protected:
 	int 				sockfd;
 	struct sockaddr_un	addr;
 
-	std::vector<pollfd>				poll_fds;
+	std::vector<pollfd>	poll_fds;
 
 	int	poll(void);
 
 public:
 	explicit UnixSocket(const char* path);
 	virtual ~UnixSocket(void) = default;
+
+	const std::string&	getSocketPath(void) const;
 };
 
 #endif /* UNIXSOCKET_HPP */

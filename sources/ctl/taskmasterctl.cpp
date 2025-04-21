@@ -6,19 +6,18 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 12:35:53 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 13:18:15 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "tm.hpp"
 #include "logger/Logger.hpp"
-#include <optional>
 #include "readline.hpp"
 #include "utils/utils.hpp"
+#include "client/UnixSocketClient.hpp"
 #include "signal.hpp"
 #include <readline/readline.h>
 #include <readline/history.h>
-#include "unix_socket/UnixSocket.hpp"
 
 extern int tty_fd;
 
@@ -423,20 +422,30 @@ attach_readline()
 				continue;
 			}
 
-			int socket_fd = connect_server(TM_SOCKET_PATH);
-			if (socket_fd == -1) {
+			UnixSocketClient client(TM_SOCKET_PATH);
+			if (client.connect() == TM_FAILURE)
+			{
+				std::cout << "Cannot connect to the Taskmaster daemon at unix://" << client.getSocketPath() << ". Is the daemon running?" << std::endl;
 				continue;
 			}
 
-			std::string message = join(tokens, TM_CRLF);
-			message += TM_CRLF;
-			message += TM_CRLF;
+			// int socket_fd = connect_server(TM_SOCKET_PATH);
+			// if (socket_fd == -1) {
+			// 	continue;
+			// }
+
+			// std::string message = join(tokens, TM_CRLF);
+			// message += TM_CRLF;
+			// message += TM_CRLF;
+
+			(void)client.sendCmd(tokens);
+			(void)client.recv();
 
 			// std::cout << "Input: (" << input << ")" << std::endl;
-			total_sent += send_message(socket_fd, message.c_str(), message.length());
-			total_recv += read_message(socket_fd);
+			// total_sent += send_message(socket_fd, message.c_str(), message.length());
+			// total_recv += read_message(socket_fd);
 
-			(void)close(socket_fd);
+			// (void)close(socket_fd);
 		}
 		catch(...)
 		{

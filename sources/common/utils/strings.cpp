@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 13:18:00 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/24 14:57:20 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 13:04:51 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,16 +120,16 @@ struct StringConcatenator {
 	}
 };
 
-std::string		join(std::vector<std::string> &list, const std::string &c)
+std::string		join(const std::vector<std::string> &list, const std::string &c)
 {
 	if (list.empty()) {
 		return ("");
 	}
-	std::vector<std::string>::iterator nextElement = list.begin();
+	auto nextElement = list.cbegin();
 	std::advance(nextElement, 1);
 	return (std::accumulate(
 		nextElement,
-		list.end(),
+		list.cend(),
 		list[0],
 		StringConcatenator(c)
 	));
