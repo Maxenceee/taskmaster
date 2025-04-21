@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 13:40:23 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 19:35:12 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,33 @@ start_main_loop(char* const* argv, char* const* envp)
 	setup_signal(SIGQUIT, interruptHandler);
 	setup_signal(SIGTERM, interruptHandler);
 
-	(void)master.addChild(argv + 1);
+	tm_process_config config(
+		1,
+		false,
+		TM_CONF_AUTORESTART_UNEXPECTED,
+		{0, 4},
+		TERM,
+		5,
+		3,
+		10
+	);
+
+	(void)master.addChild(argv + 1, config);
+	if (argv[2] != nullptr)
+	{
+		tm_process_config config(
+			1,
+			false,
+			TM_CONF_AUTORESTART_UNEXPECTED,
+			{0, 4},
+			TERM,
+			3,
+			3,
+			5
+		);
+
+		(void)master.addChild(argv + 2, config);
+	}
 
 	std::cout << "Starting with " << master.getNumProcesses() << " processes" << std::endl;
 
