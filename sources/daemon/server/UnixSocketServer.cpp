@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 17:43:04 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 13:13:19 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 13:40:42 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,7 @@ UnixSocketServer::~UnixSocketServer(void)
 {
 	if (this->_running)
 	{
+		(void)this->shutdown();
 		(void)this->stop();
 	}
 }
@@ -118,19 +119,30 @@ UnixSocketServer::listen(void)
 }
 
 int
-UnixSocketServer::stop(void)
+UnixSocketServer::shutdown(void)
 {
-	(void)close(this->sockfd);
-
-	for (auto& poll_fd : this->poll_fds)
-	{
-		(void)close(poll_fd.fd);
-	}
-
 	Logger::debug("Removing socket file: " + this->socket_path);
 	(void)unlink(this->socket_path.c_str());
 
 	this->_running = false;
+
+	return (TM_SUCCESS);
+}
+
+int
+UnixSocketServer::stop(void)
+{
+	for (auto& client : this->_poll_clients)
+	{
+		if (client.second.type == TM_POLL_CLIENT)
+		{
+			delete reinterpret_cast<UnixSocketServer::Client *>(client.second.data);
+		}
+	}
+	for (auto& poll_fd : this->poll_fds)
+	{
+		(void)close(poll_fd.fd);
+	}
 
 	return (TM_SUCCESS);
 }
@@ -218,7 +230,7 @@ UnixSocketServer::cycle()
 	for (auto it = to_remove.rbegin(); it != to_remove.rend(); ++it)
 	{
 		client_fd = this->poll_fds[*it].fd;
-		(void)shutdown(client_fd, SHUT_RDWR);
+		(void)::shutdown(client_fd, SHUT_RDWR);
 		(void)close(client_fd);
 		client = reinterpret_cast<UnixSocketServer::Client *>(this->_poll_clients[client_fd].data);
 		delete client;
@@ -342,7 +354,7 @@ UnixSocketServer::Client::parse(const char* buff)
 		{
 			this->send("Shutting down the daemon\n");
 			Taskmaster::running = false;
-			return (TM_POLL_CLIENT_DISCONNECT);
+			return (TM_POLL_CLIENT_OK);
 		}
 		else if (this->input[0] == "reload")
 		{
