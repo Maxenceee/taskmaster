@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:40:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 18:34:10 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 19:03:07 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,6 @@ UnixSocketServer::Client::done(void)
 
 	if (working == 0)
 	{
-		Logger::debug("All processes are done");
 		return (TM_POLL_CLIENT_DISCONNECT);
 	}
 
@@ -182,15 +181,15 @@ UnixSocketServer::Client::exec(void)
 		return ((this->*(itg->second))());
 	}
 
-	if (this->input.size() < 2)
-	{
-		this->send("Invalid usage\n");
-		return (TM_POLL_CLIENT_ERROR);
-	}
-
 	auto itp = this->process_command_map.find(command);
 	if (itp != this->process_command_map.end())
 	{
+		if (this->input.size() < 2)
+		{
+			this->send("Invalid usage\n");
+			return (TM_POLL_CLIENT_ERROR);
+		}
+
 		std::vector<std::string> processes(this->input.begin() + 1, this->input.end());
 
 		auto ps = this->_find_processes(processes);
