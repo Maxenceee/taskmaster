@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 17:43:04 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 12:43:27 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 12:49:57 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -348,6 +348,11 @@ UnixSocketServer::Client::parse(const char* buff)
 		else if (this->input[0] == "status")
 		{
 			this->send(this->_master.getStatus());
+			return (TM_POLL_CLIENT_DISCONNECT);
+		}
+		else if (this->input[0] == "version")
+		{
+			this->send(TM_PROJECTD " version " TM_VERSION " - " TM_AUTHOR "\n");
 			return (TM_POLL_CLIENT_DISCONNECT);
 		}
 
