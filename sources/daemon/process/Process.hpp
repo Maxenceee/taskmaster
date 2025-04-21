@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 11:53:27 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 17:29:37 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,7 +157,7 @@ enum tm_process_state {
 class Process
 {
 private:
-	const std::string	uid;
+	uint16_t	uid;
 
 	pid_t	pid;
 	pid_t	ppid;
@@ -196,6 +196,7 @@ private:
 
 public:
 	Process(char* const* exec, char* const* envp, const char* program_name, tm_process_config &config, pid_t ppid, pid_t pgid = 0);
+	Process(char* const* exec, char* const* envp, const std::string& program_name, tm_process_config &config, pid_t ppid, pid_t pgid = 0);
 	~Process(void);
 
 	void	setStdInFd(int std_in_fd);
@@ -211,10 +212,10 @@ public:
 	int		kill(void);
 	int		monitor(void);
 
-	pid_t	getPid() const;
-	const std::string&	getUid(void) const;
+	pid_t		getPid() const;
+	uint16_t	getUid(void) const;
 
-	bool	operator==(const std::string& other) const;
+	bool	operator==(uint16_t other) const;
 
 	bool	started(void) const;
 	bool	stopped(void) const;

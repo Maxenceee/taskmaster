@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 11:38:42 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 13:04:25 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 17:25:48 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,7 @@ int tempfile(const char channel[3]);
 /* uuid */
 
 std::string	uuid_v4();
+uint16_t	u_uint16();
 
 /* time */
 

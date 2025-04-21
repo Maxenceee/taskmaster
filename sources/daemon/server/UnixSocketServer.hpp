@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:45:59 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 13:39:09 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 18:28:29 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,13 @@ typedef struct tm_pollclient {
 	void				*data;
 } tm_pollclient;
 
+struct tm_pollclient_process_handler {
+	uint16_t	puid;
+	int 		initial_state;
+	int 		requested_state;
+	bool		done;
+};
+
 class UnixSocketServer: public UnixSocket
 {
 public:
@@ -43,22 +50,49 @@ public:
 		bool		input_received;
 		
 		const Taskmaster&	_master;
-		int initial_state;
-		int requested_state;
-		std::string puid;
+		std::vector<struct tm_pollclient_process_handler>	handlers;
 
 		std::vector<std::string>		input;
+
+		int		_find_processes(const std::vector<std::string>& progs);
+
+		int		_add(struct tm_pollclient_process_handler& p);
+		int		_avail(void);
+		int		_clear(struct tm_pollclient_process_handler& p);
+		int		_maintail(void);
+		int		_pid(struct tm_pollclient_process_handler& p);
+		int		_reload(void);
+		int		_remove(struct tm_pollclient_process_handler& p);
+		int		_reread(void);
+		int		_restart(struct tm_pollclient_process_handler& p);
+		int		_shutdown(void);
+		int		_signal(void);
+		int		_start(struct tm_pollclient_process_handler& p);
+		int		_status(void);
+		int		_stop(struct tm_pollclient_process_handler& p);
+		int		_tail(void);
+		int		_update(void);
+		int		_version(void);
+
+		int		_work(struct tm_pollclient_process_handler& ps);
+
+		using ProcHandler = int (UnixSocketServer::Client::*)(struct tm_pollclient_process_handler&);
+		using GenHandler = int (UnixSocketServer::Client::*)();
+		static const std::unordered_map<std::string, ProcHandler> process_command_map;
+		static const std::unordered_map<std::string, GenHandler> general_command_map;
 
 	public:
 		Client(int fd, const Taskmaster& master): fd(fd), input_received(false), _master(master) {}
 
+		int		recv(void);
 		int		send(const std::string& msg);
 		int		send(const char* msg);
 
 		int		getFd(void) const;
-		
-		int		done();
+
+		int		done(void);
 		int		parse(const char* buff);
+		int		exec(void);
 	};
 
 private:

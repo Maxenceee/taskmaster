@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 12:08:07 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 17:30:13 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,11 @@
 #include "utils/utils.hpp"
 #include "logger/Logger.hpp"
 
-Process::Process(char* const* exec, char* const* envp, const char* program_name, tm_process_config &config, pid_t ppid, pid_t pgid): uid(uuid_v4()), _program_name(program_name)
+Process::Process(char* const* exec, char* const* envp, const std::string& program_name, tm_process_config &config, pid_t ppid, pid_t pgid): Process(exec, envp, program_name.c_str(), config, ppid, pgid)
+{
+}
+
+Process::Process(char* const* exec, char* const* envp, const char* program_name, tm_process_config &config, pid_t ppid, pid_t pgid): uid(u_uint16()), _program_name(program_name)
 {
 	this->pid = 0;
 	this->ppid = ppid;

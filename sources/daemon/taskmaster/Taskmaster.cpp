@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 11:54:21 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 18:31:16 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ Taskmaster::addChild(char* const* exec)
 	}
 
 	tm_process_config config(
-		1,
+		2,
 		false,
 		TM_CONF_AUTORESTART_UNEXPECTED,
 		{0, 4},
@@ -53,14 +53,14 @@ Taskmaster::addChild(char* const* exec)
 		10
 	);
 
-	Process* new_child = new Process(exec, this->envp, "child_key", config, this->pid);
+	Process* new_child = new Process(exec, this->envp, "child_key_0", config, this->pid);
 	// new_child->setStdOutFd(std_out_fd); // temp
 
 	this->_processes.push_back(new_child);
 
 	for (int i = 1; i < new_child->getNumProcs(); ++i)
 	{
-		Process* new_child = new Process(exec, this->envp, "child_key", config, this->pid);
+		Process* new_child = new Process(exec, this->envp, "child_key_" + std::to_string(i), config, this->pid);
 		// new_child->setStdOutFd(std_out_fd);  // temp
 		new_child->setGroupId(i);
 		this->_processes.push_back(new_child);
@@ -146,6 +146,12 @@ Taskmaster::getNumProcesses(void) const
 	return (this->_processes.size());
 }
 
+const std::vector<Process*>&
+Taskmaster::all(void) const
+{
+	return (this->_processes);
+}
+
 Process*
 Taskmaster::find(const std::string& progname) const
 {
@@ -158,7 +164,7 @@ Taskmaster::find(const std::string& progname) const
 }
 
 Process*
-Taskmaster::get(const std::string& uid) const
+Taskmaster::get(uint16_t uid) const
 {
 	for (const auto& process : this->_processes)
 	{
@@ -177,7 +183,7 @@ Taskmaster::getStatus(void) const
 	oss << "  Processes: {\n";
 	for (const auto& process : this->_processes)
 	{
-		oss << "    - Name: " << process->getProgramName() << ";\n";
+		oss << "    - Name: " << process->getProgramName() << " (" << process->getUid() << ")" << ";\n";
 		oss << "      PID: " << process->getPid() << ";\n";
 		oss << "      State: " << Process::getStateName(process->getState()) << ";\n";
 		oss << "      Signal: " << process->getSignal() << ";\n";
