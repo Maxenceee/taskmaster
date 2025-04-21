@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 17:30:13 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 19:38:39 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -292,9 +292,8 @@ Process::_monitor_running(void)
 			|| (this->config.autorestart == TM_CONF_AUTORESTART_UNEXPECTED && false == this->config.isExitCodeSuccessful(this->_exit_code))
 			|| this->_signal != 0)
 		{
-			// this->_retries = 0;
 			std::cout << "Child process " << this->pid << " exited, restarting" << std::endl;
-			// return (this->_spawn());
+			this->_desired_state = TM_P_RUNNING;
 			this->waiting_restart = true;
 		}
 		return (1);
