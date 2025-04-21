@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 19:38:39 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 19:48:01 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -313,7 +313,7 @@ Process::_monitor_stopping(void)
 	else if (std::chrono::steady_clock::now() - this->request_stop_time > std::chrono::seconds(this->config.stopwaitsecs))
 	{
 		std::string sig = getSignalName(this->config.stopsignal);
-		Logger::info("StopSignal " + sig + " failed to stop child in 10 seconds, resorting to SIGKILL");
+		Logger::info("StopSignal " + sig + " failed to stop child in " + std::to_string(this->config.stopwaitsecs) + " seconds, resorting to SIGKILL");
 		return (this->kill());
 	}
 
