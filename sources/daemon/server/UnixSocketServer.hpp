@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:45:59 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 17:56:04 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 12:31:50 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,9 +33,6 @@ typedef struct tm_pollclient {
 	void				*data;
 } tm_pollclient;
 
-#define TM_POLL_EVENTS		POLLIN | POLLHUP | POLLERR
-#define TM_POLL_NO_EVENTS	0
-
 class UnixSocketServer: public UnixSocket
 {
 public:
@@ -47,7 +44,7 @@ public:
 		
 		const Taskmaster&	_master;
 		int initial_state;
-		int desired_state;
+		int requested_state;
 		std::string puid;
 
 		std::vector<std::string>		input;

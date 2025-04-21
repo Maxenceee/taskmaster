@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 18:27:47 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 12:35:53 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include "signal.hpp"
 #include <readline/readline.h>
 #include <readline/history.h>
+#include "unix_socket/UnixSocket.hpp"
 
 extern int tty_fd;
 
@@ -287,26 +288,52 @@ send_message(int sockfd, const char* message, size_t strlen)
 	return send(sockfd, message, strlen, 0);
 }
 
-ssize_t
-read_message(int sockfd)
+ssize_t read_message(int sockfd)
 {
 	char buffer[1024];
+	ssize_t total_bytes = 0;
 
-	ssize_t n = recv(sockfd, buffer, sizeof(buffer) - 1, 0);
-	if (n < 0) {
-		if (errno == EINTR)
+	struct pollfd pfd;
+	pfd.fd = sockfd;
+	pfd.events = TM_POLL_EVENTS;
+	pfd.revents = TM_POLL_NO_EVENTS;
+
+	while (true)
+	{
+		int ret = poll(&pfd, 1, TM_POLL_TIMEOUT);
+		if (ret < 0)
 		{
-			std::cout << "\b\b"; // rm ^C from tty
-			std::cout << "Signal received, the process has been moved in background task.\n";
-			return 0;
+			if (errno == EINTR)
+			{
+				std::cout << "\b\b"; // Remove ^C
+				std::cout << "Signal received, process has been moved to background task.\n";
+				break;
+			}
+			Logger::perror("poll failed");
+			break;
 		}
-		Logger::perror("recv failed");
-		(void)close(sockfd);
-		return (-1);
+
+		if (pfd.revents & POLLIN)
+		{
+			ssize_t n = recv(sockfd, buffer, sizeof(buffer) - 1, 0);
+			if (n <= 0)
+			{
+				if (n < 0)
+					Logger::perror("recv failed");
+				break;
+			}
+
+			buffer[n] = '\0';
+			std::cout << buffer << std::flush;
+			total_bytes += n;
+		}
+		else if (pfd.revents & (POLLHUP | POLLERR | POLLNVAL))
+		{
+			break;
+		}
 	}
-	buffer[n] = '\0';
-	std::cout << "Server: " << buffer << std::endl;
-	return (n);
+
+	return total_bytes;
 }
 
 int
@@ -408,7 +435,8 @@ attach_readline()
 			// std::cout << "Input: (" << input << ")" << std::endl;
 			total_sent += send_message(socket_fd, message.c_str(), message.length());
 			total_recv += read_message(socket_fd);
-			close(socket_fd);
+
+			(void)close(socket_fd);
 		}
 		catch(...)
 		{
@@ -417,6 +445,46 @@ attach_readline()
 		}
 		
 	} while (true);
+}
+
+int
+handle_stdin_input(void)
+{
+	std::string rl_in;
+	std::getline(std::cin, rl_in);
+
+	if (rl_in.empty()) {
+		return (TM_SUCCESS);
+	}
+	
+	std::vector<std::string> tokens = tokenize(rl_in);
+	if (tokens.empty()) {
+	}
+
+	if (tokens[0] == "help") {
+		if (tokens.size() == 2) {
+			show_command_info(tokens[1]);
+		} else {
+			show_help();
+		}
+		return (TM_SUCCESS);
+	}
+
+	int socket_fd = connect_server(TM_SOCKET_PATH);
+	if (socket_fd == -1) {
+		return (TM_FAILURE);
+	}
+
+	std::string message = join(tokens, TM_CRLF);
+	message += TM_CRLF;
+	message += TM_CRLF;
+
+	(void)send_message(socket_fd, message.c_str(), message.length());
+	(void)read_message(socket_fd);
+
+	(void)close(socket_fd);
+
+	return (TM_SUCCESS);
 }
 
 int
@@ -429,8 +497,17 @@ main(int argc, char* const* argv)
 		return (TM_FAILURE);
 	}
 
+	if (reopenstds() == -1) {
+		Logger::perror("Failed to reopen stds");
+		return (TM_FAILURE);
+	}
+
 	Logger::init("Starting " TM_PROJECTCTL);
 	Logger::setDebug(true);
+
+	if (isatty(STDIN_FILENO) == 0) {
+		return (handle_stdin_input());
+	}
 
 	try {
 		attach_readline();

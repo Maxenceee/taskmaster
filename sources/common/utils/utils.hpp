@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 11:38:42 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 17:13:25 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 10:34:22 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ std::string					getSignalName(int signal);
 std::string	resolve_path(const std::string& url, const std::string& scheme);
 
 /* file */
-
+int	reopenstds(void);
 int tempfile(const char channel[3]);
 
 /* uuid */

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 17:16:02 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 12:08:07 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,6 +113,7 @@ Process::start(void)
 		std::cout << "Process already started" << std::endl;
 		return (TM_FAILURE);
 	}
+	this->_desired_state = TM_P_RUNNING;
 
 	this->_retries = 0;
 	return (this->_spawn());
@@ -122,6 +123,8 @@ int
 Process::restart(void)
 {
 	this->waiting_restart = true;
+
+	this->_desired_state = TM_P_RUNNING;
 
 	if (this->_state == TM_P_STOPPED || this->_state == TM_P_EXITED || this->_state == TM_P_FATAL)
 	{
@@ -140,6 +143,10 @@ Process::stop(void)
 	{
 		std::cout << "Process already stopping or stopped" << std::endl;
 		return (TM_SUCCESS);
+	}
+	if (false == this->waiting_restart)
+	{
+		this->_desired_state = TM_P_EXITED;
 	}
 	this->_state = TM_P_STOPPING;
 	this->request_stop_time = std::chrono::steady_clock::now();
@@ -168,6 +175,10 @@ Process::kill(void)
 		return (TM_SUCCESS);
 	}
 	this->_state = TM_P_EXITED;
+	if (false == this->waiting_restart)
+	{
+		this->_desired_state = TM_P_EXITED;
+	}
 
 	std::cout << "Killing child " << this->pid << std::endl;
 	return (::kill(this->pid, SIGKILL));

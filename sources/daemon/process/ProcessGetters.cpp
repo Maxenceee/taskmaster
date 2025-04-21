@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 19:44:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 17:44:39 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 11:53:52 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,13 +103,9 @@ Process::getStdErrFd(void) const
 }
 
 bool
-Process::shouldRestart(void) const
+Process::reachedDesiredState(void) const
 {
-	/**
-	 * TODO:
-	 * handler exit code check when TM_CONF_AUTORESTART_UNEXPECTED
-	 */
-	return (this->config.autorestart == TM_CONF_AUTORESTART_TRUE || this->config.autorestart == TM_CONF_AUTORESTART_UNEXPECTED);
+	return (this->_state == this->_desired_state);
 }
 
 int
@@ -118,10 +114,16 @@ Process::getState(void) const
 	return (this->_state);
 }
 
-std::string
-Process::getStateName(void) const
+int
+Process::getDesiredState(void) const
 {
-	switch (this->_state)
+	return (this->_desired_state);
+}
+
+std::string
+Process::getStateName(int _state)
+{
+	switch (_state)
 	{
 	case TM_P_STOPPED:
 		return ("STOPPED");
@@ -158,7 +160,7 @@ Process::getStatus(void) const
 	std::ostringstream oss;
 	oss << "{\n";
 	oss << "  PID: " << this->pid << ";\n";
-	oss << "  State: " << this->getStateName() << ";\n";
+	oss << "  State: " << Process::getStateName(this->_state) << ";\n";
 	oss << "  Signal: " << this->_signal << ";\n";
 	oss << "  Exit code: " << this->_exit_code << ";\n";
 	oss << "  Program: " << this->getExecName() << ";\n";
