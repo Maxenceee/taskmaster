@@ -6,12 +6,15 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/03 16:09:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/03/19 16:21:24 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 18:57:05 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PCOLORS_H
 # define PCOLORS_H
+
+#define COLOR_START "\001"
+#define COLOR_END   "\002"
 
 /*
  *	-- Header Color
