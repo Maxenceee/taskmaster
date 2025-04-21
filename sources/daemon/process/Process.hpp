@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 17:44:27 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 11:53:27 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,6 +166,7 @@ private:
 	int		_signal;
 	int		_exit_code;
 	int		_state;
+	int		_desired_state;
 
 	const std::string	_program_name;
 	int					_process_group_id;
@@ -219,7 +220,8 @@ public:
 	bool	stopped(void) const;
 	bool	exited(void) const;
 	bool	fatal(void) const;
-	bool	shouldRestart(void) const;
+
+	bool	reachedDesiredState(void) const;
 
 	int		getStdOutFd(void) const;
 	int		getStdErrFd(void) const;
@@ -231,7 +233,9 @@ public:
 	int			getSignal(void) const;
 	int			getExitCode(void) const;
 	int			getState(void) const;
-	std::string	getStateName(void) const;
+	int			getDesiredState(void) const;
+
+	static std::string	getStateName(int _state);
 
 	std::string	getStatus(void) const;
 

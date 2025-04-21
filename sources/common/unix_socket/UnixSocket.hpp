@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:37:52 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/02 14:11:06 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 12:32:04 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,8 @@
 #define TM_POLL_TIMEOUT	100
 #endif /* POLL_TIMEOUT */
 
-// default timeout duration, 1 minute in seconds
-#define WBD_PROXY_SELECT_TIMEOUT	60
+#define TM_POLL_EVENTS		POLLIN | POLLHUP | POLLERR
+#define TM_POLL_NO_EVENTS	0
 
 #define TM_DEFAULT_MAX_WORKERS	1024
 

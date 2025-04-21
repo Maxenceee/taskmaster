@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 17:43:04 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 18:33:02 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 12:37:48 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,14 +168,9 @@ UnixSocketServer::cycle()
 
 	for (size_t i = 0; i < this->poll_fds.size(); ++i)
 	{
-		if (this->poll_fds[i].revents & POLLHUP)
+		if (this->poll_fds[i].revents & (POLLERR | POLLHUP | POLLNVAL))
 		{
-			Logger::debug("Connection closed by the client (event POLLHUP)");
-			to_remove.push_back(i);
-		}
-		else if (this->poll_fds[i].revents & POLLERR)
-		{
-			Logger::debug("Socket error (POLLERR detected)");
+			Logger::debug("Socket error (POLLERR / POLLHUP / POLLNVAL detected)");
 			to_remove.push_back(i);
 		}
 		else if (this->poll_fds[i].revents & POLLIN)
@@ -189,6 +184,7 @@ UnixSocketServer::cycle()
 					Logger::perror("server error: accept failed");
 					return (TM_SUCCESS);
 				}
+				std::cout << "New client connected: " << newclient << std::endl;
 				this->_poll_clients[newclient] = (tm_pollclient){TM_POLL_CLIENT, new UnixSocketServer::Client(newclient, this->_master)};
 				this->poll_fds.push_back((pollfd){newclient, TM_POLL_EVENTS, TM_POLL_NO_EVENTS});
 				break;
@@ -213,15 +209,16 @@ UnixSocketServer::cycle()
 		}
 	}
 
-	int clien_fd;
+	int client_fd;
 	for (auto it = to_remove.rbegin(); it != to_remove.rend(); ++it)
 	{
-		clien_fd = this->poll_fds[*it].fd;
-		(void)close(clien_fd);
-		client = reinterpret_cast<UnixSocketServer::Client *>(this->_poll_clients[clien_fd].data);
+		client_fd = this->poll_fds[*it].fd;
+		(void)shutdown(client_fd, SHUT_RDWR);
+		(void)close(client_fd);
+		client = reinterpret_cast<UnixSocketServer::Client *>(this->_poll_clients[client_fd].data);
 		delete client;
 		this->poll_fds.erase(this->poll_fds.begin() + *it);
-		this->_poll_clients.erase(clien_fd);
+		this->_poll_clients.erase(client_fd);
 	}
 	return (TM_SUCCESS);
 }
@@ -282,19 +279,26 @@ UnixSocketServer::Client::done(void)
 		return (TM_POLL_CLIENT_ERROR);
 	}
 
-	if (p->getState() == this->desired_state)
+	if (p->reachedDesiredState())
 	{
 		std::stringstream ss;
-		ss << "Process " << p->getPid() << " (" << p->getProgramName() << ") is now " << p->getStateName();
+		ss << "Process " << p->getPid() << " (" << p->getProgramName() << ") is now " << Process::getStateName(p->getState()) << " [" << Process::getStateName(p->getDesiredState()) << "]" << "\n";
 
 		this->send(ss.str());
 		return (TM_POLL_CLIENT_DISCONNECT);	
 	}
 
+	if (p->getDesiredState() != this->requested_state)
+	{
+		this->requested_state = p->getDesiredState();
+		this->send("Request interrupted by another request\n");
+		return (TM_POLL_CLIENT_OK);
+	}
+
 	if (p->getState() == TM_P_FATAL || p->getState() == TM_P_UNKNOWN)
 	{
 		Logger::error("The process is in a fatal state");
-		this->send("The process is in a fatal state");
+		this->send("The process is in a fatal state\n");
 		return (TM_POLL_CLIENT_ERROR);
 	}
 
@@ -331,13 +335,13 @@ UnixSocketServer::Client::parse(const char* buff)
 	{
 		if (this->input[0] == "shutdown")
 		{
-			this->send("Shutting down the daemon");
+			this->send("Shutting down the daemon\n");
 			Taskmaster::running = false;
 			return (TM_POLL_CLIENT_DISCONNECT);
 		}
 		else if (this->input[0] == "reload")
 		{
-			this->send("Reloading the daemon");
+			this->send("Reloading the daemon\n");
 			this->_master.restart();
 			return (TM_POLL_CLIENT_DISCONNECT);
 		}
@@ -351,7 +355,7 @@ UnixSocketServer::Client::parse(const char* buff)
 		if (!p)
 		{
 			Logger::error("The process could not be found");
-			this->send("The process could not be found");
+			this->send("The process could not be found\n");
 			return (TM_POLL_CLIENT_ERROR);
 		}
 		this->puid = p->getUid();
@@ -359,17 +363,60 @@ UnixSocketServer::Client::parse(const char* buff)
 
 		if (this->input[0] == "start")
 		{
-			this->desired_state = TM_P_RUNNING;
+			switch (p->getState())
+			{
+			case TM_P_RUNNING:
+				return (TM_POLL_CLIENT_DISCONNECT);
+			case TM_P_STARTING:
+			case TM_P_STOPPING:
+				this->send("The process is in transition state\n");
+				return (TM_POLL_CLIENT_DISCONNECT);
+			case TM_P_BACKOFF:
+			case TM_P_FATAL:
+				this->send("The process is in a fatal state\n");
+				return (TM_POLL_CLIENT_DISCONNECT);
+			case TM_P_UNKNOWN:
+				this->send("Process is in an unknown state\n");
+				return (TM_POLL_CLIENT_DISCONNECT);
+			}
+			this->requested_state = TM_P_RUNNING;
 			(void)p->start();
 		}
 		else if (this->input[0] == "restart")
 		{
-			this->desired_state = TM_P_RUNNING;
+			switch (p->getState())
+			{
+			case TM_P_STOPPING:
+				this->send("The process is in transition state\n");
+				return (TM_POLL_CLIENT_DISCONNECT);	
+			case TM_P_BACKOFF:
+			case TM_P_FATAL:
+				this->send("The process is in a fatal state\n");
+				return (TM_POLL_CLIENT_DISCONNECT);
+			case TM_P_UNKNOWN:
+				this->send("Process is in an unknown state\n");
+				return (TM_POLL_CLIENT_DISCONNECT);
+			}
+			this->requested_state = TM_P_RUNNING;
 			(void)p->restart();
 		}
 		else if (this->input[0] == "stop")
 		{
-			this->desired_state = TM_P_EXITED;
+			switch (p->getState())
+			{
+			case TM_P_STOPPING:
+				this->send("The process is in transition state\n");
+				return (TM_POLL_CLIENT_DISCONNECT);
+			case TM_P_STOPPED:
+			case TM_P_EXITED:
+				this->send("The process is not running\n");
+				return (TM_POLL_CLIENT_DISCONNECT);
+			case TM_P_FATAL:
+			case TM_P_UNKNOWN:
+				this->send("Process is in an unknown state\n");
+				return (TM_POLL_CLIENT_DISCONNECT);
+			}
+			this->requested_state = TM_P_EXITED;
 			(void)p->stop();
 		}
 		else if (this->input[0] == "signal")
@@ -377,10 +424,10 @@ UnixSocketServer::Client::parse(const char* buff)
 			int signal = std::stoi(this->input[2]);
 			if (p->getState() != TM_P_RUNNING)
 			{
-				this->send("The process is not running");
+				this->send("The process is not running\n");
 				return (TM_POLL_CLIENT_DISCONNECT);
 			}
-			this->send("Sending signal " + std::to_string(signal) + " to process " + this->input[1]);
+			this->send("Sending signal " + std::to_string(signal) + " to process " + this->input[1] + "\n");
 			(void)p->signal(signal);
 			return (TM_POLL_CLIENT_DISCONNECT);
 		}
