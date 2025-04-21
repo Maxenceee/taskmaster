@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:40:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 19:03:07 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 19:17:28 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -203,6 +203,21 @@ UnixSocketServer::Client::exec(void)
 		}
 
 		return (TM_POLL_CLIENT_OK);
+	}
+
+	if (command == "internal")
+	{
+		std::cout << "Internal command " << this->input[1] << "\n";
+		if (this->input.size() == 2 && this->input[1] == "processes")
+		{
+			auto a = this->_master.all();
+			for (const auto& p : a)
+			{
+				this->send(p->getProgramName());
+				this->send(TM_CRLF);
+			}
+			return (TM_POLL_CLIENT_DISCONNECT);
+		}
 	}
 
 	this->send("Invalid command\n");
