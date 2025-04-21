@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 19:52:46 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 20:05:10 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,13 +22,13 @@ enum tm_config_auto_restart {
 };
 
 enum tm_config_stop_signal {
-	TERM	= SIGTERM,
-	HUP		= SIGHUP,
-	INT		= SIGINT,
-	QUIT	= SIGQUIT,
-	KILL	= SIGKILL,
-	USR1	= SIGUSR1,
-	USR2	= SIGUSR2,
+	TM_S_TERM	= SIGTERM,
+	TM_S_HUP	= SIGHUP,
+	TM_S_INT	= SIGINT,
+	TM_S_QUIT	= SIGQUIT,
+	TM_S_KILL	= SIGKILL,
+	TM_S_USR1	= SIGUSR1,
+	TM_S_USR2	= SIGUSR2,
 };
 
 typedef struct tm_process_config {
@@ -85,7 +85,7 @@ typedef struct tm_process_config {
 		bool autostart = true,
 		tm_config_auto_restart autorestart = TM_CONF_AUTORESTART_UNEXPECTED,
 		const std::initializer_list<uint8_t> &init_exitcodes = { 0 },
-		tm_config_stop_signal stopsignal = TERM,
+		tm_config_stop_signal stopsignal = TM_S_TERM,
 		uint16_t startsecs = 1,
 		uint16_t startretries = 3,
 		uint16_t stopwaitsecs = 10,

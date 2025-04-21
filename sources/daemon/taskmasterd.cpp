@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 19:35:12 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 20:05:05 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ start_main_loop(char* const* argv, char* const* envp)
 		false,
 		TM_CONF_AUTORESTART_UNEXPECTED,
 		{0, 4},
-		TERM,
+		TM_S_TERM,
 		5,
 		3,
 		10
@@ -64,7 +64,7 @@ start_main_loop(char* const* argv, char* const* envp)
 			false,
 			TM_CONF_AUTORESTART_UNEXPECTED,
 			{0, 4},
-			TERM,
+			TM_S_TERM,
 			3,
 			3,
 			5
