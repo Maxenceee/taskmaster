@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 17:43:04 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 16:43:18 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 19:20:17 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,7 +191,6 @@ UnixSocketServer::cycle()
 				client = reinterpret_cast<UnixSocketServer::Client *>(this->_poll_clients[this->poll_fds[i].fd].data);
 				if (!client || this->serve(*client) != TM_POLL_CLIENT_OK)
 				{
-					Logger::debug("Client disconnected");
 					to_remove.push_back(i);
 				}
 				break;
@@ -210,6 +209,7 @@ UnixSocketServer::cycle()
 	int client_fd;
 	for (auto it = to_remove.rbegin(); it != to_remove.rend(); ++it)
 	{
+		Logger::debug("Client disconnected");
 		client_fd = this->poll_fds[*it].fd;
 		(void)::shutdown(client_fd, SHUT_RDWR);
 		(void)close(client_fd);

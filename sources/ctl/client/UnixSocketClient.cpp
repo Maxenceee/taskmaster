@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:59:19 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 13:21:23 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 19:12:16 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ UnixSocketClient::sendCmd(const std::vector<std::string>& cmd)
 }
 
 ssize_t
-UnixSocketClient::recv(void)
+UnixSocketClient::print(void)
 {
 	char buffer[1024];
 	ssize_t total_bytes = 0;
@@ -110,4 +110,38 @@ UnixSocketClient::recv(void)
 	}
 
 	return (total_bytes);
+}
+
+std::string
+UnixSocketClient::recv(void)
+{
+	char buffer[1024];
+	ssize_t total_bytes = 0;
+
+	std::string response;
+
+	while (true)
+	{
+		if (this->poll() == TM_FAILURE)
+		{
+			return ("");
+		}
+
+		if (this->poll_fds[0].revents & POLLIN)
+		{
+			ssize_t n = ::recv(this->sockfd, buffer, sizeof(buffer) - 1, 0);
+			if (n <= 0)
+			{
+				break;
+			}
+
+			response.append(buffer, n);
+		}
+		else if (this->poll_fds[0].revents & (POLLHUP | POLLERR | POLLNVAL))
+		{
+			break;
+		}
+	}
+
+	return (response);
 }

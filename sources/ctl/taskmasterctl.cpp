@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 18:58:23 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 19:20:48 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 #include "utils/utils.hpp"
 #include "client/UnixSocketClient.hpp"
 #include "signal.hpp"
+
+extern int tty_fd;
 
 char*
 get_process_name(const char* text, int state)
@@ -31,7 +33,28 @@ get_process_name(const char* text, int state)
 		len = strlen(text);
 		suggestions.clear();
 
-		suggestions.push_back("child_key");
+		UnixSocketClient client(TM_SOCKET_PATH);
+		if (client.connect() == TM_FAILURE)
+		{
+			return nullptr;
+		}
+
+		(void)client.send("internal" TM_CRLF "processes" TM_CRLF TM_CRLF);
+		std::string buffer = client.recv();
+
+		if (buffer.empty())
+		{
+			return nullptr;
+		}
+
+		size_t pos = 0;
+		while ((pos = buffer.find(TM_CRLF)) != std::string::npos)
+		{
+			std::string line = buffer.substr(0, pos);
+			buffer.erase(0, pos + 2);
+
+			suggestions.push_back(line);
+		}
 	}
 
 	while (index < suggestions.size()) {
@@ -161,7 +184,7 @@ attach_readline()
 			}
 
 			(void)client.sendCmd(tokens);
-			(void)client.recv();
+			(void)client.print();
 		}
 		catch(...)
 		{
