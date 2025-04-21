@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 23:24:24 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 18:58:53 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 19:52:36 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,6 +112,7 @@
 
 typedef std::chrono::system_clock::time_point time_point;
 typedef std::chrono::steady_clock::time_point time_point_steady;
+typedef std::chrono::system_clock::duration time_duration;
 
 std::vector<std::string>	tm_parse_internal(const char* buff);
 

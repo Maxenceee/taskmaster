@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 17:29:37 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 19:52:46 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -221,6 +221,8 @@ public:
 	bool	stopped(void) const;
 	bool	exited(void) const;
 	bool	fatal(void) const;
+
+	time_duration	uptime(void) const;
 
 	bool	reachedDesiredState(void) const;
 
