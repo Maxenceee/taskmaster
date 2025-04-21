@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 13:30:36 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/21 18:58:23 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,7 @@ attach_readline()
 	{
 		setup_signal(SIGINT, interruptHandler);
 
-		char *rl_in = readline(TM_PROJECTCTL "> ");
+		char *rl_in = readline(RL_PROMPT);
 		if (NULL == rl_in)
 		{
 			break;

@@ -28,7 +28,7 @@ RLIBS			+=	-L $(RLIBS_DIR)/lib
 endif
 CFLAGS			+=	-I$(RLIBS_DIR)/include
 
-LIBS			=	-lpthread -lcrypto $(RLIBS)
+LIBS			=	$(RLIBS)
 
 NAME_D			=	taskmasterd
 NAME_CTL		=	taskmasterctl
