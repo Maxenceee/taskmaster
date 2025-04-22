@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 13:34:11 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 13:34:48 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/22 18:09:14 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,28 @@ create_pid_file(void)
 	int		pid_fd;
 
 	tm_pid = getpid();
+
+	pid_fd = open(TM_PID_FILE, O_RDONLY);
+	if (pid_fd == -1)
+	{
+		Logger::perror("open");
+		return (TM_FAILURE);
+	}
+
+	// char buffer[TM_INT64_LEN];
+	// if (read(pid_fd, buffer, TM_INT64_LEN) == -1)
+	// {
+	// 	close(pid_fd);
+	// 	Logger::perror("read");
+	// 	return (TM_FAILURE);
+	// }
+
+	// if (atoi(buffer) == tm_pid)
+	// {
+	// 	close(pid_fd);
+	// 	Logger::error("Another instance is already running!");
+	// 	return (TM_FAILURE);
+	// }
 
 	pid_fd = open(TM_PID_FILE, O_WRONLY | O_CREAT, TM_DEFAULT_FILE_MODE);
 	if (pid_fd == -1)
