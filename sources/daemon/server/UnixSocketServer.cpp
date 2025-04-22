@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 17:43:04 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 19:20:17 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/22 17:08:20 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,7 +136,9 @@ UnixSocketServer::stop(void)
 	{
 		if (client.second.type == TM_POLL_CLIENT)
 		{
-			delete reinterpret_cast<UnixSocketServer::Client *>(client.second.data);
+			auto c = reinterpret_cast<UnixSocketServer::Client *>(client.second.data);
+			c->send("Good bye!\n");
+			(void)::shutdown(c->getFd(), SHUT_RDWR);
 		}
 	}
 	for (auto& poll_fd : this->poll_fds)
