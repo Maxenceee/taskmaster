@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 13:34:11 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/22 18:09:14 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/22 22:38:29 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,29 +23,7 @@ create_pid_file(void)
 
 	tm_pid = getpid();
 
-	pid_fd = open(TM_PID_FILE, O_RDONLY);
-	if (pid_fd == -1)
-	{
-		Logger::perror("open");
-		return (TM_FAILURE);
-	}
-
-	// char buffer[TM_INT64_LEN];
-	// if (read(pid_fd, buffer, TM_INT64_LEN) == -1)
-	// {
-	// 	close(pid_fd);
-	// 	Logger::perror("read");
-	// 	return (TM_FAILURE);
-	// }
-
-	// if (atoi(buffer) == tm_pid)
-	// {
-	// 	close(pid_fd);
-	// 	Logger::error("Another instance is already running!");
-	// 	return (TM_FAILURE);
-	// }
-
-	pid_fd = open(TM_PID_FILE, O_WRONLY | O_CREAT, TM_DEFAULT_FILE_MODE);
+	pid_fd = open(TM_PID_FILE, O_RDWR | O_CREAT, TM_DEFAULT_FILE_MODE);
 	if (pid_fd == -1)
 	{
 		Logger::perror("open");
@@ -53,16 +31,36 @@ create_pid_file(void)
 	}
 
 	if (flock(pid_fd, LOCK_EX | LOCK_NB) == -1) {
-        if (errno == EWOULDBLOCK) {
-            Logger::error("Another instance is already running!");
-        } else {
-            Logger::perror("flock");
-        }
-        close(pid_fd);
-        return (TM_FAILURE);
-    }
+		if (errno == EWOULDBLOCK) {
+			Logger::error("Another instance is already running!");
+		} else {
+			Logger::perror("flock");
+		}
+		close(pid_fd);
+		return (TM_FAILURE);
+	}
+
+	char buffer[TM_INT64_LEN];
+	if (read(pid_fd, buffer, TM_INT64_LEN) == -1)
+	{
+		close(pid_fd);
+		Logger::perror("read");
+		return (TM_FAILURE);
+	}
+
+	int old_pid = atoi(buffer);
+	if (old_pid > 0)
+	{
+		if (kill(old_pid, 0) == 0)
+		{
+			Logger::error("Another instance is already running!");
+			close(pid_fd);
+			return (TM_FAILURE);
+		}
+	}
 
 	ftruncate(pid_fd, 0);
+	lseek(pid_fd, 0, SEEK_SET);
 	dprintf(pid_fd, "%d\n", tm_pid);
 
 	g_pid_fd = pid_fd;
@@ -75,9 +73,9 @@ remove_pid_file(void)
 {
 	if (g_pid_fd != -1) {
 		flock(g_pid_fd, LOCK_UN);
-        close(g_pid_fd);
-        g_pid_fd = -1;
-    }
+		close(g_pid_fd);
+		g_pid_fd = -1;
+	}
 
 	if (unlink(TM_PID_FILE) == -1)
 	{
