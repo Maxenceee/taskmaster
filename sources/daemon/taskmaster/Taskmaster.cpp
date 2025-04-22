@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 19:59:03 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/22 17:15:51 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,13 +35,6 @@ Taskmaster::~Taskmaster(void)
 int
 Taskmaster::addChild(char* const* exec, struct tm_process_config& config)
 {
-	// Temp output file
-	int	std_out_fd = open("child_stdout.log", O_WRONLY | O_CREAT | O_APPEND, 0644);
-	if (std_out_fd == -1) {
-		Logger::perror("open");
-		return (TM_FAILURE);
-	}
-
 	for (int i = 0; i < config.numprocs; ++i)
 	{
 		Process* new_child = new Process(exec, this->envp, std::string(exec[0]) + "_" + std::to_string(i), config, this->pid);
