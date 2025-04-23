@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:53 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 10:47:30 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 16:09:01 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,16 @@ private:
 	static pthread_mutex_t	_loggerMutex;
 	static bool				_initiated;
 
+	static int				_log_fd;
+	static bool				_file_logging;
+	static bool				_rotation_logging;
+
 	static bool				aquireMutex(void);
 	static bool				releaseMutex(void);
 
 	static void				destroy(void);
+
+	static void				addToFile(const char *msg);
 
 protected:
 	struct LoggerDisplayColor {
@@ -73,6 +79,9 @@ public:
 
 	static void setDebug(bool debug);
 	static bool isDebug(void);
+
+	static void	enableFileLogging(void);
+	static void enableRotationLogging(void);
 
 	friend std::ostream& operator<<(std::ostream& os, const Logger::LoggerDisplayColor&);
     friend std::ostream& operator<<(std::ostream& os, const Logger::LoggerDisplayDate&);

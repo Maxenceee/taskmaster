@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 19:48:01 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 16:04:39 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,21 @@ void
 Process::setGroupId(int id)
 {
 	this->_process_group_id = id;
+}
+
+void
+Process::reopenStds(void)
+{
+	if (this->std_out_fd != -1)
+	{
+		(void)close(this->std_out_fd);
+	}
+	this->std_out_fd = tempfile("out");
+	if (this->std_err_fd != -1)
+	{
+		(void)close(this->std_err_fd);
+	}
+	this->std_err_fd = tempfile("err");
 }
 
 int

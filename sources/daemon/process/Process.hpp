@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 20:05:10 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 16:04:43 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -202,6 +202,8 @@ public:
 	void	setStdInFd(int std_in_fd);
 	void	setStdOutFd(int std_out_fd);
 	void	setStdErrFd(int std_err_fd);
+
+	void	reopenStds(void);
 
 	void	setGroupId(int id);
 
