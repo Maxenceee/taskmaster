@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:53 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/23 23:14:21 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 23:15:05 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ private:
 	static pthread_mutex_t	_loggerMutex;
 	static bool				_initiated;
 
-	static Logger::LoggerFileStream cout;
+	static LoggerFileStream	cout;
 	static std::ofstream	_logFile;
 	static std::string		_logFileName;
 	static size_t			_logFileMaxSize;
@@ -103,11 +103,11 @@ public:
 	static void	enableFileLogging(const std::string& fname);
 	static void setLogFileMaxSize(size_t size);
 
-	friend std::ostream& operator<<(std::ostream& os, const Logger::LoggerDisplayColor&);
-	friend std::ostream& operator<<(std::ostream& os, const Logger::LoggerDisplayDate&);
-	friend std::ostream& operator<<(std::ostream& os, const Logger::LoggerDisplayDay&);
-	friend std::ostream& operator<<(std::ostream& os, const Logger::LoggerDisplayReset&);
-	friend Logger::LoggerFileStream& operator<<(Logger::LoggerFileStream& lfs, std::ostream& (*manip)(std::ostream&));
+	friend std::ostream& operator<<(std::ostream& os, const LoggerDisplayColor&);
+	friend std::ostream& operator<<(std::ostream& os, const LoggerDisplayDate&);
+	friend std::ostream& operator<<(std::ostream& os, const LoggerDisplayDay&);
+	friend std::ostream& operator<<(std::ostream& os, const LoggerDisplayReset&);
+	friend LoggerFileStream& operator<<(LoggerFileStream& lfs, std::ostream& (*manip)(std::ostream&));
 };
 
 #endif /* LOGGER_HPP */
