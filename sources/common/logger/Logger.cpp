@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:56 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/23 23:12:32 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 23:13:24 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,7 +198,7 @@ Logger::LoggerFileStream::checkRotation(void)
 {
 	if (Logger::_file_logging && Logger::_logFile.is_open())
 	{
-		if (Logger::_logFile.tellp() > Logger::_logFileMaxSize)
+		if (Logger::_logFileMaxSize > 0 && Logger::_logFile.tellp() > Logger::_logFileMaxSize)
 		{
 			Logger::_logFile.close();
 
