@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 19:22:54 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 23:01:45 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,7 +117,7 @@ handle_stdin_input(void)
 	}
 
 	(void)client.sendCmd(tokens);
-	(void)client.recv();
+	(void)client.print();
 
 	return (TM_SUCCESS);
 }
