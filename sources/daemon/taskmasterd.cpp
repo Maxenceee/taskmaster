@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/23 22:22:48 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 23:41:50 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,7 @@ main(int argc, char* const* argv, char* const* envp)
 	// 	return (TM_FAILURE);
 	// }
 
-	Logger::enableFileLogging();
+	Logger::enableFileLogging(TM_MAIN_LOG_DIR TM_PROJECTD ".out.log", TM_MAIN_LOG_DIR TM_PROJECTD ".err.log");
 	Logger::init("Starting daemon");
 	Logger::setDebug(true);
 

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:53 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/23 23:40:46 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 23:53:28 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 
 #include "tm.hpp"
 #include "pcolors.hpp"
+
+#define TM_MAIN_LOG_FNAME TM_MAIN_LOG_DIR TM_PROJECTD ".log"
 
 class Logger
 {
@@ -38,18 +40,9 @@ protected:
 	class LoggerFileStream : private std::streambuf, public std::ostream
 	{
 	private:
-		const std::string&	_fname;
-		std::ofstream		_logFile;
-		size_t				_maxSize;
-
-	public:
-		LoggerFileStream(const std::string& fname) :
-			std::ostream(this),
-			_fname(fname),
-			_logFile(TM_MAIN_LOG_DIR TM_PROJECTD ".log"),
-			_maxSize(TM_MAX_LOG_FILE_SIZE) {};
-
-		void	setMaxSize(size_t size) { _maxSize = size; }
+		std::string		_fname;
+		std::ofstream	_logFile;
+		size_t			_maxSize;
 
 	protected:
 		int	overflow(int c) override;
@@ -58,6 +51,15 @@ protected:
 		void	openLogFile(void);
 		void	checkRotation(void);
 		void	renameLogFile(void);
+
+	public:
+		LoggerFileStream() :
+			std::ostream(this),
+			_fname(TM_MAIN_LOG_FNAME),
+			_maxSize(TM_MAX_LOG_FILE_SIZE) {};
+
+		void	setFileName(const std::string& fname);
+		void	setMaxSize(size_t size);
 	};
 
 private:
@@ -67,8 +69,6 @@ private:
 
 	static LoggerFileStream	cout;
 	static LoggerFileStream	cerr;
-	static std::string		_outLogFileName;
-	static std::string		_errLogFileName;
 	static bool				_file_logging;
 	static bool				_rotation_logging;
 
