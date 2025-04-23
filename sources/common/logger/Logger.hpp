@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:53 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/23 22:18:44 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 22:56:39 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,28 +38,14 @@ protected:
 	class LoggerFileStream : private std::streambuf, public std::ostream
 	{
 	public:
-		LoggerFileStream() : std::ostream(this) {};
+		LoggerFileStream(void) : std::ostream(this) {};
 
 	private:
-		int overflow(int c) override
-		{
-			if (c != EOF)
-			{
-				if (Logger::_file_logging && Logger::_logFile.is_open())
-				{
-					Logger::_logFile << static_cast<char>(c);
-				}
-			}
-			return (c);
-		}
+		int	overflow(int c) override;
+		int	sync(void) override;
 
-		int sync() override
-		{
-			if (Logger::_file_logging && Logger::_logFile.is_open()) {
-				Logger::_logFile.flush();
-			}
-			return (0);
-		}
+		void	checkRotation(void);
+		void	renameLogFile(void);
 	};
 
 private:
@@ -69,6 +55,8 @@ private:
 
 	static Logger::LoggerFileStream cout;
 	static std::ofstream	_logFile;
+	static std::string		_logFileName;
+	static size_t			_logFileMaxSize;
 	static bool				_file_logging;
 	static bool				_rotation_logging;
 
@@ -77,7 +65,7 @@ private:
 
 	static void				destroy(void);
 
-	static void				addToFile(const std::stringstream& stream);
+	static void				openLogFile(void);
 
 public:
 	static void init(const char *action);
@@ -113,7 +101,7 @@ public:
 
 	static void	enableFileLogging(void);
 	static void	enableFileLogging(const std::string& fname);
-	static void enableRotationLogging(void);
+	static void setLogFileMaxSize(size_t size);
 
 	friend std::ostream& operator<<(std::ostream& os, const Logger::LoggerDisplayColor&);
 	friend std::ostream& operator<<(std::ostream& os, const Logger::LoggerDisplayDate&);
