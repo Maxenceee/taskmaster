@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 13:18:00 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 13:04:51 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 13:58:17 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,11 +85,17 @@ std::vector<std::string>	tokenize(const std::string &line)
             break;
         } else if ((isspace(c) || c == '\t') && !inQuotes) {
 			if (!token.empty()) {
+				trim(token, ' ');
+				trim(token, '\t');
+				trim(token, '\r');
 				tokens.push_back(token);
 				token.clear();
 			}
 		} else if ((c == '{' || c == '}' || c == ';') && !inQuotes) {
 			if (!token.empty()) {
+				trim(token, ' ');
+				trim(token, '\t');
+				trim(token, '\r');
 				tokens.push_back(token);
 				token.clear();
 			}
