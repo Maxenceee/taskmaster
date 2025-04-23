@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:53 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/23 22:56:39 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 23:14:21 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,12 +60,12 @@ private:
 	static bool				_file_logging;
 	static bool				_rotation_logging;
 
-	static bool				aquireMutex(void);
-	static bool				releaseMutex(void);
+	static bool	aquireMutex(void);
+	static bool	releaseMutex(void);
 
-	static void				destroy(void);
+	static void	destroy(void);
 
-	static void				openLogFile(void);
+	static void	openLogFile(void);
 
 public:
 	static void init(const char *action);
