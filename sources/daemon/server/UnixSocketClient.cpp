@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:40:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 19:58:11 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 11:08:48 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,7 @@ UnixSocketServer::Client::_work(struct tm_pollclient_process_handler& ps)
 		std::stringstream ss;
 		ss << "Process " << p->getPid() << " (" << p->getProgramName() << ") is now " << Process::getStateName(p->getState()) << " [" << Process::getStateName(p->getDesiredState()) << "]" << " - " << format_duration(p->uptime()) << "\n";
 
-		this->send(ss.str());
+		(void)this->send(ss.str());
 		ps.done = true;
 		return (TM_POLL_CLIENT_DISCONNECT);	
 	}
@@ -110,14 +110,14 @@ UnixSocketServer::Client::_work(struct tm_pollclient_process_handler& ps)
 	if (p->getDesiredState() != ps.requested_state)
 	{
 		ps.requested_state = p->getDesiredState();
-		this->send("Request interrupted by another request\n");
+		(void)this->send("Request interrupted by another request\n");
 		return (TM_POLL_CLIENT_OK);
 	}
 
 	if (p->getState() == TM_P_FATAL || p->getState() == TM_P_UNKNOWN)
 	{
 		Logger::error("The process is in a fatal state");
-		this->send("The process is in a fatal state\n");
+		(void)this->send("The process is in a fatal state\n");
 		ps.done = true;
 		return (TM_POLL_CLIENT_ERROR);
 	}
@@ -164,14 +164,14 @@ UnixSocketServer::Client::exec(void)
 {
 	if (this->input.empty())
 	{
-		this->send("Invalid usage\n");
+		(void)this->send("Invalid usage\n");
 		return (TM_POLL_CLIENT_ERROR);
 	}
 
 	const std::string& command = this->input[0];
 	if (command.empty())
 	{
-		this->send("Invalid command\n");
+		(void)this->send("Invalid command\n");
 		return (TM_POLL_CLIENT_ERROR);
 	}
 
@@ -186,7 +186,7 @@ UnixSocketServer::Client::exec(void)
 	{
 		if (this->input.size() < 2)
 		{
-			this->send("Invalid usage\n");
+			(void)this->send("Invalid usage\n");
 			return (TM_POLL_CLIENT_ERROR);
 		}
 
@@ -213,13 +213,13 @@ UnixSocketServer::Client::exec(void)
 			auto a = this->_master.all();
 			for (const auto& p : a)
 			{
-				this->send(p->getProgramName());
-				this->send(TM_CRLF);
+				(void)this->send(p->getProgramName());
+				(void)this->send(TM_CRLF);
 			}
 			return (TM_POLL_CLIENT_DISCONNECT);
 		}
 	}
 
-	this->send("Invalid command\n");
+	(void)this->send("Invalid command\n");
 	return (TM_POLL_CLIENT_ERROR);
 }

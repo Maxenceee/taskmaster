@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 20:05:05 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 11:48:27 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,8 @@ start_main_loop(char* const* argv, char* const* envp)
 	setup_signal(SIGINT, interruptHandler);
 	setup_signal(SIGQUIT, interruptHandler);
 	setup_signal(SIGTERM, interruptHandler);
+
+	Logger::print("Daemon started with pid: " + std::to_string(getpid()));
 
 	tm_process_config config(
 		1,
@@ -134,8 +136,6 @@ main(int argc, char* const* argv, char* const* envp)
 	setup_signal(SIGTERM, SIG_IGN);
 
 	setup_signal(SIGPIPE, SIG_IGN);
-
-	Logger::print("Daemon started with pid: " + std::to_string(getpid()));
 
 	try
 	{
