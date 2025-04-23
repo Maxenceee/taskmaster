@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:56 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/23 23:53:16 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 23:56:10 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,8 +154,7 @@ Logger::LoggerFileStream::openLogFile(void)
 {
 	if (Logger::_file_logging)
 	{
-		std::cout << "Opening log file: " << _fname << std::endl;
-		_logFile.open(_fname, std::ios::out | std::ios::app);
+		this->_logFile.open(this->_fname, std::ios::out | std::ios::app);
 	}
 }
 
@@ -166,7 +165,7 @@ Logger::LoggerFileStream::overflow(int c)
 	{
 		if (Logger::_file_logging)
 		{
-			_logFile << static_cast<char>(c);
+			this->_logFile << static_cast<char>(c);
 		}
 	}
 	return (c);
@@ -179,7 +178,7 @@ Logger::LoggerFileStream::sync(void)
 	{
 		Logger::LoggerFileStream::checkRotation();
 
-		_logFile.flush();
+		this->_logFile.flush();
 	}
 	return (0);
 }
@@ -187,11 +186,11 @@ Logger::LoggerFileStream::sync(void)
 inline void
 Logger::LoggerFileStream::checkRotation(void)
 {
-	if (Logger::_file_logging && _logFile.is_open())
+	if (Logger::_file_logging && this->_logFile.is_open())
 	{
-		if (_maxSize > 0 && _logFile.tellp() > _maxSize)
+		if (this->_maxSize > 0 && this->_logFile.tellp() > this->_maxSize)
 		{
-			_logFile.close();
+			this->_logFile.close();
 
 			Logger::LoggerFileStream::renameLogFile();
 
@@ -209,8 +208,8 @@ Logger::LoggerFileStream::renameLogFile(void)
 
 	std::tm tm = *std::localtime(&time);
 
-	newFileName << _fname << "." << std::put_time(&tm, "%Y-%m-%d_%H-%M-%S");
-	std::string oldFileName = _fname;
+	newFileName << this->_fname << "." << std::put_time(&tm, "%Y-%m-%d_%H-%M-%S");
+	std::string oldFileName = this->_fname;
 
 	if (!oldFileName.empty())
 	{
@@ -221,10 +220,10 @@ Logger::LoggerFileStream::renameLogFile(void)
 inline void
 Logger::LoggerFileStream::setFileName(const std::string& fname)
 {
-	_fname = fname;
-	if (_logFile.is_open())
+	this->_fname = fname;
+	if (this->_logFile.is_open())
 	{
-		_logFile.close();
+		this->_logFile.close();
 	}
 	Logger::LoggerFileStream::openLogFile();
 }
@@ -232,5 +231,5 @@ Logger::LoggerFileStream::setFileName(const std::string& fname)
 inline void
 Logger::LoggerFileStream::setMaxSize(size_t size)
 {
-	_maxSize = size;
+	this->_maxSize = size;
 }
