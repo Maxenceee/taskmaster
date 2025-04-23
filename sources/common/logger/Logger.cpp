@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:56 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/23 23:13:24 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 23:15:59 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,8 +77,7 @@ inline Logger::LoggerFileStream&
 operator<<(Logger::LoggerFileStream& lfs, std::ostream& (*manip)(std::ostream&))
 {
 	manip(static_cast<std::ostream&>(lfs));
-	lfs.flush();
-	return lfs;
+	return (lfs);
 }
 
 void
