@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:56 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/23 23:41:02 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 23:53:16 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,8 @@ bool			Logger::_debug = false;
 pthread_mutex_t Logger::_loggerMutex;
 bool			Logger::_initiated = false;
 
-std::string					Logger::_outLogFileName;
-std::string					Logger::_errLogFileName;
-Logger::LoggerFileStream	Logger::cout(Logger::_outLogFileName);
-Logger::LoggerFileStream	Logger::cerr(Logger::_errLogFileName);
+Logger::LoggerFileStream	Logger::cout;
+Logger::LoggerFileStream	Logger::cerr;
 bool						Logger::_file_logging = false;
 bool						Logger::_rotation_logging = false;
 
@@ -141,14 +139,14 @@ void
 Logger::enableFileLogging(const std::string& out, const std::string& err)
 {
 	Logger::_file_logging = true;
-	Logger::_outLogFileName = out;
-	Logger::_errLogFileName = err;
+	Logger::cout.setFileName(out);
+	Logger::cerr.setFileName(err);
 }
 
 void
 Logger::enableFileLogging(void)
 {
-	Logger::enableFileLogging(TM_MAIN_LOG_DIR TM_PROJECTD ".log", TM_MAIN_LOG_DIR TM_PROJECTD ".log");
+	Logger::enableFileLogging(TM_MAIN_LOG_FNAME, TM_MAIN_LOG_FNAME);
 }
 
 void
@@ -156,6 +154,7 @@ Logger::LoggerFileStream::openLogFile(void)
 {
 	if (Logger::_file_logging)
 	{
+		std::cout << "Opening log file: " << _fname << std::endl;
 		_logFile.open(_fname, std::ios::out | std::ios::app);
 	}
 }
@@ -167,11 +166,6 @@ Logger::LoggerFileStream::overflow(int c)
 	{
 		if (Logger::_file_logging)
 		{
-			if (!_logFile.is_open())
-			{
-				Logger::LoggerFileStream::openLogFile();
-			}
-
 			_logFile << static_cast<char>(c);
 		}
 	}
@@ -222,4 +216,21 @@ Logger::LoggerFileStream::renameLogFile(void)
 	{
 		std::rename(oldFileName.c_str(), newFileName.str().c_str());
 	}
+}
+
+inline void
+Logger::LoggerFileStream::setFileName(const std::string& fname)
+{
+	_fname = fname;
+	if (_logFile.is_open())
+	{
+		_logFile.close();
+	}
+	Logger::LoggerFileStream::openLogFile();
+}
+
+inline void
+Logger::LoggerFileStream::setMaxSize(size_t size)
+{
+	_maxSize = size;
 }
