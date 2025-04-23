@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:56 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 10:47:25 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 16:10:33 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,12 @@
 bool Logger::_debug = false;
 bool Logger::_initiated = false;
 pthread_mutex_t Logger::_loggerMutex;
+int Logger::_log_fd = -1;
+bool Logger::_file_logging = false;
+bool Logger::_rotation_logging = false;
 
-static inline bool isTTY(std::ostream& os)
+static inline bool
+isTTY(std::ostream& os)
 {
 	if (&os == &std::cout)
 		return isatty(fileno(stdout));
@@ -25,21 +29,24 @@ static inline bool isTTY(std::ostream& os)
 	return false;
 }
 
-std::ostream& operator<<(std::ostream& os, const Logger::LoggerDisplayColor& dc)
+std::ostream&
+operator<<(std::ostream& os, const Logger::LoggerDisplayColor& dc)
 {
 	if (isTTY(os))
 		os << dc.color;
 	return (os);
 }
 
-std::ostream& operator<<(std::ostream& os, const Logger::LoggerDisplayReset&)
+std::ostream&
+operator<<(std::ostream& os, const Logger::LoggerDisplayReset&)
 {
 	if (isTTY(os))
 		os << RESET;
 	return (os);
 }
 
-std::ostream& operator<<(std::ostream& os, const Logger::LoggerDisplayDate&)
+std::ostream&
+operator<<(std::ostream& os, const Logger::LoggerDisplayDate&)
 {
 	struct tm *tm;
 	time_t rawtime;
@@ -53,7 +60,8 @@ std::ostream& operator<<(std::ostream& os, const Logger::LoggerDisplayDate&)
 	return (os);
 }
 
-void	Logger::init(const char *action)
+void
+Logger::init(const char *action)
 {
 	if (Logger::_initiated)
 		return ;
@@ -77,7 +85,8 @@ void	Logger::init(const char *action)
 	Logger::_initiated = true;
 }
 
-void	Logger::destroy(void)
+void
+Logger::destroy(void)
 {
 	if (!Logger::_initiated)
 		return ;
@@ -89,7 +98,8 @@ void	Logger::destroy(void)
 	(void)pthread_mutex_destroy(&Logger::_loggerMutex);
 }
 
-bool	Logger::aquireMutex(void)
+bool
+Logger::aquireMutex(void)
 {
 	if (!Logger::_initiated)
 	{
@@ -98,12 +108,14 @@ bool	Logger::aquireMutex(void)
 	return (pthread_mutex_lock(&Logger::_loggerMutex) == 0);
 }
 
-bool	Logger::releaseMutex(void)
+bool
+Logger::releaseMutex(void)
 {
 	return (pthread_mutex_unlock(&Logger::_loggerMutex) == 0);
 }
 
-void	Logger::printHeader(bool tty_fallback)
+void
+Logger::printHeader(bool tty_fallback)
 {
 	if (isTTY(std::cout))
 	{
@@ -120,19 +132,22 @@ void	Logger::printHeader(bool tty_fallback)
 	}
 }
 
-void	Logger::cout(const char *msg)
+void
+Logger::cout(const char *msg)
 {
 	(void)Logger::aquireMutex();
 	std::cout << Logger::Color(msg) << std::flush;
 	(void)Logger::releaseMutex();
 }
 
-void	Logger::cout(const std::string &msg)
+void
+Logger::cout(const std::string &msg)
 {
 	Logger::cout(msg.c_str());
 }
 
-void	Logger::print(const char *msg, const char *color)
+void
+Logger::print(const char *msg, const char *color)
 {
 	(void)Logger::aquireMutex();
 	std::cout << Logger::DisplayDate << Logger::Color(color) << msg << Logger::DisplayReset << std::endl;
@@ -142,12 +157,14 @@ void	Logger::print(const char *msg, const char *color)
 	(void)Logger::releaseMutex();
 }
 
-void	Logger::print(const std::string &msg, const char *color)
+void
+Logger::print(const std::string &msg, const char *color)
 {
 	Logger::print(msg.c_str(), color);
 }
 
-void	Logger::info(const char *msg)
+void
+Logger::info(const char *msg)
 {
 	(void)Logger::aquireMutex();
 	std::cout << Logger::DisplayDate << Logger::Color(YELLOW) << TM_PREFIX << msg << Logger::DisplayReset << std::endl;
@@ -157,12 +174,14 @@ void	Logger::info(const char *msg)
 	(void)Logger::releaseMutex();
 }
 
-void	Logger::info(const std::string &msg)
+void
+Logger::info(const std::string &msg)
 {
 	Logger::info(msg.c_str());
 }
 
-void	Logger::warning(const char *msg)
+void
+Logger::warning(const char *msg)
 {
 	(void)Logger::aquireMutex();
 	std::cerr << Logger::DisplayDate << Logger::Color(B_ORANGE) << TM_PREFIX << msg << Logger::DisplayReset << std::endl;
@@ -172,12 +191,14 @@ void	Logger::warning(const char *msg)
 	(void)Logger::releaseMutex();
 }
 
-void	Logger::warning(const std::string &msg)
+void
+Logger::warning(const std::string &msg)
 {
 	Logger::warning(msg.c_str());
 }
 
-void	Logger::error(const char *msg)
+void
+Logger::error(const char *msg)
 {
 	(void)Logger::aquireMutex();
 	std::cerr << Logger::DisplayDate << Logger::Color(B_RED) << TM_PREFIX << msg << Logger::DisplayReset << std::endl;
@@ -187,12 +208,14 @@ void	Logger::error(const char *msg)
 	(void)Logger::releaseMutex();
 }
 
-void	Logger::error(const std::string &msg)
+void
+Logger::error(const std::string &msg)
 {
 	Logger::error(msg.c_str());
 }
 
-void	Logger::perror(const char *msg)
+void
+Logger::perror(const char *msg)
 {
 	(void)Logger::aquireMutex();
 	std::cerr << Logger::DisplayDate << Logger::Color(B_RED) << TM_PREFIX << msg << ": " << strerror(errno) << Logger::DisplayReset << std::endl;
@@ -202,12 +225,14 @@ void	Logger::perror(const char *msg)
 	(void)Logger::releaseMutex();
 }
 
-void	Logger::perror(const std::string &msg)
+void
+Logger::perror(const std::string &msg)
 {
 	Logger::perror(msg.c_str());
 }
 
-void	Logger::pherror(const char *msg)
+void
+Logger::pherror(const char *msg)
 {
 	(void)Logger::aquireMutex();
 	std::cerr << Logger::DisplayDate << Logger::Color(B_RED) << TM_PREFIX << msg << ": " << hstrerror(h_errno) << Logger::DisplayReset << std::endl;
@@ -217,12 +242,14 @@ void	Logger::pherror(const char *msg)
 	(void)Logger::releaseMutex();
 }
 
-void	Logger::pherror(const std::string &msg)
+void
+Logger::pherror(const std::string &msg)
 {
 	Logger::pherror(msg.c_str());
 }
 
-void	Logger::debug(const char *msg, const char *color)
+void
+Logger::debug(const char *msg, const char *color)
 {
 	if (!Logger::_debug)
 		return ;
@@ -235,17 +262,26 @@ void	Logger::debug(const char *msg, const char *color)
 	(void)Logger::releaseMutex();
 }
 
-void	Logger::debug(const std::string &msg, const char *color)
+void
+Logger::debug(const std::string &msg, const char *color)
 {
 	Logger::debug(msg.c_str(), color);
 }
 
-void	Logger::setDebug(bool debug)
+void
+Logger::setDebug(bool debug)
 {
 	Logger::_debug = debug;
 }
 
-bool	Logger::isDebug(void)
+bool
+Logger::isDebug(void)
 {
 	return (Logger::_debug);
+}
+
+void
+Logger::enableFileLogging(void)
+{
+	Logger::_file_logging = true;
 }
