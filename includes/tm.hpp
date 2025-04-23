@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 23:24:24 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/23 12:06:56 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 13:42:50 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,8 +85,11 @@
 
 #define TM_PREFIX TM_PROJECT ": "
 
-#define TM_PID_FILE "./taskmaster.pid"
-#define TM_SOCKET_PATH "unix://./taskmaster.sock"
+#define TM_PID_FILE		"./taskmaster.pid"
+#define TM_SOCKET_PATH	"unix://./taskmaster.sock"
+
+#define TM_LOG_DIR			"./"
+#define TM_CHILD_LOG_DIR	"/tmp"
 
 #define TM_INT32_LEN   (sizeof("-2147483648") - 1)
 #define TM_INT64_LEN   (sizeof("-9223372036854775808") - 1)

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/23 11:09:29 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 13:48:41 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,7 +168,7 @@ UnixSocketServer::Client::_restart(struct tm_pollclient_process_handler& ps)
 	{
 	case TM_P_STOPPING:
 		(void)this->send("The process is in transition state\n");
-		return (TM_POLL_CLIENT_DISCONNECT);	
+		return (TM_POLL_CLIENT_DISCONNECT); 
 	case TM_P_BACKOFF:
 	case TM_P_FATAL:
 		(void)this->send("The process is in a fatal state\n");
@@ -198,7 +198,7 @@ UnixSocketServer::Client::_shutdown(void)
 		return (TM_POLL_CLIENT_ERROR);
 	}
 
-	(void)this->send("Shutting down the daemon\n");
+	(void)this->send("Shutting down the daemon...\n");
 	Taskmaster::running = false;
 
 	return (TM_POLL_CLIENT_OK);
@@ -253,6 +253,8 @@ UnixSocketServer::Client::_start(struct tm_pollclient_process_handler& ps)
 	case TM_P_RUNNING:
 		return (TM_POLL_CLIENT_DISCONNECT);
 	case TM_P_STARTING:
+		ps.requested_state = TM_P_RUNNING;
+		return (TM_POLL_CLIENT_OK);
 	case TM_P_STOPPING:
 		(void)this->send("The process is in transition state\n");
 		return (TM_POLL_CLIENT_DISCONNECT);
@@ -314,8 +316,8 @@ UnixSocketServer::Client::_stop(struct tm_pollclient_process_handler& ps)
 	switch (p->getState())
 	{
 	case TM_P_STOPPING:
-		(void)this->send("The process is in transition state\n");
-		return (TM_POLL_CLIENT_DISCONNECT);
+		ps.requested_state = TM_P_EXITED;
+		return (TM_POLL_CLIENT_OK);
 	case TM_P_STOPPED:
 	case TM_P_EXITED:
 		(void)this->send("The process is not running\n");
