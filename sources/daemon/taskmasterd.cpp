@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/23 20:05:27 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 22:18:47 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ bool	Taskmaster::running = false;
 void
 interruptHandler(int sig_int)
 {
-	Logger::cout("\b\b"); // rm ^C from tty
+	Logger::syn("\b\b"); // rm ^C from tty
 	Logger::print("Signal received: " + std::string(strsignal(sig_int)), B_GREEN);
 	if (Taskmaster::running == false)
 	{
