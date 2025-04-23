@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 23:24:24 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/22 17:21:07 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 12:06:56 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,7 +105,7 @@
 
 #define TM_INPUT_INDICATOR "❯"
 
-#define RL_PROMPT COLOR_START BLUE COLOR_END TM_PROJECTCTL "\n" COLOR_START PINK COLOR_END TM_INPUT_INDICATOR COLOR_START RESET COLOR_END " "
+#define RL_PROMPT COLOR_START P_BLUE COLOR_END TM_PROJECTCTL "\n" COLOR_START P_MAGENTA COLOR_END TM_INPUT_INDICATOR COLOR_START RESET COLOR_END " "
 
 #define TM_OCTO "              .~~~.         ,,\n   ,,        /     \\       ;,,'\n  ;, ;      (  -  - )      ; ;\n    ;,';,,,  \\  \\/ /      ,; ;\n ,,,  ;,,,,;;,`   '-,;'''',,,'\n;,, ;,, ,,,,   ,;  ,,,'';;,,;''';\n   ;,,,;    ~~'  '';,,''',,;''''\n                      '''"
 
