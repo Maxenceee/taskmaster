@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/23 22:18:47 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 22:21:18 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,8 @@ start_main_loop(char* const* argv, char* const* envp)
 	setup_signal(SIGINT, interruptHandler);
 	setup_signal(SIGQUIT, interruptHandler);
 	setup_signal(SIGTERM, interruptHandler);
+
+	Logger::enableFileLogging();
 
 	Logger::print("Daemon started with pid: " + std::to_string(getpid()));
 
@@ -125,7 +127,6 @@ main(int argc, char* const* argv, char* const* envp)
 
 	Logger::init("Starting daemon");
 	Logger::setDebug(true);
-	Logger::enableFileLogging();
 
 	if (create_pid_file() == TM_FAILURE)
 	{
