@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/23 11:48:27 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 20:05:27 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,6 +125,7 @@ main(int argc, char* const* argv, char* const* envp)
 
 	Logger::init("Starting daemon");
 	Logger::setDebug(true);
+	Logger::enableFileLogging();
 
 	if (create_pid_file() == TM_FAILURE)
 	{

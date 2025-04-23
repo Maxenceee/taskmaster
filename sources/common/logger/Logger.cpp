@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:56 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/23 16:10:33 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 20:39:58 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,8 @@
 bool Logger::_debug = false;
 bool Logger::_initiated = false;
 pthread_mutex_t Logger::_loggerMutex;
-int Logger::_log_fd = -1;
+Logger::LoggerFileStream Logger::filestream;
+std::ofstream Logger::_logFile;
 bool Logger::_file_logging = false;
 bool Logger::_rotation_logging = false;
 
@@ -29,7 +30,7 @@ isTTY(std::ostream& os)
 	return false;
 }
 
-std::ostream&
+inline std::ostream&
 operator<<(std::ostream& os, const Logger::LoggerDisplayColor& dc)
 {
 	if (isTTY(os))
@@ -37,7 +38,7 @@ operator<<(std::ostream& os, const Logger::LoggerDisplayColor& dc)
 	return (os);
 }
 
-std::ostream&
+inline std::ostream&
 operator<<(std::ostream& os, const Logger::LoggerDisplayReset&)
 {
 	if (isTTY(os))
@@ -45,7 +46,7 @@ operator<<(std::ostream& os, const Logger::LoggerDisplayReset&)
 	return (os);
 }
 
-std::ostream&
+inline std::ostream&
 operator<<(std::ostream& os, const Logger::LoggerDisplayDate&)
 {
 	struct tm *tm;
@@ -58,6 +59,14 @@ operator<<(std::ostream& os, const Logger::LoggerDisplayDate&)
 	buf[ret] = '\0';
 	os << Logger::Color(CYAN) << "[" << buf << "] " << Logger::DisplayReset;
 	return (os);
+}
+
+inline Logger::LoggerFileStream&
+operator<<(Logger::LoggerFileStream& lfs, std::ostream& (*manip)(std::ostream&))
+{
+	(*manip)(lfs);
+	lfs.flushToFile();
+	return lfs;
 }
 
 void
@@ -85,7 +94,7 @@ Logger::init(const char *action)
 	Logger::_initiated = true;
 }
 
-void
+inline void
 Logger::destroy(void)
 {
 	if (!Logger::_initiated)
@@ -98,7 +107,7 @@ Logger::destroy(void)
 	(void)pthread_mutex_destroy(&Logger::_loggerMutex);
 }
 
-bool
+inline bool
 Logger::aquireMutex(void)
 {
 	if (!Logger::_initiated)
@@ -108,7 +117,7 @@ Logger::aquireMutex(void)
 	return (pthread_mutex_lock(&Logger::_loggerMutex) == 0);
 }
 
-bool
+inline bool
 Logger::releaseMutex(void)
 {
 	return (pthread_mutex_unlock(&Logger::_loggerMutex) == 0);
@@ -136,7 +145,9 @@ void
 Logger::cout(const char *msg)
 {
 	(void)Logger::aquireMutex();
+
 	std::cout << Logger::Color(msg) << std::flush;
+
 	(void)Logger::releaseMutex();
 }
 
@@ -150,10 +161,13 @@ void
 Logger::print(const char *msg, const char *color)
 {
 	(void)Logger::aquireMutex();
+
 	std::cout << Logger::DisplayDate << Logger::Color(color) << msg << Logger::DisplayReset << std::endl;
+	Logger::filestream << Logger::DisplayDate << msg << std::endl;
 #ifndef TM_DISABLE_SYSLOG
 	syslog(LOG_INFO, "%s", msg);
 #endif
+
 	(void)Logger::releaseMutex();
 }
 
@@ -167,10 +181,13 @@ void
 Logger::info(const char *msg)
 {
 	(void)Logger::aquireMutex();
+
 	std::cout << Logger::DisplayDate << Logger::Color(YELLOW) << TM_PREFIX << msg << Logger::DisplayReset << std::endl;
+	Logger::filestream << msg << std::endl;
 #ifndef TM_DISABLE_SYSLOG
 	syslog(LOG_INFO, "%s", msg);
 #endif
+
 	(void)Logger::releaseMutex();
 }
 
@@ -184,10 +201,13 @@ void
 Logger::warning(const char *msg)
 {
 	(void)Logger::aquireMutex();
+
 	std::cerr << Logger::DisplayDate << Logger::Color(B_ORANGE) << TM_PREFIX << msg << Logger::DisplayReset << std::endl;
+	Logger::filestream << msg << std::endl;
 #ifndef TM_DISABLE_SYSLOG
 	syslog(LOG_WARNING, "%s", msg);
 #endif
+
 	(void)Logger::releaseMutex();
 }
 
@@ -201,10 +221,13 @@ void
 Logger::error(const char *msg)
 {
 	(void)Logger::aquireMutex();
+
 	std::cerr << Logger::DisplayDate << Logger::Color(B_RED) << TM_PREFIX << msg << Logger::DisplayReset << std::endl;
+	Logger::filestream << msg << std::endl;
 #ifndef TM_DISABLE_SYSLOG
 	syslog(LOG_ERR, "%s", msg);
 #endif
+
 	(void)Logger::releaseMutex();
 }
 
@@ -218,10 +241,13 @@ void
 Logger::perror(const char *msg)
 {
 	(void)Logger::aquireMutex();
+
 	std::cerr << Logger::DisplayDate << Logger::Color(B_RED) << TM_PREFIX << msg << ": " << strerror(errno) << Logger::DisplayReset << std::endl;
+	Logger::filestream << msg << std::endl;
 #ifndef TM_DISABLE_SYSLOG
 	syslog(LOG_ERR, "%s: %s", msg, strerror(errno));
 #endif
+
 	(void)Logger::releaseMutex();
 }
 
@@ -235,10 +261,13 @@ void
 Logger::pherror(const char *msg)
 {
 	(void)Logger::aquireMutex();
+
 	std::cerr << Logger::DisplayDate << Logger::Color(B_RED) << TM_PREFIX << msg << ": " << hstrerror(h_errno) << Logger::DisplayReset << std::endl;
+	Logger::filestream << msg << std::endl;
 #ifndef TM_DISABLE_SYSLOG
 	syslog(LOG_ERR, "%s: %s", msg, hstrerror(h_errno));
 #endif
+
 	(void)Logger::releaseMutex();
 }
 
@@ -255,10 +284,13 @@ Logger::debug(const char *msg, const char *color)
 		return ;
 
 	(void)Logger::aquireMutex();
+
 	std::cout << Logger::DisplayDate << Logger::Color(color) << msg << Logger::DisplayReset << std::endl;
+	Logger::filestream << msg << std::endl;
 #ifndef TM_DISABLE_SYSLOG
 	syslog(LOG_DEBUG, "%s", msg);
 #endif
+
 	(void)Logger::releaseMutex();
 }
 
@@ -284,4 +316,24 @@ void
 Logger::enableFileLogging(void)
 {
 	Logger::_file_logging = true;
+	if (Logger::_logFile.is_open())
+	{
+		Logger::_logFile.close();
+	}
+	Logger::_logFile.open(TM_MAIN_LOG_DIR TM_PROJECT ".log", std::ios::out | std::ios::app);
+}
+
+void
+Logger::enableRotationLogging(void)
+{
+	Logger::_rotation_logging = true;
+}
+
+Logger::LoggerFileStream::LoggerFileStream(): std::ostream(_buffer.rdbuf())
+{
+}
+
+Logger::LoggerFileStream::~LoggerFileStream()
+{
+	flushToFile();
 }

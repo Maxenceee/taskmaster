@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:53 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/23 16:09:01 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 20:38:16 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,22 +18,6 @@
 
 class Logger
 {
-private:
-	static bool				_debug;
-	static pthread_mutex_t	_loggerMutex;
-	static bool				_initiated;
-
-	static int				_log_fd;
-	static bool				_file_logging;
-	static bool				_rotation_logging;
-
-	static bool				aquireMutex(void);
-	static bool				releaseMutex(void);
-
-	static void				destroy(void);
-
-	static void				addToFile(const char *msg);
-
 protected:
 	struct LoggerDisplayColor {
 		const char *color;
@@ -47,6 +31,45 @@ protected:
 	static const LoggerDisplayColor Color(const char *color) { return LoggerDisplayColor(color); }
 	static constexpr LoggerDisplayReset DisplayReset = {};
 	static constexpr LoggerDisplayDate DisplayDate = {};
+
+	class LoggerFileStream : public std::ostream
+	{
+	private:
+		std::ostringstream _buffer;
+
+	public:
+		LoggerFileStream();
+
+		~LoggerFileStream();
+
+		void flushToFile()
+		{
+			if (Logger::_file_logging && Logger::_logFile.is_open())
+			{
+				Logger::_logFile << _buffer.str();
+				Logger::_logFile.flush();
+				_buffer.str("");
+				_buffer.clear();
+			}
+		}
+	};
+
+private:
+	static bool				_debug;
+	static pthread_mutex_t	_loggerMutex;
+	static bool				_initiated;
+
+	static Logger::LoggerFileStream filestream;
+	static std::ofstream	_logFile;
+	static bool				_file_logging;
+	static bool				_rotation_logging;
+
+	static bool				aquireMutex(void);
+	static bool				releaseMutex(void);
+
+	static void				destroy(void);
+
+	static void				addToFile(const std::stringstream& stream);
 
 public:
 	static void init(const char *action);
@@ -84,8 +107,9 @@ public:
 	static void enableRotationLogging(void);
 
 	friend std::ostream& operator<<(std::ostream& os, const Logger::LoggerDisplayColor&);
-    friend std::ostream& operator<<(std::ostream& os, const Logger::LoggerDisplayDate&);
-    friend std::ostream& operator<<(std::ostream& os, const Logger::LoggerDisplayReset&);
+	friend std::ostream& operator<<(std::ostream& os, const Logger::LoggerDisplayDate&);
+	friend std::ostream& operator<<(std::ostream& os, const Logger::LoggerDisplayReset&);
+	friend Logger::LoggerFileStream& operator<<(Logger::LoggerFileStream& lfs, std::ostream& (*manip)(std::ostream&));
 };
 
 #endif /* LOGGER_HPP */
