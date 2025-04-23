@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/22 18:05:54 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 11:09:29 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ UnixSocketServer::Client::_find_processes(const std::vector<std::string>& progs)
 {
 	if (progs.empty())
 	{
-		this->send("Invalid usage: No process specified\n");
+		(void)this->send("Invalid usage: No process specified\n");
 		return (TM_POLL_CLIENT_DISCONNECT);
 	}
 
@@ -61,7 +61,7 @@ UnixSocketServer::Client::_find_processes(const std::vector<std::string>& progs)
 		auto p = this->_master.find(prog);
 		if (!p)
 		{
-			this->send("The process " + prog + " could not be found\n");
+			(void)this->send("The process " + prog + " could not be found\n");
 			continue;
 		}
 
@@ -70,7 +70,7 @@ UnixSocketServer::Client::_find_processes(const std::vector<std::string>& progs)
 
 	if (this->handlers.empty())
 	{
-		this->send("No process found\n");
+		(void)this->send("No process found\n");
 		return (TM_POLL_CLIENT_DISCONNECT);
 	}
 
@@ -89,7 +89,7 @@ UnixSocketServer::Client::_avail(void)
 {
 	if (this->input.size() > 1)
 	{
-		this->send("Invalid usage\n");
+		(void)this->send("Invalid usage\n");
 		return (TM_POLL_CLIENT_ERROR);
 	}
 
@@ -121,15 +121,15 @@ UnixSocketServer::Client::_reload()
 {
 	if (this->input.size() > 1)
 	{
-		this->send("Invalid usage\n");
+		(void)this->send("Invalid usage\n");
 		return (TM_POLL_CLIENT_ERROR);
 	}
 
-	this->send("Reloading the daemon\n");
+	(void)this->send("Reloading the daemon\n");
 
 	if (this->_master.restart())
 	{
-		this->send("Fail to reload the daemon\n");
+		(void)this->send("Fail to reload the daemon\n");
 	}
 
 	return (TM_POLL_CLIENT_DISCONNECT);
@@ -147,7 +147,7 @@ UnixSocketServer::Client::_reread(void)
 {
 	if (this->input.size() > 1)
 	{
-		this->send("Invalid usage\n");
+		(void)this->send("Invalid usage\n");
 		return (TM_POLL_CLIENT_ERROR);
 	}
 
@@ -160,21 +160,21 @@ UnixSocketServer::Client::_restart(struct tm_pollclient_process_handler& ps)
 	auto p = this->_master.get(ps.puid);
 	if (!p)
 	{
-		this->send("The process could not be found\n");
+		(void)this->send("The process could not be found\n");
 		return (TM_POLL_CLIENT_DISCONNECT);
 	}
 
 	switch (p->getState())
 	{
 	case TM_P_STOPPING:
-		this->send("The process is in transition state\n");
+		(void)this->send("The process is in transition state\n");
 		return (TM_POLL_CLIENT_DISCONNECT);	
 	case TM_P_BACKOFF:
 	case TM_P_FATAL:
-		this->send("The process is in a fatal state\n");
+		(void)this->send("The process is in a fatal state\n");
 		return (TM_POLL_CLIENT_DISCONNECT);
 	case TM_P_UNKNOWN:
-		this->send("Process is in an unknown state\n");
+		(void)this->send("Process is in an unknown state\n");
 		return (TM_POLL_CLIENT_DISCONNECT);
 	}
 
@@ -182,7 +182,7 @@ UnixSocketServer::Client::_restart(struct tm_pollclient_process_handler& ps)
 
 	if (p->restart())
 	{
-		this->send("Failed to restart the process\n");
+		(void)this->send("Failed to restart the process\n");
 		return (TM_POLL_CLIENT_DISCONNECT);
 	}
 
@@ -194,11 +194,11 @@ UnixSocketServer::Client::_shutdown(void)
 {
 	if (this->input.size() > 1)
 	{
-		this->send("Invalid usage\n");
+		(void)this->send("Invalid usage\n");
 		return (TM_POLL_CLIENT_ERROR);
 	}
 
-	this->send("Shutting down the daemon\n");
+	(void)this->send("Shutting down the daemon\n");
 	Taskmaster::running = false;
 
 	return (TM_POLL_CLIENT_OK);
@@ -209,7 +209,7 @@ UnixSocketServer::Client::_signal(void)
 {
 	if (this->input.size() < 3)
 	{
-		this->send("Invalid usage\n");
+		(void)this->send("Invalid usage\n");
 		return (TM_POLL_CLIENT_ERROR);
 	}
 
@@ -220,17 +220,17 @@ UnixSocketServer::Client::_signal(void)
 		auto p = this->_master.find(*it);
 		if (!p)
 		{
-			this->send("The process " + *it + " could not be found\n");
+			(void)this->send("The process " + *it + " could not be found\n");
 			continue;
 		}
 
 		if (p->getState() != TM_P_RUNNING)
 		{
-			this->send("The process is not running\n");
+			(void)this->send("The process is not running\n");
 			continue;
 		}
 
-		this->send("Sending signal " + std::to_string(signal) + " to process " + *it + "\n");
+		(void)this->send("Sending signal " + std::to_string(signal) + " to process " + *it + "\n");
 
 		(void)p->signal(signal);
 	}
@@ -244,7 +244,7 @@ UnixSocketServer::Client::_start(struct tm_pollclient_process_handler& ps)
 	auto p = this->_master.get(ps.puid);
 	if (!p)
 	{
-		this->send("The process could not be found\n");
+		(void)this->send("The process could not be found\n");
 		return (TM_POLL_CLIENT_DISCONNECT);
 	}
 
@@ -254,14 +254,14 @@ UnixSocketServer::Client::_start(struct tm_pollclient_process_handler& ps)
 		return (TM_POLL_CLIENT_DISCONNECT);
 	case TM_P_STARTING:
 	case TM_P_STOPPING:
-		this->send("The process is in transition state\n");
+		(void)this->send("The process is in transition state\n");
 		return (TM_POLL_CLIENT_DISCONNECT);
 	case TM_P_BACKOFF:
 	case TM_P_FATAL:
-		this->send("The process is in a fatal state\n");
+		(void)this->send("The process is in a fatal state\n");
 		return (TM_POLL_CLIENT_DISCONNECT);
 	case TM_P_UNKNOWN:
-		this->send("Process is in an unknown state\n");
+		(void)this->send("Process is in an unknown state\n");
 		return (TM_POLL_CLIENT_DISCONNECT);
 	}
 
@@ -269,7 +269,7 @@ UnixSocketServer::Client::_start(struct tm_pollclient_process_handler& ps)
 
 	if (p->start())
 	{
-		this->send("Failed to start the process\n");
+		(void)this->send("Failed to start the process\n");
 		return (TM_POLL_CLIENT_DISCONNECT);
 	}
 
@@ -281,7 +281,7 @@ UnixSocketServer::Client::_status(void)
 {
 	if (this->input.size() == 1 || this->input[1] == "all")
 	{
-		this->send(this->_master.getStatus());
+		(void)this->send(this->_master.getStatus());
 		return (TM_POLL_CLIENT_DISCONNECT);
 	}
 
@@ -292,11 +292,11 @@ UnixSocketServer::Client::_status(void)
 		auto p = this->_master.find(*it);
 		if (!p)
 		{
-			this->send("The process " + *it + " could not be found\n");
+			(void)this->send("The process " + *it + " could not be found\n");
 			continue;
 		}
 
-		this->send(p->getStatus());
+		(void)this->send(p->getStatus());
 	}
 	return (TM_POLL_CLIENT_DISCONNECT);
 }
@@ -307,22 +307,22 @@ UnixSocketServer::Client::_stop(struct tm_pollclient_process_handler& ps)
 	auto p = this->_master.get(ps.puid);
 	if (!p)
 	{
-		this->send("The process could not be found\n");
+		(void)this->send("The process could not be found\n");
 		return (TM_POLL_CLIENT_DISCONNECT);
 	}
 
 	switch (p->getState())
 	{
 	case TM_P_STOPPING:
-		this->send("The process is in transition state\n");
+		(void)this->send("The process is in transition state\n");
 		return (TM_POLL_CLIENT_DISCONNECT);
 	case TM_P_STOPPED:
 	case TM_P_EXITED:
-		this->send("The process is not running\n");
+		(void)this->send("The process is not running\n");
 		return (TM_POLL_CLIENT_DISCONNECT);
 	case TM_P_FATAL:
 	case TM_P_UNKNOWN:
-		this->send("Process is in an unknown state\n");
+		(void)this->send("Process is in an unknown state\n");
 		return (TM_POLL_CLIENT_DISCONNECT);
 	}
 
@@ -330,7 +330,7 @@ UnixSocketServer::Client::_stop(struct tm_pollclient_process_handler& ps)
 
 	if (p->stop())
 	{
-		this->send("Failed to stop the process\n");
+		(void)this->send("Failed to stop the process\n");
 		return (TM_POLL_CLIENT_DISCONNECT);
 	}
 
@@ -427,13 +427,12 @@ UnixSocketServer::Client::_tail(void)
 	return (TM_POLL_CLIENT_DISCONNECT);
 }
 
-
 int
 UnixSocketServer::Client::_update(void)
 {
 	if (this->input.size() > 1)
 	{
-		this->send("Invalid usage\n");
+		(void)this->send("Invalid usage\n");
 		return (TM_POLL_CLIENT_ERROR);
 	}
 
@@ -445,10 +444,10 @@ UnixSocketServer::Client::_version(void)
 {
 	if (this->input.size() > 1)
 	{
-		this->send("Invalid usage\n");
+		(void)this->send("Invalid usage\n");
 		return (TM_POLL_CLIENT_ERROR);
 	}
 
-	this->send(TM_PROJECTD " version " TM_VERSION " - " TM_AUTHOR "\n");
+	(void)this->send(TM_PROJECTD " version " TM_VERSION " - " TM_AUTHOR "\n");
 	return (TM_POLL_CLIENT_DISCONNECT);
 }

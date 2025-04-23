@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 17:43:04 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/22 17:08:20 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 11:57:58 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,9 @@
 UnixSocketServer::UnixSocketServer(const char* unix_path, const Taskmaster& master): UnixSocket(unix_path), _master(master)
 {
 	if (!this->_test_socket())
+	{
 		throw std::runtime_error("Another instance is already running!");
+	}
 
 	this->sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (this->sockfd == -1)
@@ -70,6 +72,17 @@ UnixSocketServer::_test_socket()
 		return (true);
 	}
 
+	struct stat st;
+	if (stat(this->socket_path.c_str(), &st) != 0)
+	{
+		return (false);
+	}
+
+	if (!S_ISSOCK(st.st_mode))
+	{
+		return (false);
+	}
+
 	int test_fd = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (test_fd == -1)
 	{
@@ -86,6 +99,11 @@ UnixSocketServer::_test_socket()
 	if (connect(test_fd, (struct sockaddr*)&test_addr, sizeof(test_addr)) == 0)
 	{
 		usable = false;
+
+		if (write(test_fd, "ping", 4) == -1)
+		{
+			usable = false;
+		}
 	}
 	else
 	{
@@ -137,7 +155,7 @@ UnixSocketServer::stop(void)
 		if (client.second.type == TM_POLL_CLIENT)
 		{
 			auto c = reinterpret_cast<UnixSocketServer::Client *>(client.second.data);
-			c->send("Good bye!\n");
+			(void)c->send("Good bye!\n");
 			(void)::shutdown(c->getFd(), SHUT_RDWR);
 		}
 	}

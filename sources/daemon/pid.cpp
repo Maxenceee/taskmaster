@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 13:34:11 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/22 22:38:29 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 11:48:09 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,49 @@
 #include "logger/Logger.hpp"
 
 static int g_pid_fd = -1;
+
+static int
+signal_pid(int fd)
+{
+	char buffer[TM_INT64_LEN];
+	if (read(fd, buffer, TM_INT64_LEN) == -1)
+	{
+		Logger::perror("read");
+		return (TM_FAILURE);
+	}
+
+	int old_pid = atoi(buffer);
+	if (old_pid > 0)
+	{
+		if (kill(old_pid, 0) == 0)
+		{
+			return (TM_FAILURE);
+		}
+	}
+
+	return (TM_SUCCESS);
+}
+
+static int lock_pid(int fd)
+{
+	if (flock(fd, LOCK_EX | LOCK_NB) == -1) {
+		if (errno == EWOULDBLOCK)
+		{
+			if (signal_pid(fd) == TM_SUCCESS)
+			{
+				return (TM_SUCCESS);
+			}
+			Logger::error("Another instance is already running!");
+		}
+		else
+		{
+			Logger::perror("flock");
+		}
+		return (TM_FAILURE);
+	}
+
+	return (TM_SUCCESS);
+}
 
 int
 create_pid_file(void)
@@ -30,34 +73,12 @@ create_pid_file(void)
 		return (TM_FAILURE);
 	}
 
-	if (flock(pid_fd, LOCK_EX | LOCK_NB) == -1) {
-		if (errno == EWOULDBLOCK) {
-			Logger::error("Another instance is already running!");
-		} else {
-			Logger::perror("flock");
-		}
+	if (lock_pid(pid_fd) == TM_FAILURE)
+	{
 		close(pid_fd);
 		return (TM_FAILURE);
 	}
 
-	char buffer[TM_INT64_LEN];
-	if (read(pid_fd, buffer, TM_INT64_LEN) == -1)
-	{
-		close(pid_fd);
-		Logger::perror("read");
-		return (TM_FAILURE);
-	}
-
-	int old_pid = atoi(buffer);
-	if (old_pid > 0)
-	{
-		if (kill(old_pid, 0) == 0)
-		{
-			Logger::error("Another instance is already running!");
-			close(pid_fd);
-			return (TM_FAILURE);
-		}
-	}
 
 	ftruncate(pid_fd, 0);
 	lseek(pid_fd, 0, SEEK_SET);
@@ -71,7 +92,8 @@ create_pid_file(void)
 void
 remove_pid_file(void)
 {
-	if (g_pid_fd != -1) {
+	if (g_pid_fd != -1)
+	{
 		flock(g_pid_fd, LOCK_UN);
 		close(g_pid_fd);
 		g_pid_fd = -1;
