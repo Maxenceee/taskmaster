@@ -6,22 +6,22 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:56 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/23 23:15:59 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 23:41:02 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Logger.hpp"
 
-bool Logger::_debug = false;
+bool			Logger::_debug = false;
 pthread_mutex_t Logger::_loggerMutex;
-bool Logger::_initiated = false;
+bool			Logger::_initiated = false;
 
-Logger::LoggerFileStream Logger::cout;
-std::ofstream Logger::_logFile;
-std::string Logger::_logFileName;
-size_t Logger::_logFileMaxSize = TM_MAX_LOG_FILE_SIZE;
-bool Logger::_file_logging = false;
-bool Logger::_rotation_logging = false;
+std::string					Logger::_outLogFileName;
+std::string					Logger::_errLogFileName;
+Logger::LoggerFileStream	Logger::cout(Logger::_outLogFileName);
+Logger::LoggerFileStream	Logger::cerr(Logger::_errLogFileName);
+bool						Logger::_file_logging = false;
+bool						Logger::_rotation_logging = false;
 
 static inline bool
 isTTY(std::ostream& os)
@@ -138,32 +138,25 @@ Logger::printHeader(bool tty_fallback)
 }
 
 void
-Logger::enableFileLogging(const std::string& fname)
+Logger::enableFileLogging(const std::string& out, const std::string& err)
 {
 	Logger::_file_logging = true;
-	Logger::_logFileName = fname;
-	Logger::openLogFile();
+	Logger::_outLogFileName = out;
+	Logger::_errLogFileName = err;
 }
 
 void
 Logger::enableFileLogging(void)
 {
-	Logger::enableFileLogging(TM_MAIN_LOG_DIR TM_PROJECTD ".log");
+	Logger::enableFileLogging(TM_MAIN_LOG_DIR TM_PROJECTD ".log", TM_MAIN_LOG_DIR TM_PROJECTD ".log");
 }
 
 void
-Logger::setLogFileMaxSize(size_t size)
-{
-	Logger::_logFileMaxSize = size;
-}
-
-void
-Logger::openLogFile(void)
+Logger::LoggerFileStream::openLogFile(void)
 {
 	if (Logger::_file_logging)
 	{
-		std::cout << "open file " << Logger::_logFileName << std::endl;
-		Logger::_logFile.open(Logger::_logFileName, std::ios::out | std::ios::app);
+		_logFile.open(_fname, std::ios::out | std::ios::app);
 	}
 }
 
@@ -172,9 +165,14 @@ Logger::LoggerFileStream::overflow(int c)
 {
 	if (c != EOF)
 	{
-		if (Logger::_file_logging && Logger::_logFile.is_open())
+		if (Logger::_file_logging)
 		{
-			Logger::_logFile << static_cast<char>(c);
+			if (!_logFile.is_open())
+			{
+				Logger::LoggerFileStream::openLogFile();
+			}
+
+			_logFile << static_cast<char>(c);
 		}
 	}
 	return (c);
@@ -183,11 +181,11 @@ Logger::LoggerFileStream::overflow(int c)
 inline int
 Logger::LoggerFileStream::sync(void)
 {
-	if (Logger::_file_logging && Logger::_logFile.is_open())
+	if (Logger::_file_logging)
 	{
 		Logger::LoggerFileStream::checkRotation();
 
-		Logger::_logFile.flush();
+		_logFile.flush();
 	}
 	return (0);
 }
@@ -195,15 +193,15 @@ Logger::LoggerFileStream::sync(void)
 inline void
 Logger::LoggerFileStream::checkRotation(void)
 {
-	if (Logger::_file_logging && Logger::_logFile.is_open())
+	if (Logger::_file_logging && _logFile.is_open())
 	{
-		if (Logger::_logFileMaxSize > 0 && Logger::_logFile.tellp() > Logger::_logFileMaxSize)
+		if (_maxSize > 0 && _logFile.tellp() > _maxSize)
 		{
-			Logger::_logFile.close();
+			_logFile.close();
 
 			Logger::LoggerFileStream::renameLogFile();
 
-			Logger::openLogFile();
+			Logger::LoggerFileStream::openLogFile();
 		}
 	}
 }
@@ -217,8 +215,8 @@ Logger::LoggerFileStream::renameLogFile(void)
 
 	std::tm tm = *std::localtime(&time);
 
-	newFileName << Logger::_logFileName << "." << std::put_time(&tm, "%Y-%m-%d_%H-%M-%S");
-	std::string oldFileName = Logger::_logFileName;
+	newFileName << _fname << "." << std::put_time(&tm, "%Y-%m-%d_%H-%M-%S");
+	std::string oldFileName = _fname;
 
 	if (!oldFileName.empty())
 	{

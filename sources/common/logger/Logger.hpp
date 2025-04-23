@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:53 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/23 23:15:05 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/23 23:40:46 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,13 +37,25 @@ protected:
 
 	class LoggerFileStream : private std::streambuf, public std::ostream
 	{
-	public:
-		LoggerFileStream(void) : std::ostream(this) {};
-
 	private:
+		const std::string&	_fname;
+		std::ofstream		_logFile;
+		size_t				_maxSize;
+
+	public:
+		LoggerFileStream(const std::string& fname) :
+			std::ostream(this),
+			_fname(fname),
+			_logFile(TM_MAIN_LOG_DIR TM_PROJECTD ".log"),
+			_maxSize(TM_MAX_LOG_FILE_SIZE) {};
+
+		void	setMaxSize(size_t size) { _maxSize = size; }
+
+	protected:
 		int	overflow(int c) override;
 		int	sync(void) override;
 
+		void	openLogFile(void);
 		void	checkRotation(void);
 		void	renameLogFile(void);
 	};
@@ -54,9 +66,9 @@ private:
 	static bool				_initiated;
 
 	static LoggerFileStream	cout;
-	static std::ofstream	_logFile;
-	static std::string		_logFileName;
-	static size_t			_logFileMaxSize;
+	static LoggerFileStream	cerr;
+	static std::string		_outLogFileName;
+	static std::string		_errLogFileName;
 	static bool				_file_logging;
 	static bool				_rotation_logging;
 
@@ -64,8 +76,6 @@ private:
 	static bool	releaseMutex(void);
 
 	static void	destroy(void);
-
-	static void	openLogFile(void);
 
 public:
 	static void init(const char *action);
@@ -100,7 +110,7 @@ public:
 	static bool isDebug(void);
 
 	static void	enableFileLogging(void);
-	static void	enableFileLogging(const std::string& fname);
+	static void	enableFileLogging(const std::string& out, const std::string& err);
 	static void setLogFileMaxSize(size_t size);
 
 	friend std::ostream& operator<<(std::ostream& os, const LoggerDisplayColor&);
