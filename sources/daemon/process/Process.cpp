@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/23 16:04:39 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/24 11:38:53 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,8 @@ Process::Process(char* const* exec, char* const* envp, const char* program_name,
 	this->_retries = 0;
 
 	this->std_in_fd = -1;
-	this->std_out_fd = tempfile("out");
-	this->std_err_fd = tempfile("err");
+	this->std_out_fd = -1;
+	this->std_err_fd = -1;
 
 	this->_process_group_id = 0; // 0 means it is the leader of the process group
 
@@ -40,6 +40,8 @@ Process::Process(char* const* exec, char* const* envp, const char* program_name,
 
 	this->exec = exec;
 	this->envp = envp;
+
+	(void)this->_setupstds();
 }
 
 Process::~Process(void)
@@ -51,22 +53,32 @@ Process::~Process(void)
 	}
 }
 
-void
-Process::setStdInFd(int std_in_fd)
+int
+Process::_setupstds(void)
 {
-	this->std_in_fd = std_in_fd;
-}
-
-void
-Process::setStdOutFd(int std_out_fd)
-{
-	this->std_out_fd = std_out_fd;
-}
-
-void
-Process::setStdErrFd(int std_err_fd)
-{
-	this->std_err_fd = std_err_fd;
+	if (this->config.stdout_logfile && this->config.stdout_logfile[0] != '\0')
+	{
+		if ((this->std_out_fd = open(this->config.stdout_logfile, O_WRONLY | O_CREAT | O_APPEND, 0644)) == -1)
+		{
+			Logger::perror("could not open stdout logfile");
+		}
+	}
+	if (this->std_out_fd == -1)
+	{
+		this->std_out_fd = tempfile("out");
+	}
+	if (this->config.stderr_logfile && this->config.stderr_logfile[0] != '\0')
+	{
+		if ((this->std_err_fd = open(this->config.stderr_logfile, O_WRONLY | O_CREAT | O_APPEND, 0644)) == -1)
+		{
+			Logger::perror("could not open stderr logfile");
+		}
+	}
+	if (this->std_err_fd == -1)
+	{
+		this->std_err_fd = tempfile("out");
+	}
+	return (TM_SUCCESS);
 }
 
 void
@@ -82,12 +94,11 @@ Process::reopenStds(void)
 	{
 		(void)close(this->std_out_fd);
 	}
-	this->std_out_fd = tempfile("out");
 	if (this->std_err_fd != -1)
 	{
 		(void)close(this->std_err_fd);
 	}
-	this->std_err_fd = tempfile("err");
+	(void)this->_setupstds();
 }
 
 int
