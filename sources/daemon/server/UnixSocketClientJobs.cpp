@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/24 11:32:46 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/24 19:38:04 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -376,9 +376,9 @@ UnixSocketServer::Client::_tail(void)
 		return (TM_POLL_CLIENT_DISCONNECT);
 	}
 
-	char buf[TM_RECV_SIZE + 1];
+	char buf[TM_RECV_SIZE];
 	ssize_t len;
-	while ((len = read(fd, buf, TM_RECV_SIZE)) > 0)
+	while ((len = read(fd, buf, TM_RECV_SIZE - 1)) > 0)
 	{
 		buf[len] = '\0';
 		this->send(buf); // ou std::cout

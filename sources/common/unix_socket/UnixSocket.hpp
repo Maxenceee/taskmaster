@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:37:52 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 13:16:35 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/24 19:39:10 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 #include "tm.hpp"
 
-#define TM_RECV_SIZE	2 << 12
+#define TM_RECV_SIZE	(2 << 12)
 
 #ifdef REQUEST_TIMEOUT
 #define TM_REQUEST_DEFAULT_TIMEOUT	REQUEST_TIMEOUT
