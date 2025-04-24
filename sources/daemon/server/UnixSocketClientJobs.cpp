@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/23 13:48:41 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/24 11:32:46 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -342,54 +342,52 @@ UnixSocketServer::Client::_stop(struct tm_pollclient_process_handler& ps)
 int
 UnixSocketServer::Client::_tail(void)
 {
-	// if (this->input.size() < 2)
-	// {
-	// 	this->send("Invalid usage\n");
-	// 	return (TM_POLL_CLIENT_DISCONNECT);
-	// }
+	if (this->input.size() < 2)
+	{
+		this->send("Invalid usage\n");
+		return (TM_POLL_CLIENT_DISCONNECT);
+	}
 
-	// auto p = this->_master.find(this->input[1]);
-	// if (!p)
-	// {
-	// 	this->send("The process could not be found\n");
-	// 	return (TM_POLL_CLIENT_DISCONNECT);
-	// }
+	auto p = this->_master.find(this->input[1]);
+	if (!p)
+	{
+		this->send("The process could not be found\n");
+		return (TM_POLL_CLIENT_DISCONNECT);
+	}
 
-	// int fd = p->getStdOutFd();
-	// if (fd < 0)
-	// {
-	// 	this->send("Invalid file descriptor\n");
-	// 	return (TM_POLL_CLIENT_DISCONNECT);
-	// }
+	int fd = p->getStdOutFd();
+	if (fd < 0)
+	{
+		this->send("Invalid file descriptor\n");
+		return (TM_POLL_CLIENT_DISCONNECT);
+	}
 
-	// // 1. Lire les logs déjà présents (jusqu'à 8 Ko par exemple)
-	// off_t offset = lseek(fd, 0, SEEK_END);
-	// if (offset == -1)
-	// {
-	// 	Logger::perror("lseek error");
-	// 	return (TM_POLL_CLIENT_DISCONNECT);
-	// }
+	// 1. Lire les logs déjà présents (jusqu'à 8 Ko par exemple)
+	off_t offset = lseek(fd, 0, SEEK_END);
+	if (offset == -1)
+	{
+		Logger::perror("lseek error");
+		return (TM_POLL_CLIENT_DISCONNECT);
+	}
 
-	// const size_t TAIL_SIZE = 8192;
-	// off_t start = offset > TAIL_SIZE ? offset - TAIL_SIZE : 0;
-	// if (lseek(fd, start, SEEK_SET) == -1)
-	// {
-	// 	Logger::perror("lseek error");
-	// 	return (TM_POLL_CLIENT_DISCONNECT);
-	// }
+	if (lseek(fd, 0, SEEK_SET) == -1)
+	{
+		Logger::perror("lseek error");
+		return (TM_POLL_CLIENT_DISCONNECT);
+	}
 
-	// char buf[TM_RECV_SIZE + 1];
-	// ssize_t len;
-	// while ((len = read(fd, buf, TM_RECV_SIZE)) > 0)
-	// {
-	// 	buf[len] = '\0';
-	// 	this->send(buf); // ou std::cout
-	// }
-	// if (len == -1)
-	// {
-	// 	Logger::perror("read error");
-	// 	return (TM_POLL_CLIENT_DISCONNECT);
-	// }
+	char buf[TM_RECV_SIZE + 1];
+	ssize_t len;
+	while ((len = read(fd, buf, TM_RECV_SIZE)) > 0)
+	{
+		buf[len] = '\0';
+		this->send(buf); // ou std::cout
+	}
+	if (len == -1)
+	{
+		Logger::perror("read error");
+		return (TM_POLL_CLIENT_DISCONNECT);
+	}
 
 	// // 2. Suivre les nouvelles données
 	// int flags = fcntl(fd, F_GETFL, 0);

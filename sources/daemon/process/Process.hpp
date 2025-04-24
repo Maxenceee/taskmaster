@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/23 16:04:43 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/24 11:29:21 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,14 @@ typedef struct tm_process_config {
 	 * Working directory to chdir to before executing the process.
 	 */
 	char					directory[PATH_MAX + 1];
+	/**
+	 * File to log stdout output to.
+	 */
+	char					stdout_logfile[PATH_MAX + 1];
+	/**
+	 * File to log stderr output to.
+	 */
+	char					stderr_logfile[PATH_MAX + 1];
 
 	/**
 	 * Constructor to initialize the process configuration with default values.
@@ -89,7 +97,9 @@ typedef struct tm_process_config {
 		uint16_t startsecs = 1,
 		uint16_t startretries = 3,
 		uint16_t stopwaitsecs = 10,
-		const char* directory = nullptr
+		const char* directory = nullptr,
+		const char* stdout_logfile = nullptr,
+		const char* stderr_logfile = nullptr
 	)
 	{
 		this->numprocs = numprocs;
@@ -119,6 +129,26 @@ typedef struct tm_process_config {
 		else
 		{
 			this->directory[0] = '\0';
+		}
+
+		if (stdout_logfile != nullptr)
+		{
+			strncpy(this->stdout_logfile, stdout_logfile, PATH_MAX);
+			this->stdout_logfile[PATH_MAX] = '\0';
+		}
+		else
+		{
+			this->stdout_logfile[0] = '\0';
+		}
+
+		if (stderr_logfile != nullptr)
+		{
+			strncpy(this->stderr_logfile, stderr_logfile, PATH_MAX);
+			this->stderr_logfile[PATH_MAX] = '\0';
+		}
+		else
+		{
+			this->stderr_logfile[0] = '\0';
 		}
 	}
 
@@ -194,14 +224,12 @@ private:
 	int		_monitor_running(void);
 	int		_monitor_stopping(void);
 
+	int		_setupstds(void);
+
 public:
 	Process(char* const* exec, char* const* envp, const char* program_name, tm_process_config &config, pid_t ppid, pid_t pgid = 0);
 	Process(char* const* exec, char* const* envp, const std::string& program_name, tm_process_config &config, pid_t ppid, pid_t pgid = 0);
 	~Process(void);
-
-	void	setStdInFd(int std_in_fd);
-	void	setStdOutFd(int std_out_fd);
-	void	setStdErrFd(int std_err_fd);
 
 	void	reopenStds(void);
 
