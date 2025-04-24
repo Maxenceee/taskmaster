@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/24 19:37:04 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/25 01:16:11 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ Process::Process(char* const* exec, char* const* envp, const char* program_name,
 	this->exec = exec;
 	this->envp = envp;
 
-	(void)this->_setupstds();
+	this->_setupstds();
 }
 
 Process::~Process(void)
@@ -53,7 +53,7 @@ Process::~Process(void)
 	}
 }
 
-int
+void
 Process::_setupstds(void)
 {
 	if (this->config.stdout_logfile[0] != '\0')
@@ -78,7 +78,6 @@ Process::_setupstds(void)
 	{
 		this->std_err_fd = tempfile("out");
 	}
-	return (TM_SUCCESS);
 }
 
 void
@@ -98,7 +97,7 @@ Process::reopenStds(void)
 	{
 		(void)close(this->std_err_fd);
 	}
-	(void)this->_setupstds();
+	this->_setupstds();
 }
 
 int
