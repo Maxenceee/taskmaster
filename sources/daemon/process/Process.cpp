@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/24 11:38:53 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/24 19:37:04 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ Process::~Process(void)
 int
 Process::_setupstds(void)
 {
-	if (this->config.stdout_logfile && this->config.stdout_logfile[0] != '\0')
+	if (this->config.stdout_logfile[0] != '\0')
 	{
 		if ((this->std_out_fd = open(this->config.stdout_logfile, O_WRONLY | O_CREAT | O_APPEND, 0644)) == -1)
 		{
@@ -67,7 +67,7 @@ Process::_setupstds(void)
 	{
 		this->std_out_fd = tempfile("out");
 	}
-	if (this->config.stderr_logfile && this->config.stderr_logfile[0] != '\0')
+	if (this->config.stderr_logfile[0] != '\0')
 	{
 		if ((this->std_err_fd = open(this->config.stderr_logfile, O_WRONLY | O_CREAT | O_APPEND, 0644)) == -1)
 		{
