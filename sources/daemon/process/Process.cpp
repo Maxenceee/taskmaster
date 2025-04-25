@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/25 17:29:18 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/26 01:33:21 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,7 @@ Process::_spawn(void)
 		return (TM_FAILURE);
 	}
 
-	Logger::info("spawned: '" + this->_program_name + "' with pid " + std::to_string(this->pid));
+	Logger::info("spawned: " + this->_program_name + " with pid " + std::to_string(this->pid));
 
 	return (TM_SUCCESS);
 }
@@ -203,7 +203,7 @@ Process::kill(void)
 		this->_desired_state = TM_P_EXITED;
 	}
 
-	Logger::warning("Killing '" + this->_program_name + "' (" + std::to_string(this->pid) + ")" + " with SIGKILL");
+	Logger::warning("Killing " + this->_program_name + " (" + std::to_string(this->pid) + ")" + " with SIGKILL");
 	return (::kill(this->pid, SIGKILL));
 }
 
