@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 19:44:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/25 16:53:36 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/25 17:49:31 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,34 +177,12 @@ Process::getExecArgs(void) const
 	return (this->exec + 1);
 }
 
-// std::string
-// Process::getStatus(void) const
-// {
-// 	std::ostringstream oss;
-// 	oss << "{\n";
-// 	oss << "  PID: " << this->pid << ";\n";
-// 	oss << "  State: " << Process::getStateName(this->_state) << ";\n";
-// 	oss << "  Signal: " << this->_signal << ";\n";
-// 	oss << "  Exit code: " << this->_exit_code << ";\n";
-// 	oss << "  Uptime: " << format_duration(this->uptime()) << ";\n";
-// 	oss << "  Program: " << this->getExecName() << ";\n";
-// 	oss << "  ProgramArguments: (" << "\n";
-// 	for (char* const* arg = this->getExecArgs(); *arg != nullptr; ++arg)
-// 	{
-// 		oss << "    - \"" << *arg << "\"\n";
-// 	}
-// 	oss << "  );\n";
-// 	oss << "}\n";
-
-// 	return (oss.str());
-// }
-
 std::string
 Process::getStatus(void) const
 {
 	std::ostringstream oss;
 	oss << std::setw(30) << std::left << this->getProgramName();
-	oss << std::setw(8) << Process::getStateName(this->_state) << " ";
+	oss << std::setw(9) << Process::getStateName(this->_state) << " ";
 	switch (this->_state)
 	{
 	case TM_P_STOPPED:

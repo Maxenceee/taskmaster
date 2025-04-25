@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/25 16:51:13 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/25 18:23:27 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,6 +106,17 @@ UnixSocketServer::Client::_clear(struct tm_pollclient_process_handler& ps)
 int
 UnixSocketServer::Client::_maintail()
 {
+	auto ref = Logger::dump(TM_LOG_FILE_STDOUT);
+
+	char buf[TM_RECV_SIZE];
+	std::streamsize bytesRead;
+	while (ref)
+	{
+		ref.read(buf, TM_RECV_SIZE);
+		bytesRead = ref.gcount();
+		(void)this->send(buf, bytesRead);
+	}
+	
 	return (TM_POLL_CLIENT_DISCONNECT);
 }
 
@@ -362,7 +373,6 @@ UnixSocketServer::Client::_tail(void)
 		return (TM_POLL_CLIENT_DISCONNECT);
 	}
 
-	// 1. Lire les logs déjà présents (jusqu'à 8 Ko par exemple)
 	off_t offset = lseek(fd, 0, SEEK_END);
 	if (offset == -1)
 	{
@@ -378,10 +388,9 @@ UnixSocketServer::Client::_tail(void)
 
 	char buf[TM_RECV_SIZE];
 	ssize_t len;
-	while ((len = read(fd, buf, TM_RECV_SIZE - 1)) > 0)
+	while ((len = read(fd, buf, TM_RECV_SIZE)) > 0)
 	{
-		buf[len] = '\0';
-		this->send(buf); // ou std::cout
+		(void)this->send(buf, len);
 	}
 	if (len == -1)
 	{

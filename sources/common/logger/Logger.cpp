@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:56 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/25 16:54:00 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/25 18:04:55 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,6 +147,33 @@ Logger::enableFileLogging(void)
 }
 
 void
+Logger::setLogFileMaxSize(size_t size, tm_log_file_channel channel)
+{
+	if (channel & TM_LOG_FILE_STDOUT)
+	{
+		Logger::cout.setMaxSize(size);
+	}
+	if (channel & TM_LOG_FILE_STDERR)
+	{
+		Logger::cerr.setMaxSize(size);
+	}
+}
+
+std::ifstream
+Logger::dump(tm_log_file_channel channel)
+{
+	if (channel & TM_LOG_FILE_STDOUT)
+	{
+		return (Logger::cout.dump());
+	}
+	else if (channel & TM_LOG_FILE_STDERR)
+	{
+		return (Logger::cerr.dump());
+	}
+	throw std::runtime_error("Invalid log file channel");
+}
+
+void
 Logger::LoggerFileStream::openLogFile(void)
 {
 	if (Logger::_file_logging)
@@ -229,4 +256,14 @@ inline void
 Logger::LoggerFileStream::setMaxSize(size_t size)
 {
 	this->_maxSize = size;
+}
+
+inline std::ifstream
+Logger::LoggerFileStream::dump(void) const
+{
+	if (this->_logFile.is_open())
+	{
+		return std::ifstream(this->_fname);
+	}
+	throw std::runtime_error("You should never try to read a log file that is not open");
 }

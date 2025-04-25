@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:53 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/25 16:23:20 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/25 18:04:44 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,11 @@
 #include "pcolors.hpp"
 
 #define TM_MAIN_LOG_FNAME TM_MAIN_LOG_DIR TM_PROJECTD ".log"
+
+enum tm_log_file_channel {
+	TM_LOG_FILE_STDOUT	= 0x01,
+	TM_LOG_FILE_STDERR	= 0x10,
+};
 
 class Logger
 {
@@ -60,6 +65,8 @@ protected:
 
 		void	setFileName(const std::string& fname);
 		void	setMaxSize(size_t size);
+
+		std::ifstream	dump(void) const;
 	};
 
 private:
@@ -113,7 +120,9 @@ public:
 
 	static void	enableFileLogging(void);
 	static void	enableFileLogging(const std::string& out, const std::string& err);
-	static void setLogFileMaxSize(size_t size);
+	static void setLogFileMaxSize(size_t size, tm_log_file_channel channel);
+
+	static std::ifstream dump(tm_log_file_channel channel);
 
 	friend std::ostream& operator<<(std::ostream& os, const LoggerDisplayColor&);
 	friend std::ostream& operator<<(std::ostream& os, const LoggerDisplayDate&);
