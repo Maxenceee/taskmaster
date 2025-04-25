@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/25 17:27:47 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/25 17:29:18 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -343,7 +343,7 @@ Process::_printStopInfo(void)
 {
 	std::ostringstream oss;
 	oss << "exited: " << this->_program_name;
-	oss << "(";
+	oss << " (";
 	if (this->_signal != 0)
 	{
 		oss << "terminated by " << getSignalName(this->_signal);

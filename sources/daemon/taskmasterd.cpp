@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/25 17:01:21 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/25 17:44:58 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ start_main_loop(char* const* argv, char* const* envp)
 		TM_CONF_AUTORESTART_UNEXPECTED,
 		{0, 4},
 		TM_S_TERM,
-		15,
+		5,
 		3,
 		10
 	);

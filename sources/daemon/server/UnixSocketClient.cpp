@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:40:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/23 11:08:48 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/25 18:23:13 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,6 @@ UnixSocketServer::Client::recv(void)
 	}
 	else if (ret == 0)
 	{
-		Logger::debug("Connection closed by the client");
 		return (TM_POLL_CLIENT_DISCONNECT);
 	}
 
@@ -43,7 +42,13 @@ UnixSocketServer::Client::send(const std::string& msg)
 int
 UnixSocketServer::Client::send(const char* msg)
 {
-	if (::send(this->fd, msg, strlen(msg), 0) == -1)
+	return (this->send(msg, strlen(msg)));
+}
+
+int
+UnixSocketServer::Client::send(const char* msg, size_t len)
+{
+	if (::send(this->fd, msg, len, 0) == -1)
 	{
 		Logger::perror("client error: send failed");
 		return (TM_FAILURE);
@@ -99,10 +104,7 @@ UnixSocketServer::Client::_work(struct tm_pollclient_process_handler& ps)
 	}
 	if (p->reachedDesiredState())
 	{
-		std::stringstream ss;
-		ss << "Process " << p->getPid() << " (" << p->getProgramName() << ") is now " << Process::getStateName(p->getState()) << " [" << Process::getStateName(p->getDesiredState()) << "]" << " - " << format_duration(p->uptime()) << "\n";
-
-		(void)this->send(ss.str());
+		(void)this->send(p->getStatus());
 		ps.done = true;
 		return (TM_POLL_CLIENT_DISCONNECT);	
 	}
@@ -116,7 +118,6 @@ UnixSocketServer::Client::_work(struct tm_pollclient_process_handler& ps)
 
 	if (p->getState() == TM_P_FATAL || p->getState() == TM_P_UNKNOWN)
 	{
-		Logger::error("The process is in a fatal state");
 		(void)this->send("The process is in a fatal state\n");
 		ps.done = true;
 		return (TM_POLL_CLIENT_ERROR);
@@ -207,7 +208,6 @@ UnixSocketServer::Client::exec(void)
 
 	if (command == "internal")
 	{
-		std::cout << "Internal command " << this->input[1] << "\n";
 		if (this->input.size() == 3 && this->input[1] == "processes" && this->input[2] == "avail")
 		{
 			auto a = this->_master.all();

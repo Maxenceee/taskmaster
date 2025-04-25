@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:45:59 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 18:28:29 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/25 18:22:40 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,6 +87,7 @@ public:
 		int		recv(void);
 		int		send(const std::string& msg);
 		int		send(const char* msg);
+		int		send(const char* msg, size_t len);
 
 		int		getFd(void) const;
 

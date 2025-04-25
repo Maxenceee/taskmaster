@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/03 16:09:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/25 17:25:20 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/25 17:39:22 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@
 # define RED		"\033[0;31m"
 # define GREEN		"\033[0;32m"
 # define YELLOW		"\033[0;33m"
-# define ORANGE		"\033[0;48:2:255:165:0m"
+# define ORANGE		"\033[0;38;5;214m"
 # define BLUE		"\033[0;34m"
 # define PINK		"\033[0;35m"
 # define CYAN		"\033[0;36m"

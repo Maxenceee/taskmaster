@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 17:43:04 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/23 11:57:58 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/25 17:42:38 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -188,7 +188,6 @@ UnixSocketServer::cycle()
 	{
 		if (this->poll_fds[i].revents & (POLLERR | POLLHUP | POLLNVAL))
 		{
-			Logger::debug("Socket error (POLLERR / POLLHUP / POLLNVAL detected)");
 			to_remove.push_back(i);
 		}
 		else if (this->poll_fds[i].revents & POLLIN)
@@ -202,7 +201,6 @@ UnixSocketServer::cycle()
 					Logger::perror("server error: accept failed");
 					return (TM_SUCCESS);
 				}
-				Logger::debug("New client connected");
 				this->_poll_clients[newclient] = (tm_pollclient){TM_POLL_CLIENT, new UnixSocketServer::Client(newclient, this->_master)};
 				this->poll_fds.push_back((pollfd){newclient, TM_POLL_EVENTS, TM_POLL_NO_EVENTS});
 				break;
@@ -229,7 +227,6 @@ UnixSocketServer::cycle()
 	int client_fd;
 	for (auto it = to_remove.rbegin(); it != to_remove.rend(); ++it)
 	{
-		Logger::debug("Client disconnected");
 		client_fd = this->poll_fds[*it].fd;
 		(void)::shutdown(client_fd, SHUT_RDWR);
 		(void)close(client_fd);

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 22:57:19 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/25 17:24:10 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/25 17:41:35 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ Logger::info(const char *msg)
 {
 	(void)Logger::aquireMutex();
 
-	std::cout << Logger::DisplayDate << Logger::Color(YELLOW) << TM_PREFIX << msg << Logger::DisplayReset << std::endl;
+	std::cout << Logger::DisplayDate << Logger::Color(YELLOW) << msg << Logger::DisplayReset << std::endl;
 	Logger::cout << Logger::DisplayDay << TM_PROJECTD << "[" << Logger::_pid << "] - " << "Info: " << msg << std::endl;
 
 #ifndef TM_DISABLE_SYSLOG
@@ -91,7 +91,7 @@ Logger::warning(const char *msg)
 {
 	(void)Logger::aquireMutex();
 
-	std::cerr << Logger::DisplayDate << Logger::Color(ORANGE) << TM_PREFIX << msg << Logger::DisplayReset << std::endl;
+	std::cerr << Logger::DisplayDate << Logger::Color(ORANGE) << msg << Logger::DisplayReset << std::endl;
 	Logger::cerr << Logger::DisplayDay << TM_PROJECTD << "[" << Logger::_pid << "] - " << "Warning: " << msg << std::endl;
 
 #ifndef TM_DISABLE_SYSLOG
@@ -112,7 +112,7 @@ Logger::error(const char *msg)
 {
 	(void)Logger::aquireMutex();
 
-	std::cerr << Logger::DisplayDate << Logger::Color(B_RED) << TM_PREFIX << msg << Logger::DisplayReset << std::endl;
+	std::cerr << Logger::DisplayDate << Logger::Color(RED) << msg << Logger::DisplayReset << std::endl;
 	Logger::cerr << Logger::DisplayDay << TM_PROJECTD << "[" << Logger::_pid << "] - " << "Error: " << msg << std::endl;
 
 #ifndef TM_DISABLE_SYSLOG
@@ -133,7 +133,7 @@ Logger::perror(const char *msg)
 {
 	(void)Logger::aquireMutex();
 
-	std::cerr << Logger::DisplayDate << Logger::Color(B_RED) << TM_PREFIX << msg << ": " << strerror(errno) << Logger::DisplayReset << std::endl;
+	std::cerr << Logger::DisplayDate << Logger::Color(RED) << msg << ": " << strerror(errno) << Logger::DisplayReset << std::endl;
 	Logger::cerr << Logger::DisplayDay << TM_PROJECTD << "[" << Logger::_pid << "] - " << "Error: " << msg << ": " << strerror(errno) << std::endl;
 
 #ifndef TM_DISABLE_SYSLOG
@@ -154,7 +154,7 @@ Logger::pherror(const char *msg)
 {
 	(void)Logger::aquireMutex();
 
-	std::cerr << Logger::DisplayDate << Logger::Color(B_RED) << TM_PREFIX << msg << ": " << hstrerror(h_errno) << Logger::DisplayReset << std::endl;
+	std::cerr << Logger::DisplayDate << Logger::Color(RED) << msg << ": " << hstrerror(h_errno) << Logger::DisplayReset << std::endl;
 	Logger::cerr << Logger::DisplayDay << TM_PROJECTD << "[" << Logger::_pid << "] - " << "Error: " << msg << ": " << hstrerror(h_errno) << std::endl;
 
 #ifndef TM_DISABLE_SYSLOG
