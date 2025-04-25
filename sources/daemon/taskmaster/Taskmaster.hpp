@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:51 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 19:28:27 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/25 16:51:10 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,8 @@ public:
 	bool	allStopped(void) const;
 
 	size_t		getNumProcesses(void) const;
-	std::string	getStatus(void) const;
+	std::string	getDetailedStatus(void) const;
+	std::string	getProcsStatus(void) const;
 
 	const std::vector<Process*>&	all(void) const;
 	Process*	find(const std::string& progname) const;
