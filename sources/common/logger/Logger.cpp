@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:56 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/23 23:56:10 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/25 16:23:45 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 bool			Logger::_debug = false;
 pthread_mutex_t Logger::_loggerMutex;
 bool			Logger::_initiated = false;
+pid_t			Logger::_pid = getpid();
 
 Logger::LoggerFileStream	Logger::cout;
 Logger::LoggerFileStream	Logger::cerr;
@@ -90,7 +91,7 @@ Logger::init(const char *action)
 
 	std::cout << Logger::DisplayDate << TM_PREFIX << action << ": New logger session" << std::endl;
 	std::cerr << Logger::DisplayDate << TM_PREFIX << action << ": New logger session" << std::endl;
-	Logger::cout << Logger::DisplayDay << TM_PROJECTD << "[" << getpid() << "] - " << action << ": New logger session" << std::endl;
+	Logger::cout << Logger::DisplayDay << TM_PROJECTD << "[" << Logger::_pid << "] - " << action << ": New logger session" << std::endl;
 
 #ifndef TM_DISABLE_SYSLOG
 	syslog(LOG_INFO, "%s: New logger session", action);
