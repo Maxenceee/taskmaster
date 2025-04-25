@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/23 22:57:19 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/25 16:24:00 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/25 17:24:10 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,7 +91,7 @@ Logger::warning(const char *msg)
 {
 	(void)Logger::aquireMutex();
 
-	std::cerr << Logger::DisplayDate << Logger::Color(B_ORANGE) << TM_PREFIX << msg << Logger::DisplayReset << std::endl;
+	std::cerr << Logger::DisplayDate << Logger::Color(ORANGE) << TM_PREFIX << msg << Logger::DisplayReset << std::endl;
 	Logger::cerr << Logger::DisplayDay << TM_PROJECTD << "[" << Logger::_pid << "] - " << "Warning: " << msg << std::endl;
 
 #ifndef TM_DISABLE_SYSLOG

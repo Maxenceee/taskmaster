@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:56 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/25 16:48:06 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/25 16:54:00 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,9 +54,7 @@ operator<<(std::ostream& os, const Logger::LoggerDisplayDate&)
 	auto now = std::chrono::system_clock::now();
 	std::time_t time = std::chrono::system_clock::to_time_t(now);
 
-	std::tm tm = *std::localtime(&time);
-
-	os << Logger::Color(CYAN) << "[" << std::put_time(&tm, "%H:%M:%S") << "] " << Logger::DisplayReset;
+	os << Logger::Color(CYAN) << "[" << std::put_time(std::localtime(&time), "%H:%M:%S") << "] " << Logger::DisplayReset;
 	return (os);
 }
 
@@ -66,9 +64,7 @@ operator<<(std::ostream& os, const Logger::LoggerDisplayDay&)
 	auto now = std::chrono::system_clock::now();
 	std::time_t time = std::chrono::system_clock::to_time_t(now);
 
-	std::tm tm = *std::localtime(&time);
-
-	os << Logger::Color(CYAN) << "[" << std::put_time(&tm, "%Y-%m-%d %H:%M:%S") << "] " << Logger::DisplayReset;
+	os << Logger::Color(CYAN) << "[" << std::put_time(std::localtime(&time), "%Y-%m-%d %H:%M:%S") << "] " << Logger::DisplayReset;
 	return (os);
 }
 

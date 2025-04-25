@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 19:44:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/25 16:49:32 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/25 16:53:36 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -217,12 +217,12 @@ Process::getStatus(void) const
 	case TM_P_RUNNING:
 		oss << "pid " << this->getPid() << ", ";
 		oss << "uptime " << format_duration(this->uptime());
+		break;
 	case TM_P_EXITED:
 		auto now = std::chrono::system_clock::now();
 		std::time_t time = std::chrono::system_clock::to_time_t(now);
 
-		std::tm tm = *std::localtime(&time);
-		oss << std::put_time(&tm, "%b %d %I:%M %p");
+		oss << std::put_time(std::localtime(&time), "%b %d %I:%M %p");
 		break;
 	}
 	oss << "\n";
