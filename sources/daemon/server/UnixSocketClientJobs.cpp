@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/25 18:23:27 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/25 18:31:00 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,9 +104,16 @@ UnixSocketServer::Client::_clear(struct tm_pollclient_process_handler& ps)
 }
 
 int
-UnixSocketServer::Client::_maintail()
+UnixSocketServer::Client::_maintail(void)
 {
 	auto ref = Logger::dump(TM_LOG_FILE_STDOUT);
+
+	ref.seekg(0, std::ios::end);
+	std::streamsize fileSize = ref.tellg();
+
+	std::streamsize startPos = std::max(static_cast<std::streamsize>(0), fileSize - 1600);
+
+	ref.seekg(startPos, std::ios::beg);
 
 	char buf[TM_RECV_SIZE];
 	std::streamsize bytesRead;
@@ -365,7 +372,6 @@ UnixSocketServer::Client::_tail(void)
 		this->send("The process could not be found\n");
 		return (TM_POLL_CLIENT_DISCONNECT);
 	}
-
 	int fd = p->getStdOutFd();
 	if (fd < 0)
 	{
@@ -373,14 +379,15 @@ UnixSocketServer::Client::_tail(void)
 		return (TM_POLL_CLIENT_DISCONNECT);
 	}
 
-	off_t offset = lseek(fd, 0, SEEK_END);
-	if (offset == -1)
+	off_t fileSize = lseek(fd, 0, SEEK_END);
+	if (fileSize == -1)
 	{
 		Logger::perror("lseek error");
 		return (TM_POLL_CLIENT_DISCONNECT);
 	}
 
-	if (lseek(fd, 0, SEEK_SET) == -1)
+	off_t startPos = std::max(static_cast<off_t>(0), fileSize - 1600);
+	if (lseek(fd, startPos, SEEK_SET) == -1)
 	{
 		Logger::perror("lseek error");
 		return (TM_POLL_CLIENT_DISCONNECT);
