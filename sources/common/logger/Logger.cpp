@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:56 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/25 16:23:45 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/25 16:48:06 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ inline std::ostream&
 operator<<(std::ostream& os, const Logger::LoggerDisplayDate&)
 {
 	auto now = std::chrono::system_clock::now();
-    std::time_t time = std::chrono::system_clock::to_time_t(now);
+	std::time_t time = std::chrono::system_clock::to_time_t(now);
 
 	std::tm tm = *std::localtime(&time);
 
@@ -64,7 +64,7 @@ inline std::ostream&
 operator<<(std::ostream& os, const Logger::LoggerDisplayDay&)
 {
 	auto now = std::chrono::system_clock::now();
-    std::time_t time = std::chrono::system_clock::to_time_t(now);
+	std::time_t time = std::chrono::system_clock::to_time_t(now);
 
 	std::tm tm = *std::localtime(&time);
 
@@ -205,7 +205,7 @@ Logger::LoggerFileStream::renameLogFile(void)
 {
 	std::ostringstream newFileName;
 	auto now = std::chrono::system_clock::now();
-    std::time_t time = std::chrono::system_clock::to_time_t(now);
+	std::time_t time = std::chrono::system_clock::to_time_t(now);
 
 	std::tm tm = *std::localtime(&time);
 

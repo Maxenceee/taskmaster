@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/22 17:15:51 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/25 16:51:16 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,7 +151,7 @@ Taskmaster::get(uint16_t uid) const
 }
 
 std::string
-Taskmaster::getStatus(void) const
+Taskmaster::getDetailedStatus(void) const
 {
 	std::ostringstream oss;
 	oss << "{\n";
@@ -176,5 +176,16 @@ Taskmaster::getStatus(void) const
 	oss << "  };\n";
 	oss << "  Running: " << (this->running ? "true" : "false") << ";\n";
 	oss << "}\n";
+	return oss.str();
+}
+
+std::string
+Taskmaster::getProcsStatus(void) const
+{
+	std::ostringstream oss;
+	for (const auto& process : this->_processes)
+	{
+		oss << process->getStatus();
+	}
 	return oss.str();
 }

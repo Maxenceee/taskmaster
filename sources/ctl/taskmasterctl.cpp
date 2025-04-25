@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/23 23:01:45 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/25 16:30:29 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,11 +199,6 @@ int
 main(int argc, char* const* argv)
 {
 	Logger::printHeader();
-
-	if (argc != 1) {
-		std::cerr << "Usage: " << argv[0] << std::endl;
-		return (TM_FAILURE);
-	}
 
 	if (reopenstds() == -1) {
 		Logger::perror("Failed to reopen stds");

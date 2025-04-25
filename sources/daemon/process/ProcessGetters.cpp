@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 19:44:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 19:59:55 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/25 16:49:32 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,6 +152,8 @@ Process::getStateName(int _state)
 		return ("STARTING");
 	case TM_P_RUNNING:
 		return ("RUNNING");
+	case TM_P_BACKOFF:
+		return ("BACKOFF");
 	case TM_P_STOPPING:
 		return ("STOPPING");
 	case TM_P_EXITED:
@@ -175,24 +177,55 @@ Process::getExecArgs(void) const
 	return (this->exec + 1);
 }
 
+// std::string
+// Process::getStatus(void) const
+// {
+// 	std::ostringstream oss;
+// 	oss << "{\n";
+// 	oss << "  PID: " << this->pid << ";\n";
+// 	oss << "  State: " << Process::getStateName(this->_state) << ";\n";
+// 	oss << "  Signal: " << this->_signal << ";\n";
+// 	oss << "  Exit code: " << this->_exit_code << ";\n";
+// 	oss << "  Uptime: " << format_duration(this->uptime()) << ";\n";
+// 	oss << "  Program: " << this->getExecName() << ";\n";
+// 	oss << "  ProgramArguments: (" << "\n";
+// 	for (char* const* arg = this->getExecArgs(); *arg != nullptr; ++arg)
+// 	{
+// 		oss << "    - \"" << *arg << "\"\n";
+// 	}
+// 	oss << "  );\n";
+// 	oss << "}\n";
+
+// 	return (oss.str());
+// }
+
 std::string
 Process::getStatus(void) const
 {
 	std::ostringstream oss;
-	oss << "{\n";
-	oss << "  PID: " << this->pid << ";\n";
-	oss << "  State: " << Process::getStateName(this->_state) << ";\n";
-	oss << "  Signal: " << this->_signal << ";\n";
-	oss << "  Exit code: " << this->_exit_code << ";\n";
-	oss << "  Uptime: " << format_duration(this->uptime()) << ";\n";
-	oss << "  Program: " << this->getExecName() << ";\n";
-	oss << "  ProgramArguments: (" << "\n";
-	for (char* const* arg = this->getExecArgs(); *arg != nullptr; ++arg)
+	oss << std::setw(30) << std::left << this->getProgramName();
+	oss << std::setw(8) << Process::getStateName(this->_state) << " ";
+	switch (this->_state)
 	{
-		oss << "    - \"" << *arg << "\"\n";
+	case TM_P_STOPPED:
+		oss << "Not started";
+		break;
+	case TM_P_STARTING:
+	case TM_P_BACKOFF:
+	case TM_P_STOPPING:
+		break;
+	case TM_P_RUNNING:
+		oss << "pid " << this->getPid() << ", ";
+		oss << "uptime " << format_duration(this->uptime());
+	case TM_P_EXITED:
+		auto now = std::chrono::system_clock::now();
+		std::time_t time = std::chrono::system_clock::to_time_t(now);
+
+		std::tm tm = *std::localtime(&time);
+		oss << std::put_time(&tm, "%b %d %I:%M %p");
+		break;
 	}
-	oss << "  );\n";
-	oss << "}\n";
+	oss << "\n";
 
 	return (oss.str());
 }
