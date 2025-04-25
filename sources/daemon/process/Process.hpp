@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/25 01:15:56 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/25 17:26:37 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -223,6 +223,8 @@ private:
 	int		_monitor_starting(void);
 	int		_monitor_running(void);
 	int		_monitor_stopping(void);
+
+	void	_printStopInfo(void);
 
 	void	_setupstds(void);
 

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/25 01:16:11 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/25 17:27:47 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ Process::~Process(void)
 {
 	if (this->_state == TM_P_RUNNING && this->pid != 0)
 	{
-		std::cout << "Killing child " << this->pid << std::endl;
+		Logger::error("Process destructor called while process is running.");
 		(void)this->stop();
 	}
 }
@@ -129,7 +129,7 @@ Process::_spawn(void)
 		return (TM_FAILURE);
 	}
 
-	std::cout << "Child spawned with pid " << this->pid << std::endl;
+	Logger::info("spawned: '" + this->_program_name + "' with pid " + std::to_string(this->pid));
 
 	return (TM_SUCCESS);
 }
@@ -139,7 +139,6 @@ Process::start(void)
 {
 	if (this->_state == TM_P_RUNNING || this->_state == TM_P_STARTING || this->_state == TM_P_STOPPING)
 	{
-		std::cout << "Process already started" << std::endl;
 		return (TM_FAILURE);
 	}
 	this->_desired_state = TM_P_RUNNING;
@@ -157,7 +156,6 @@ Process::restart(void)
 
 	if (this->_state == TM_P_STOPPED || this->_state == TM_P_EXITED || this->_state == TM_P_FATAL)
 	{
-		std::cout << "Process already exited or in fatal state" << std::endl;
 		this->_state = TM_P_EXITED;
 		return (TM_SUCCESS);
 	}
@@ -170,7 +168,6 @@ Process::stop(void)
 {
 	if (this->_signal > 0 || this->_state == TM_P_STOPPING || this->_state == TM_P_EXITED || this->_state == TM_P_FATAL || this->pid == 0)
 	{
-		std::cout << "Process already stopping or stopped" << std::endl;
 		return (TM_SUCCESS);
 	}
 	if (false == this->waiting_restart)
@@ -180,7 +177,6 @@ Process::stop(void)
 	this->_state = TM_P_STOPPING;
 	this->request_stop_time = std::chrono::steady_clock::now();
 
-	std::cout << "Stopping child " << this->pid << " with signal " << strsignal(this->config.stopsignal) << std::endl;
 	return (::kill(this->pid, this->config.stopsignal));
 }
 
@@ -189,10 +185,8 @@ Process::signal(int sig)
 {
 	if (this->_state != TM_P_RUNNING || this->pid == 0)
 	{
-		std::cout << "Process already stopping or stopped" << std::endl;
 		return (TM_SUCCESS);
 	}
-	std::cout << "Sending signal " << strsignal(sig) << " to child " << this->pid << std::endl;
 	return (::kill(this->pid, sig));
 }
 
@@ -209,7 +203,7 @@ Process::kill(void)
 		this->_desired_state = TM_P_EXITED;
 	}
 
-	std::cout << "Killing child " << this->pid << std::endl;
+	Logger::warning("Killing '" + this->_program_name + "' (" + std::to_string(this->pid) + ")" + " with SIGKILL");
 	return (::kill(this->pid, SIGKILL));
 }
 
@@ -226,12 +220,10 @@ Process::_wait(void)
 		if (WIFSIGNALED(this->_wpstatus))
 		{
 			this->_signal = WTERMSIG(this->_wpstatus);
-			std::cout << "Child process " << this->pid << " terminated by signal " << strsignal(this->_signal) << std::endl;
 		}
 		else if (WIFEXITED(this->_wpstatus))
 		{
 			this->_exit_code = WEXITSTATUS(this->_wpstatus);
-			std::cout << "Child process " << this->pid << " terminated with code " << this->_exit_code << std::endl;
 		}
 		this->stop_time = std::chrono::system_clock::now();
 		return (TM_FAILURE);
@@ -284,23 +276,23 @@ Process::_monitor_starting(void)
 
 	if (this->_wait())
 	{
+		this->_printStopInfo();
 		if (this->_retries < this->config.startretries)
 		{
 			this->_state = TM_P_BACKOFF;
-			std::cout << "Child process " << this->pid << " failed to start" << std::endl;
 			return (this->_spawn());
 		}
 		else
 		{
-			std::cout << "Child process " << this->pid << " failed to start, giving up" << std::endl;
 			this->_state = TM_P_FATAL;
+			Logger::warning("gave up: " + this->_program_name + " entered FATAL state, too many start retries too quickly");
 		}
 		return (1);
 	}
 	else if (std::chrono::system_clock::now() - this->start_time > std::chrono::seconds(this->config.startsecs))
 	{
 		this->_state = TM_P_RUNNING;
-		std::cout << "Child process " << this->pid << " started successfully" << std::endl;
+		Logger::info("success: " + this->_program_name + " entered RUNNING state, process has stayed up for > than " + std::to_string(this->config.startsecs) + " seconds (startsecs)");
 		return (1);
 	}
 
@@ -312,12 +304,12 @@ Process::_monitor_running(void)
 {
 	if (this->_wait())
 	{
+		this->_printStopInfo();
 		this->_state = TM_P_EXITED;
 		if (this->config.autorestart == TM_CONF_AUTORESTART_TRUE
 			|| (this->config.autorestart == TM_CONF_AUTORESTART_UNEXPECTED && false == this->config.isExitCodeSuccessful(this->_exit_code))
 			|| this->_signal != 0)
 		{
-			std::cout << "Child process " << this->pid << " exited, restarting" << std::endl;
 			this->_desired_state = TM_P_RUNNING;
 			this->waiting_restart = true;
 		}
@@ -332,6 +324,7 @@ Process::_monitor_stopping(void)
 {
 	if (this->_wait())
 	{
+		this->_printStopInfo();
 		this->_state = TM_P_EXITED;
 		return (1);
 	}
@@ -343,4 +336,30 @@ Process::_monitor_stopping(void)
 	}
 
 	return (0);
+}
+
+void
+Process::_printStopInfo(void)
+{
+	std::ostringstream oss;
+	oss << "exited: " << this->_program_name;
+	oss << "(";
+	if (this->_signal != 0)
+	{
+		oss << "terminated by " << getSignalName(this->_signal);
+	}
+	else
+	{
+		oss << "exit code " << this->_exit_code;
+	}
+	if (false == this->config.isExitCodeSuccessful(this->_exit_code) && this->_desired_state != TM_P_EXITED)
+	{
+		oss << "; not expected)";
+		Logger::warning(oss.str());
+	}
+	else
+	{
+		oss << ")";
+		Logger::info(oss.str());
+	}
 }
