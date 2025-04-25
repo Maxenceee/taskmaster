@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:53 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/23 23:53:28 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/25 16:23:20 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,8 @@ private:
 	static bool				_debug;
 	static pthread_mutex_t	_loggerMutex;
 	static bool				_initiated;
+
+	static pid_t			_pid;
 
 	static LoggerFileStream	cout;
 	static LoggerFileStream	cerr;
