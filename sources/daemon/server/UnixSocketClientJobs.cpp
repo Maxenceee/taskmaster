@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/25 18:31:00 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/27 11:50:08 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -231,7 +231,22 @@ UnixSocketServer::Client::_signal(void)
 		return (TM_POLL_CLIENT_ERROR);
 	}
 
-	int signal = std::stoi(this->input[1]);
+	int signal;
+	try
+	{
+		signal = std::stoi(this->input[1]);
+	}
+	catch(...)
+	{
+		(void)this->send("Invalid signal\n");
+		return (TM_POLL_CLIENT_ERROR);
+	}
+
+	if (signal < 1 || signal > NSIG)
+	{
+		(void)this->send("Invalid signal\n");
+		return (TM_POLL_CLIENT_ERROR);
+	}
 
 	for (auto it = this->input.begin() + 2; it != this->input.end(); ++it)
 	{
