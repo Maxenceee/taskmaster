@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/27 11:50:08 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/29 22:27:23 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -479,6 +479,6 @@ UnixSocketServer::Client::_version(void)
 		return (TM_POLL_CLIENT_ERROR);
 	}
 
-	(void)this->send(TM_PROJECTD " version " TM_VERSION " - " TM_AUTHOR "\n");
+	(void)this->send(TM_PROJECTD " " TM_VERSION " - " TM_AUTHOR "\n");
 	return (TM_POLL_CLIENT_DISCONNECT);
 }
