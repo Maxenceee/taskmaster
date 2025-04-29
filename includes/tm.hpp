@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 23:24:24 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/29 22:29:42 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/29 22:32:12 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,7 @@
 #define TM_PROJECT		"taskmaster"
 #define TM_PROJECTD		TM_PROJECT "d"
 #define TM_PROJECTCTL	TM_PROJECT "ctl"
-#define TM_VERSION		"1.0"
+#define TM_VERSION		"1.5"
 #define TM_AUTHOR		"mgama"
 
 #define TM_PREFIX TM_PROJECT ": "
@@ -96,17 +96,10 @@
 #define TM_INT32_LEN   (sizeof("-2147483648") - 1)
 #define TM_INT64_LEN   (sizeof("-9223372036854775808") - 1)
 
-#define TM_CR	"\r"
-#define TM_LF	"\n"
-#define TM_CRLF	TM_CR TM_LF
-
 #define TM_DEFAULT_FILE_MODE 0644
 
 #define TM_SUCCESS 0
 #define TM_FAILURE 1
-
-#define TM_PIPE_READ_END 0
-#define TM_PIPE_WRITE_END 1
 
 #define TM_INPUT_INDICATOR "❯"
 
@@ -116,8 +109,8 @@
 
 // Global types
 
-typedef std::chrono::system_clock::time_point time_point;
-typedef std::chrono::steady_clock::time_point time_point_steady;
-typedef std::chrono::system_clock::duration time_duration;
+typedef std::chrono::system_clock::time_point	time_point;
+typedef std::chrono::steady_clock::time_point	time_point_steady;
+typedef std::chrono::system_clock::duration		time_duration;
 
 #endif /* TM_HPP */
