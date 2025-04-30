@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 19:44:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/25 17:49:31 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/30 23:19:30 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,12 @@ bool
 Process::operator==(uint16_t other) const
 {
 	return (this->uid == other);
+}
+
+bool
+Process::operator==(const std::string& other) const
+{
+	return (this->_program_name == other);
 }
 
 bool

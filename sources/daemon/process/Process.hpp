@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/25 17:26:37 by mgama            ###   ########.fr       */
+/*   Updated: 2025/04/30 23:19:17 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -248,6 +248,7 @@ public:
 	uint16_t	getUid(void) const;
 
 	bool	operator==(uint16_t other) const;
+	bool	operator==(const std::string& other) const;
 
 	bool	started(void) const;
 	bool	stopped(void) const;
