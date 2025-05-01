@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:45:59 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/25 18:22:40 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/01 10:22:51 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ public:
 		int		_avail(void);
 		int		_clear(struct tm_pollclient_process_handler& p);
 		int		_maintail(void);
-		int		_pid(struct tm_pollclient_process_handler& p);
+		int		_pid(void);
 		int		_reload(void);
 		int		_remove(struct tm_pollclient_process_handler& p);
 		int		_reread(void);
