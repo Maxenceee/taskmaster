@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/25 16:51:16 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/01 09:42:02 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,8 @@ Taskmaster::~Taskmaster(void)
 	{
 		delete process;
 	}
+
+	setup_signal(SIGUSR2, SIG_IGN);
 }
 
 int
@@ -103,6 +105,16 @@ Taskmaster::kill(void) const
 		(void)process->kill();
 	}
 	return (TM_SUCCESS);
+}
+
+void
+Taskmaster::reopenStds(void) const
+{
+	for(const auto& process : this->_processes)
+	{
+		(void)process->reopenStds();
+	}
+	Logger::reopenFileLogging();
 }
 
 bool

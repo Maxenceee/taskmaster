@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:56 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/25 18:04:55 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/01 09:41:47 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,6 +159,16 @@ Logger::setLogFileMaxSize(size_t size, tm_log_file_channel channel)
 	}
 }
 
+void
+Logger::reopenFileLogging(void)
+{
+	if (Logger::_file_logging)
+	{
+		Logger::cout.reopen();
+		Logger::cerr.reopen();
+	}
+}
+
 std::ifstream
 Logger::dump(tm_log_file_channel channel)
 {
@@ -202,7 +212,7 @@ Logger::LoggerFileStream::sync(void)
 	{
 		Logger::LoggerFileStream::checkRotation();
 
-		this->_logFile.flush();
+		(void)this->_logFile.flush();
 	}
 	return (0);
 }
@@ -237,8 +247,19 @@ Logger::LoggerFileStream::renameLogFile(void)
 
 	if (!oldFileName.empty())
 	{
-		std::rename(oldFileName.c_str(), newFileName.str().c_str());
+		(void)std::rename(oldFileName.c_str(), newFileName.str().c_str());
 	}
+}
+
+inline void
+Logger::LoggerFileStream::reopen(void)
+{
+	if (this->_logFile.is_open())
+	{
+		this->_logFile.close();
+	}
+	Logger::LoggerFileStream::renameLogFile();
+	Logger::LoggerFileStream::openLogFile();
 }
 
 inline void
@@ -263,7 +284,7 @@ Logger::LoggerFileStream::dump(void) const
 {
 	if (this->_logFile.is_open())
 	{
-		return std::ifstream(this->_fname);
+		return (std::ifstream(this->_fname));
 	}
 	throw std::runtime_error("You should never try to read a log file that is not open");
 }

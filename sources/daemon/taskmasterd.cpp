@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/01 09:19:03 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/01 10:03:16 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,9 @@
 #include "daemon/daemon.hpp"
 
 bool	Taskmaster::running = false;
+Taskmaster*	g_master = nullptr;
 
-void
+static void
 interruptHandler(int sig_int)
 {
 	Logger::syn("\b\b"); // rm ^C from tty
@@ -33,17 +34,47 @@ interruptHandler(int sig_int)
 	Taskmaster::running = false;
 }
 
-void
+static void
+interruptReopen(int sig_int)
+{
+	(void)sig_int;
+	if (g_master == nullptr)
+	{
+		throw std::logic_error("This signal handler should not be bound before the main loop");
+	}
+	g_master->reopenStds();
+	Logger::info("Reopening log files");
+}
+
+static inline void
+setup_signals(void)
+{
+	setup_signal(SIGINT, interruptHandler);
+	setup_signal(SIGQUIT, interruptHandler);
+	setup_signal(SIGTERM, interruptHandler);
+	setup_signal(SIGUSR2, interruptReopen);
+}
+
+static inline void
+ignore_signals(void)
+{
+	setup_signal(SIGINT, SIG_IGN);
+	setup_signal(SIGQUIT, SIG_IGN);
+	setup_signal(SIGTERM, SIG_IGN);
+	setup_signal(SIGHUP, SIG_IGN);
+	setup_signal(SIGUSR2, SIG_IGN);
+}
+
+static void
 start_main_loop(char* const* argv, char* const* envp)
 {
 	Taskmaster master(envp);
+	g_master = &master;
 
 	UnixSocketServer server(TM_SOCKET_PATH, master);
 	server.listen();
 
-	setup_signal(SIGINT, interruptHandler);
-	setup_signal(SIGQUIT, interruptHandler);
-	setup_signal(SIGTERM, interruptHandler);
+	setup_signals();
 
 	Logger::print("Daemon started with pid: " + std::to_string(getpid()));
 
@@ -100,6 +131,9 @@ start_main_loop(char* const* argv, char* const* envp)
 
 	(void)server.stop();
 
+	ignore_signals();
+	g_master = nullptr;
+
 	Logger::print(TM_PROJECTD " stopped", B_GREEN);
 }
 
@@ -114,11 +148,11 @@ main(int argc, char* const* argv, char* const* envp)
 		return (TM_FAILURE);
 	}
 
-	// if (become_daemon(TM_NO_CHDIR) == TM_FAILURE)
-	// {
-	// 	Logger::error("Could not become daemon");
-	// 	return (TM_FAILURE);
-	// }
+	if (become_daemon(TM_NO_CHDIR | TM_NO_UMASK0 | TM_CLOSE_FILES) == TM_FAILURE)
+	{
+		Logger::error("Could not become daemon");
+		return (TM_FAILURE);
+	}
 
 	Logger::enableFileLogging();
 	Logger::init("Starting daemon");
@@ -129,9 +163,7 @@ main(int argc, char* const* argv, char* const* envp)
 		return (TM_FAILURE);
 	}
 
-	setup_signal(SIGINT, SIG_IGN);
-	setup_signal(SIGQUIT, SIG_IGN);
-	setup_signal(SIGTERM, SIG_IGN);
+	ignore_signals();
 
 	setup_signal(SIGPIPE, SIG_IGN);
 

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:51 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/25 16:51:10 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/01 09:33:07 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,8 @@ public:
 	int		kill(void) const;
 	int		cycle(void) const;
 
+	void	reopenStds(void) const;
+	
 	bool	allStopped(void) const;
 
 	size_t		getNumProcesses(void) const;
