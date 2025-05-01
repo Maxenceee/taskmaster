@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/25 17:44:58 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/01 09:19:03 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,11 +93,8 @@ start_main_loop(char* const* argv, char* const* envp)
 	(void)master.stop();
 	(void)server.shutdown();
 
-	const auto current_time = std::chrono::system_clock::now();
-
 	while (!master.allStopped())
 	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		(void)master.cycle();
 	}
 
