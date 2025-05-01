@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/29 22:27:23 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/01 10:25:33 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@
 const std::unordered_map<std::string, UnixSocketServer::Client::ProcHandler> UnixSocketServer::Client::process_command_map = {
 	{"add", &UnixSocketServer::Client::_add},
 	{"clear", &UnixSocketServer::Client::_clear},
-	{"pid", &UnixSocketServer::Client::_pid},
 	{"remove", &UnixSocketServer::Client::_remove},
 	{"restart", &UnixSocketServer::Client::_restart},
 	{"start", &UnixSocketServer::Client::_start},
@@ -27,6 +26,7 @@ const std::unordered_map<std::string, UnixSocketServer::Client::ProcHandler> Uni
 const std::unordered_map<std::string, UnixSocketServer::Client::GenHandler> UnixSocketServer::Client::general_command_map = {
 	{"avail", &UnixSocketServer::Client::_avail},
 	{"maintail", &UnixSocketServer::Client::_maintail},
+	{"pid", &UnixSocketServer::Client::_pid},
 	{"reload", &UnixSocketServer::Client::_reload},
 	{"reread", &UnixSocketServer::Client::_reread},
 	{"shutdown", &UnixSocketServer::Client::_shutdown},
@@ -128,9 +128,37 @@ UnixSocketServer::Client::_maintail(void)
 }
 
 int
-UnixSocketServer::Client::_pid(struct tm_pollclient_process_handler& ps)
+UnixSocketServer::Client::_pid(void)
 {
-	(void)ps;
+	if (this->input.size() > 2)
+	{
+		(void)this->send("Invalid usage\n");
+		return (TM_POLL_CLIENT_ERROR);
+	}
+
+	if (this->input.size() == 1)
+	{
+		(void)this->send("Daemon pid: " + std::to_string(getpid()) + "\n");
+		return (TM_POLL_CLIENT_DISCONNECT);
+	}
+	
+	if (this->input[1] == "all")
+	{
+		for (const auto& p : this->_master.all())
+		{
+			(void)this->send("Process " + p->getProgramName() + " pid: " + std::to_string(p->getPid()) + "\n");
+		}
+	}
+	else
+	{
+		auto p = this->_master.find(this->input[1]);
+		if (!p)
+		{
+			(void)this->send("The process could not be found\n");
+			return (TM_POLL_CLIENT_DISCONNECT);
+		}
+		(void)this->send("Process " + p->getProgramName() + " pid: " + std::to_string(p->getPid()) + "\n");
+	}
 	return (TM_POLL_CLIENT_DISCONNECT);
 }
 
