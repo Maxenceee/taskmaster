@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 17:43:04 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/25 17:42:38 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/01 09:54:46 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,10 +175,11 @@ UnixSocketServer::cycle()
 
 	if (this->poll() == TM_FAILURE)
 	{
-		if (errno != EINTR)
+		if (errno == EINTR)
 		{
-			Logger::perror("server error: an error occurred while poll'ing");
+			return (TM_SUCCESS);
 		}
+		Logger::perror("server error: an error occurred while poll'ing");
 		return (TM_FAILURE);
 	}
 

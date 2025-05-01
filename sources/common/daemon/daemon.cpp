@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 15:39:02 by mgama             #+#    #+#             */
-/*   Updated: 2025/02/05 22:15:40 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/01 10:19:37 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,47 +66,19 @@ become_daemon(int flags)
 		default: _exit(EXIT_SUCCESS);   // le processus parent se terminera
 	}
 
-	if(0 == (flags & TM_NO_UMASK0))
-		umask(0);                       // effacer le masque de création de fichiers
+	if (0 == (flags & TM_NO_UMASK0))
+		(void)umask(0);                 // effacer le masque de création de fichiers
 
-	if(0 == (flags & TM_NO_CHDIR))
-		chdir("/");                     // changer vers le répertoire racine
+	if (0 == (flags & TM_NO_CHDIR))
+		(void)chdir("/");                // changer vers le répertoire racine
 
-	if(1 == (flags & TM_CLOSE_FILES))   // fermer tous les fichiers ouverts
+	if (flags & TM_CLOSE_FILES)          // fermer tous les fichiers ouverts
 	{
-		maxfd = sysconf(_SC_OPEN_MAX);  // permet de déterminer le nombre maximal de descripteurs disponibles
-		if (maxfd == -1)
-			maxfd = TM_MAX_CLOSE;       // en cas d'erreur on utilise la valeur par défaut
-		for (fd = 0; fd < maxfd; fd++) {
-			if (fd != STDIN_FILENO && fd != STDOUT_FILENO && fd != STDERR_FILENO) { 
-				// Ne pas fermer stdin, stdout et stderr
-				close(fd);
-			}
-		}
-	}
-
-	/**
-	 * TODO:
-	 * 
-	 * Rediriger stdout et stderr vers des fichiers de journalisation
-	 */
-	int fd_o = open("./taskmasterd.out.log", O_RDWR | O_CREAT | O_APPEND, 0644);
-	if(fd_o == -1) {
-		Logger::perror("open out.txt");
-		return (TM_FAILURE);
-	}
-	if(dup2(fd_o, STDOUT_FILENO) != STDOUT_FILENO) {
-		Logger::perror("dup2 stdout");
-		return (TM_FAILURE);
-	}
-	int fd_e = open("./taskmasterd.err.log", O_RDWR | O_CREAT | O_APPEND, 0644);
-	if(fd_e == -1) {
-		Logger::perror("open err.txt");
-		return (TM_FAILURE);
-	}
-	if(dup2(fd_e, STDERR_FILENO) != STDERR_FILENO) {
-		Logger::perror("dup2 stderr");
-		return (TM_FAILURE);
+		int dev_null_fd = open("/dev/null", O_RDWR);
+		(void)dup2(dev_null_fd, STDIN_FILENO);    // Rediriger stdin
+        (void)dup2(dev_null_fd, STDOUT_FILENO);   // Rediriger stdout
+        (void)dup2(dev_null_fd, STDERR_FILENO);   // Rediriger stderr
+		(void)close(dev_null_fd);                 // fermer le descripteur de fichier
 	}
 
 	return (TM_SUCCESS);
