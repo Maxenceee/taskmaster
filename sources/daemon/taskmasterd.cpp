@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/01 10:03:16 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/01 10:34:24 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,11 +148,11 @@ main(int argc, char* const* argv, char* const* envp)
 		return (TM_FAILURE);
 	}
 
-	if (become_daemon(TM_NO_CHDIR | TM_NO_UMASK0 | TM_CLOSE_FILES) == TM_FAILURE)
-	{
-		Logger::error("Could not become daemon");
-		return (TM_FAILURE);
-	}
+	// if (become_daemon(TM_NO_CHDIR | TM_NO_UMASK0 | TM_CLOSE_FILES) == TM_FAILURE)
+	// {
+	// 	Logger::error("Could not become daemon");
+	// 	return (TM_FAILURE);
+	// }
 
 	Logger::enableFileLogging();
 	Logger::init("Starting daemon");
