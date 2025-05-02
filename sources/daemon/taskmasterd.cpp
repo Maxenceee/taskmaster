@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/01 10:34:24 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/02 19:30:03 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ ignore_signals(void)
 	setup_signal(SIGINT, SIG_IGN);
 	setup_signal(SIGQUIT, SIG_IGN);
 	setup_signal(SIGTERM, SIG_IGN);
-	setup_signal(SIGHUP, SIG_IGN);
+	// setup_signal(SIGHUP, SIG_IGN);
 	setup_signal(SIGUSR2, SIG_IGN);
 }
 
