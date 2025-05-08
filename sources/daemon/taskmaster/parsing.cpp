@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/08 08:46:53 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/08 08:49:22 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,7 @@ Taskmaster::parseConfig(const std::string& filename)
 			if (section.second.count(key.first) == 0)
 			{
 				std::cerr << "Unknown key: " << key.first << "\n";
+				continue;
 			}
 			std::cout << key.first << " = " << key.second << "\n";
 		}
