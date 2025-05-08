@@ -27,6 +27,7 @@ RLIBS_DIR		=	$(shell brew --prefix readline)
 RLIBS			+=	-L $(RLIBS_DIR)/lib
 endif
 CFLAGS			+=	-I$(RLIBS_DIR)/include
+CFLAGS			+=	-D TOML_EXCEPTIONS=0
 
 LIBS			=	$(RLIBS)
 

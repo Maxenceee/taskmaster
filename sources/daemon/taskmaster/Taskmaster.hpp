@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:51 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/01 09:33:07 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/08 08:06:57 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,8 @@ public:
 	int		signal(int sig) const;
 	int		kill(void) const;
 	int		cycle(void) const;
+
+	int		parseConfig(const std::string& filename);
 
 	void	reopenStds(void) const;
 	
