@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/03 22:35:05 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/08 08:12:28 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,10 @@ start_main_loop(char* const* argv, char* const* envp)
 {
 	Taskmaster master(envp);
 	g_master = &master;
+
+	master.parseConfig(argv[1]);
+
+	throw std::runtime_error("");
 
 	UnixSocketServer server(TM_SOCKET_PATH, master);
 	server.listen();
