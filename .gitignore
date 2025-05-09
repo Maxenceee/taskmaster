@@ -4,7 +4,7 @@ public
 taskmasterd
 taskmasterctl
 output.txt
-super.conf
+*.conf
 /bin
 *.log
 *.log.*

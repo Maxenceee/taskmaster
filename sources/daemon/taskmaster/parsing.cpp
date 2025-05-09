@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/08 08:49:22 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/09 14:32:23 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,43 +14,51 @@
 #include "inipp.hpp"
 #include "taskmaster/Taskmaster.hpp"
 
-const std::map<std::string, std::map<std::string, std::string>> Sections = {
+enum tm_parse_type {
+	TM_TYPE_STRING	= 0x00,
+	TM_TYPE_INT		= 0x01,
+	TM_TYPE_BOOLEAN	= 0x02,
+	TM_TYPE_LIST	= 0x03,
+};
+
+const std::map<std::string, std::map<std::string, tm_parse_type>> Sections = {
 	{"unix_server", {
-		{"file", ""},
-		{"chmod", ""},
-		{"chown", ""},
+		{"file", TM_TYPE_STRING},
+		{"chmod", TM_TYPE_STRING},
+		{"chown", TM_TYPE_STRING},
 	}},
 	{"taskmasterd", {
-		{"logfile", ""},
-		{"pidfile", ""},
-		{"logfile_maxbytes", ""},
-		{"umask", ""},
-		{"nodaemon", ""},
-		{"childlogdir", ""},
-		{"user", ""},
-		{"directory", ""},
-		{"environment", ""},
+		{"logfile", TM_TYPE_STRING},
+		{"pidfile", TM_TYPE_STRING},
+		{"logfile_maxbytes", TM_TYPE_STRING},
+		{"umask", TM_TYPE_STRING},
+		{"nodaemon", TM_TYPE_BOOLEAN},
+		{"childlogdir", TM_TYPE_STRING},
+		{"user", TM_TYPE_STRING},
+		{"directory", TM_TYPE_STRING},
+		{"environment", TM_TYPE_LIST},
 	}},
 	{"program:", {
-		{"process_name", ""},
-		{"numprocs", ""},
-		{"priority", ""},
-		{"autostart", ""},
-		{"startsecs", ""},
-		{"startretries", ""},
-		{"autorestart", ""},
-		{"exitcodes", ""},
-		{"stopsignal", ""},
-		{"stopwaitsecs", ""},
-		{"stopasgroup", ""},
-		{"killasgroup", ""},
-		{"user", ""},
-		{"stdout_logfile", ""},
-		{"stdout_syslog", ""},
-		{"stderr_logfile", ""},
-		{"environment", ""},
-		{"directory", ""},
-		{"umask", ""}
+		{"command", TM_TYPE_STRING},
+		{"process_name", TM_TYPE_STRING },
+		{"numprocs", TM_TYPE_INT},
+		{"priority", TM_TYPE_INT},
+		{"autostart", TM_TYPE_BOOLEAN},
+		{"startsecs", TM_TYPE_INT},
+		{"startretries", TM_TYPE_INT},
+		{"autorestart", TM_TYPE_STRING},
+		{"exitcodes", TM_TYPE_LIST},
+		{"stopsignal", TM_TYPE_STRING},
+		{"stopwaitsecs", TM_TYPE_INT},
+		{"stopasgroup", TM_TYPE_BOOLEAN},
+		{"killasgroup", TM_TYPE_BOOLEAN},
+		{"user", TM_TYPE_STRING},
+		{"stdout_logfile", TM_TYPE_STRING},
+		{"stdout_syslog", TM_TYPE_STRING},
+		{"stderr_logfile", TM_TYPE_STRING},
+		{"environment", TM_TYPE_LIST},
+		{"directory", TM_TYPE_STRING},
+		{"umask", TM_TYPE_STRING}
 	}},
 };
 
