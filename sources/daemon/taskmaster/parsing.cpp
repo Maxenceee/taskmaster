@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/09 14:32:23 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/10 14:08:39 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,50 +15,50 @@
 #include "taskmaster/Taskmaster.hpp"
 
 enum tm_parse_type {
-	TM_TYPE_STRING	= 0x00,
-	TM_TYPE_INT		= 0x01,
-	TM_TYPE_BOOLEAN	= 0x02,
-	TM_TYPE_LIST	= 0x03,
+	TM_PARSE_TYPE_STRING	= 0x00,
+	TM_PARSE_TYPE_INT		= 0x01,
+	TM_PARSE_TYPE_BOOLEAN	= 0x02,
+	TM_PARSE_TYPE_LIST		= 0x03,
 };
 
 const std::map<std::string, std::map<std::string, tm_parse_type>> Sections = {
 	{"unix_server", {
-		{"file", TM_TYPE_STRING},
-		{"chmod", TM_TYPE_STRING},
-		{"chown", TM_TYPE_STRING},
+		{"file", TM_PARSE_TYPE_STRING},
+		{"chmod", TM_PARSE_TYPE_STRING},
+		{"chown", TM_PARSE_TYPE_STRING},
 	}},
 	{"taskmasterd", {
-		{"logfile", TM_TYPE_STRING},
-		{"pidfile", TM_TYPE_STRING},
-		{"logfile_maxbytes", TM_TYPE_STRING},
-		{"umask", TM_TYPE_STRING},
-		{"nodaemon", TM_TYPE_BOOLEAN},
-		{"childlogdir", TM_TYPE_STRING},
-		{"user", TM_TYPE_STRING},
-		{"directory", TM_TYPE_STRING},
-		{"environment", TM_TYPE_LIST},
+		{"logfile", TM_PARSE_TYPE_STRING},
+		{"pidfile", TM_PARSE_TYPE_STRING},
+		{"logfile_maxbytes", TM_PARSE_TYPE_STRING},
+		{"umask", TM_PARSE_TYPE_STRING},
+		{"nodaemon", TM_PARSE_TYPE_BOOLEAN},
+		{"childlogdir", TM_PARSE_TYPE_STRING},
+		{"user", TM_PARSE_TYPE_STRING},
+		{"directory", TM_PARSE_TYPE_STRING},
+		{"environment", TM_PARSE_TYPE_LIST},
 	}},
 	{"program:", {
-		{"command", TM_TYPE_STRING},
-		{"process_name", TM_TYPE_STRING },
-		{"numprocs", TM_TYPE_INT},
-		{"priority", TM_TYPE_INT},
-		{"autostart", TM_TYPE_BOOLEAN},
-		{"startsecs", TM_TYPE_INT},
-		{"startretries", TM_TYPE_INT},
-		{"autorestart", TM_TYPE_STRING},
-		{"exitcodes", TM_TYPE_LIST},
-		{"stopsignal", TM_TYPE_STRING},
-		{"stopwaitsecs", TM_TYPE_INT},
-		{"stopasgroup", TM_TYPE_BOOLEAN},
-		{"killasgroup", TM_TYPE_BOOLEAN},
-		{"user", TM_TYPE_STRING},
-		{"stdout_logfile", TM_TYPE_STRING},
-		{"stdout_syslog", TM_TYPE_STRING},
-		{"stderr_logfile", TM_TYPE_STRING},
-		{"environment", TM_TYPE_LIST},
-		{"directory", TM_TYPE_STRING},
-		{"umask", TM_TYPE_STRING}
+		{"command", TM_PARSE_TYPE_STRING},
+		{"process_name", TM_PARSE_TYPE_STRING },
+		{"numprocs", TM_PARSE_TYPE_INT},
+		{"priority", TM_PARSE_TYPE_INT},
+		{"autostart", TM_PARSE_TYPE_BOOLEAN},
+		{"startsecs", TM_PARSE_TYPE_INT},
+		{"startretries", TM_PARSE_TYPE_INT},
+		{"autorestart", TM_PARSE_TYPE_STRING},
+		{"exitcodes", TM_PARSE_TYPE_LIST},
+		{"stopsignal", TM_PARSE_TYPE_STRING},
+		{"stopwaitsecs", TM_PARSE_TYPE_INT},
+		{"stopasgroup", TM_PARSE_TYPE_BOOLEAN},
+		{"killasgroup", TM_PARSE_TYPE_BOOLEAN},
+		{"user", TM_PARSE_TYPE_STRING},
+		{"stdout_logfile", TM_PARSE_TYPE_STRING},
+		{"stdout_syslog", TM_PARSE_TYPE_STRING},
+		{"stderr_logfile", TM_PARSE_TYPE_STRING},
+		{"environment", TM_PARSE_TYPE_LIST},
+		{"directory", TM_PARSE_TYPE_STRING},
+		{"umask", TM_PARSE_TYPE_STRING}
 	}},
 };
 
