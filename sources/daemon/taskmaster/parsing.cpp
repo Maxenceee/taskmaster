@@ -6,86 +6,444 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/10 14:08:39 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/11 16:30:33 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "tm.hpp"
 #include "inipp.hpp"
+#include "logger/Logger.hpp"
+#include "utils/utils.hpp"
 #include "taskmaster/Taskmaster.hpp"
 
-enum tm_parse_type {
-	TM_PARSE_TYPE_STRING	= 0x00,
-	TM_PARSE_TYPE_INT		= 0x01,
-	TM_PARSE_TYPE_BOOLEAN	= 0x02,
-	TM_PARSE_TYPE_LIST		= 0x03,
+#define TRUTHY_STRINGS(str) (str == "true" || str == "TRUE" || str == "True" || str == "1")
+#define FALSY_STRINGS(str) (str == "false" || str == "FALSE" || str == "False" || str == "0")
+
+struct tm_Config {
+	struct UnixServer {
+		std::string	file;
+		uint16_t	chmod;
+		uint32_t	chown[2]; // [uid, gid]
+	} server;
+	struct Daemon {
+		std::string	logfile;
+		std::string	pidfile;
+		size_t		logfile_maxbytes;
+		uint16_t	umask;
+		bool		nodaemon;
+		std::string	childlogdir;
+		uid_t		user;
+		std::string	directory;
+		std::vector<std::string> environment;
+	} daemon;
+	struct Program {
+		std::string name;
+		std::string	command;
+		std::string	process_name;
+		uint16_t	numprocs;
+		int			priority;
+		bool		autostart;
+		uint16_t	startsecs;
+		uint16_t	startretries;
+		tm_config_auto_restart	autorestart;
+		std::vector<int>	exitcodes;
+		unsigned	stopsignal;
+		uint16_t	stopwaitsecs;
+		bool		stopasgroup;
+		bool		killasgroup;
+		uid_t		user;
+		std::string	stdout_logfile;
+		std::string	stderr_logfile;
+		std::vector<std::string> environment;
+		std::string	directory;
+		uint16_t	umask;
+	};
+	std::vector<Program> programs;
 };
 
-const std::map<std::string, std::map<std::string, tm_parse_type>> Sections = {
-	{"unix_server", {
-		{"file", TM_PARSE_TYPE_STRING},
-		{"chmod", TM_PARSE_TYPE_STRING},
-		{"chown", TM_PARSE_TYPE_STRING},
-	}},
-	{"taskmasterd", {
-		{"logfile", TM_PARSE_TYPE_STRING},
-		{"pidfile", TM_PARSE_TYPE_STRING},
-		{"logfile_maxbytes", TM_PARSE_TYPE_STRING},
-		{"umask", TM_PARSE_TYPE_STRING},
-		{"nodaemon", TM_PARSE_TYPE_BOOLEAN},
-		{"childlogdir", TM_PARSE_TYPE_STRING},
-		{"user", TM_PARSE_TYPE_STRING},
-		{"directory", TM_PARSE_TYPE_STRING},
-		{"environment", TM_PARSE_TYPE_LIST},
-	}},
-	{"program:", {
-		{"command", TM_PARSE_TYPE_STRING},
-		{"process_name", TM_PARSE_TYPE_STRING },
-		{"numprocs", TM_PARSE_TYPE_INT},
-		{"priority", TM_PARSE_TYPE_INT},
-		{"autostart", TM_PARSE_TYPE_BOOLEAN},
-		{"startsecs", TM_PARSE_TYPE_INT},
-		{"startretries", TM_PARSE_TYPE_INT},
-		{"autorestart", TM_PARSE_TYPE_STRING},
-		{"exitcodes", TM_PARSE_TYPE_LIST},
-		{"stopsignal", TM_PARSE_TYPE_STRING},
-		{"stopwaitsecs", TM_PARSE_TYPE_INT},
-		{"stopasgroup", TM_PARSE_TYPE_BOOLEAN},
-		{"killasgroup", TM_PARSE_TYPE_BOOLEAN},
-		{"user", TM_PARSE_TYPE_STRING},
-		{"stdout_logfile", TM_PARSE_TYPE_STRING},
-		{"stdout_syslog", TM_PARSE_TYPE_STRING},
-		{"stderr_logfile", TM_PARSE_TYPE_STRING},
-		{"environment", TM_PARSE_TYPE_LIST},
-		{"directory", TM_PARSE_TYPE_STRING},
-		{"umask", TM_PARSE_TYPE_STRING}
-	}},
-};
+template<typename T>
+inline static std::optional<T>
+_get(const std::map<std::string, T>& map, const std::string& key)
+{
+	auto it = map.find(key);
+	if (it != map.end())
+		return (it->second);
+	return (std::nullopt);
+}
+
+template<typename T, typename U>
+inline static T
+_or_throw(const std::optional<T>& opt, const U& msg)
+{
+	if (opt.has_value())
+		return (opt.value());
+	throw std::invalid_argument(msg);
+}
+
+inline static int
+_integer(const std::optional<std::string>& str, const int _default)
+{
+	if (!str.has_value() || str->empty())
+		return (_default);
+
+	if (!is_digits(*str))
+		throw std::invalid_argument("Invalid integer value: " + *str);
+
+	try
+	{
+		return (std::stoi(*str));
+	}
+	catch(...)
+	{
+		throw std::invalid_argument("Invalid integer value: " + *str);
+	}
+}
+
+inline static uint16_t
+_octal_type(const std::optional<std::string>& str, const uint16_t _default)
+{
+	if (!str || str->empty())
+		return (_default);
+	
+	if (!is_digits(*str))
+		throw std::invalid_argument("Invalid integer value: " + *str);
+
+	try
+	{
+		return (std::stoi(*str, nullptr, 8));
+	}
+	catch(...)
+	{
+		throw std::invalid_argument("Invalid octal value: " + *str);
+	}
+}
+
+inline static bool
+_boolean(const std::optional<std::string>& str, const bool _default)
+{
+	if (!str || str->empty())
+		return (_default);
+
+	if (TRUTHY_STRINGS(*str))
+		return (true);
+	else if (FALSY_STRINGS(*str))
+		return (false);
+
+	throw std::invalid_argument("Invalid boolean value: " + *str);
+}
+
+inline static tm_config_auto_restart
+_auto_restart(const std::optional<std::string>& str, const tm_config_auto_restart _default)
+{
+	if (!str || str->empty())
+		return (_default);
+	
+	if (TRUTHY_STRINGS(*str))
+		return (TM_CONF_AUTORESTART_TRUE);
+	else if (FALSY_STRINGS(*str))
+		return (TM_CONF_AUTORESTART_FALSE);
+	else if (*str == "unexpected")
+		return (TM_CONF_AUTORESTART_UNEXPECTED);
+
+	throw std::invalid_argument("Invalid auto-restart value: " + *str);
+}
+
+inline static int
+_signal_number(const std::optional<std::string>& str, const int _default)
+{
+	if (!str || str->empty())
+		return (_default);
+
+	if (str == "SIGTERM")
+		return (SIGTERM);
+	else if (str == "SIGHUP")
+		return (SIGHUP);
+	else if (str == "SIGINT")
+		return (SIGINT);
+	else if (str == "SIGQUIT")
+		return (SIGQUIT);
+	else if (str == "SIGKILL")
+		return (SIGKILL);
+	else if (str == "SIGUSR1")
+		return (SIGUSR1);
+	else if (str == "SIGUSR2")
+		return (SIGUSR2);
+
+	throw std::invalid_argument("Invalid signal value: " + *str);
+}
+
+inline static std::string
+_existring_dirpath(const std::optional<std::string>& str, const std::string& _default)
+{
+	if (!str || str->empty())
+		return (_default);
+
+	std::string nv = *str;
+
+	if (nv[0] == '~')
+	{
+		const char* home = getenv("HOME");
+		if (home)
+			nv.replace(0, 1, home);
+	}
+
+	size_t pos = nv.find_last_of("/\\");
+	std::string dir = (pos == std::string::npos) ? "" : nv.substr(0, pos);
+
+	if (dir.empty())
+		return (nv);
+
+	struct stat info;
+	if (stat(dir.c_str(), &info) == 0 && (info.st_mode & S_IFDIR))
+		return (nv);
+
+	throw std::invalid_argument("The directory named as part of the path " + *str + " does not exist");
+}
+
+inline static size_t
+_max_bytes(const std::optional<std::string>& str, const size_t _default)
+{
+	if (!str || str->empty())
+		return (_default);
+
+	static const std::unordered_map<std::string, size_t> suffixes = {
+		{"kb", 1024ULL},
+		{"mb", 1024ULL * 1024},
+		{"gb", 1024ULL * 1024 * 1024},
+	};
+
+	std::string input = *str;
+	std::transform(input.begin(), input.end(), input.begin(), [](unsigned char c) {
+		return std::tolower(c);
+	});
+
+	if (input.size() >= 2) {
+		std::string suffix = input.substr(input.size() - 2);
+		auto it = suffixes.find(suffix);
+		if (it != suffixes.end()) {
+			std::string numberPart = input.substr(0, input.size() - 2);
+			try {
+				return static_cast<size_t>(std::stoull(numberPart)) * it->second;
+			} catch (...) {
+				throw std::invalid_argument("Invalid size value: " + *str);
+			}
+		}
+	}
+
+	try {
+		return static_cast<size_t>(std::stoull(input)) * _default;
+	} catch (...) {
+		throw std::invalid_argument("Invalid size value: " + *str);
+	}
+}
+
+inline static uid_t
+_name_to_uid(const std::optional<std::string>& name)
+{
+	if (!name || name->empty())
+		return (getuid());
+
+	struct passwd* pw = getpwnam(name->c_str());
+	if (pw == nullptr)
+	{
+		throw std::invalid_argument("Invalid user name: " + *name);
+	}
+	return (pw->pw_uid);
+}
+
+inline static gid_t
+_name_to_gid(const std::optional<std::string>& name)
+{
+	if (!name || name->empty())
+		return (getgid());
+
+	struct passwd* pw = getpwnam(name->c_str());
+	if (pw == nullptr)
+	{
+		throw std::invalid_argument("Invalid group name: " + *name);
+	}
+	return (pw->pw_gid);
+}
+
+inline static void
+_user_separated_by_colon(const std::optional<std::string>& str, uint32_t _target[2])
+{
+	if (!str || str->empty())
+	{
+		_target[0] = getuid();
+		_target[1] = getgid();
+		return;
+	}
+
+	size_t pos = str->find(':');
+	if (pos != std::string::npos)
+	{
+		_target[0] = _name_to_uid(str->substr(0, pos));
+		_target[1] = _name_to_gid(str->substr(pos + 1));
+	}
+	else
+	{
+		throw std::invalid_argument("Invalid user:group format: " + *str);
+	}
+}
+
+template <typename T = std::string, typename U = std::vector<T>>
+inline static U
+_list(const std::optional<std::string>& str, const U& _default = U())
+{
+	if (!str || str->empty())
+		return (_default);
+
+	U result;
+	std::istringstream iss(*str);
+	std::string item;
+	while (std::getline(iss, item, ','))
+	{
+		result.push_back(static_cast<T>(item));
+	}
+	return (result);
+}
+
+inline static std::vector<int>
+_exit_codes(const std::optional<std::string>& str, const std::vector<int>& _default)
+{
+	if (!str || str->empty())
+		return (_default);
+
+	std::vector<int> result;
+	std::istringstream iss(*str);
+	std::string item;
+	while (std::getline(iss, item, ','))
+	{
+		try
+		{
+			result.push_back(std::stoi(item));
+		}
+		catch (const std::invalid_argument&)
+		{
+			throw std::invalid_argument("Invalid exit code: " + item);
+		}
+	}
+	return (result);
+}
+
+inline static std::string
+_exec(const std::optional<std::string>& str)
+{
+	if (!str || str->empty())
+		throw std::invalid_argument("You must provide a command to execute");
+
+	if (str->find('/') != 0)
+	{
+		throw std::invalid_argument("The command '" + *str + "' must have an absolute path");
+	}
+
+	if (access(str->c_str(), X_OK) != 0)
+	{
+		throw std::invalid_argument("The command '" + *str + "' does not exist or is not executable");
+	}
+	return (*str);
+}
+
+inline static tm_Config::UnixServer
+_parseUnixServerConfig(const std::map<std::string, std::string>& section)
+{
+	tm_Config::UnixServer config;
+
+	config.file = _existring_dirpath(_get(section, "file"), TM_SOCKET_PATH);
+	config.chmod = _octal_type(_get(section, "chmod"), 0660);
+	_user_separated_by_colon(_get(section, "chown"), config.chown);
+
+	return (config);
+}
+
+inline static tm_Config::Daemon
+_parseDaemonConfig(const std::map<std::string, std::string>& section)
+{
+	tm_Config::Daemon config;
+
+	config.logfile = _existring_dirpath(_get(section, "logfile"), TM_PREFIX TM_PROJECTD ".log");
+	config.pidfile = _existring_dirpath(_get(section, "pidfile"), TM_PID_FILE);
+	config.logfile_maxbytes = _max_bytes(_get(section, "logfile_maxbytes"), 1024 * 1024);
+	config.umask = _octal_type(_get(section, "umask"), 022);
+	config.nodaemon = _boolean(_get(section, "nodaemon"), false);
+	config.childlogdir = _existring_dirpath(_get(section, "childlogdir"), "./");
+	config.user = _name_to_uid(_get(section, "user"));
+	config.directory = _existring_dirpath(_get(section, "directory"), "./");
+	config.environment = _list(_get(section, "environment"));
+
+	return (config);
+}
+
+inline static tm_Config::Program
+_parseProgramConfig(const std::string& section_name, const std::map<std::string, std::string>& section)
+{
+	tm_Config::Program config;
+
+	auto pn = split(section_name, ':');
+	if (pn.size() != 2)
+	{
+		throw std::invalid_argument("Invalid program name format: " + section_name);
+	}
+
+	config.name = pn[1];
+	config.command = _exec(_get(section, "command"));
+	config.process_name = _get(section, "process_name").value_or("%(program_name)s");
+	config.numprocs = _integer(_get(section, "numprocs"), 1);
+	config.priority = _integer(_get(section, "priority"), 999);
+	config.autostart = _boolean(_get(section, "autostart"), true);
+	config.startsecs = _integer(_get(section, "startsecs"), 1);
+	config.startretries = _integer(_get(section, "startretries"), 3);
+	config.autorestart = _auto_restart(_get(section, "autorestart"), TM_CONF_AUTORESTART_UNEXPECTED);
+	config.exitcodes = _exit_codes(_get(section, "exitcodes"), { 0 });
+	config.stopsignal = _signal_number(_get(section, "stopsignal"), SIGTERM);
+	config.stopwaitsecs = _integer(_get(section, "stopwaitsecs"), 10);
+	config.stopasgroup = _boolean(_get(section, "stopasgroup"), false);
+	config.killasgroup = _boolean(_get(section, "killasgroup"), false);
+	config.user = _name_to_uid(_get(section, "user"));
+	config.stdout_logfile = _existring_dirpath(_get(section, "stdout_logfile"), "");
+	config.stderr_logfile = _existring_dirpath(_get(section, "stderr_logfile"), "");
+	config.environment = _list(_get(section, "environment"));
+	config.directory = _existring_dirpath(_get(section, "directory"), "./");
+	config.umask = _octal_type(_get(section, "umask"), 022);
+
+	return (config);
+}
 
 int
 Taskmaster::parseConfig(const std::string& filename)
 {
 	inipp::Ini<char> ini;
+	tm_Config config;
 
 	std::ifstream is(filename);
 	ini.parse(is);
-	for (auto section : ini.sections)
+	try
 	{
-		if (Sections.count(section.first) == 0)
+		for (auto section : ini.sections)
 		{
-			std::cerr << "Unknown section: " << section.first << "\n";
-			continue;
-		}
-		std::cout << "[" << section.first << "]" << "\n";
-		for (auto key : section.second)
-		{
-			if (section.second.count(key.first) == 0)
+			if (section.first == "unix_server")
 			{
-				std::cerr << "Unknown key: " << key.first << "\n";
-				continue;
+				config.server = _parseUnixServerConfig(section.second);
 			}
-			std::cout << key.first << " = " << key.second << "\n";
+			else if (section.first == "taskmasterd")
+			{
+				config.daemon = _parseDaemonConfig(section.second);
+			}
+			else if (section.first.find("program:") == 0)
+			{
+				config.programs.push_back(_parseProgramConfig(section.first, section.second));
+			}
+			else
+			{
+				throw std::invalid_argument("Unknown section: " + section.first);
+			}
 		}
+	}
+	catch(const std::exception& e)
+	{
+		Logger::error("Error parsing config file:");
+		Logger::error(e.what());
 	}
 
 	return (TM_SUCCESS);
