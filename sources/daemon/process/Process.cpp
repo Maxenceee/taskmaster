@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/26 01:33:21 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/11 12:33:30 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,7 +183,7 @@ Process::stop(void)
 int
 Process::signal(int sig)
 {
-	if (this->_state != TM_P_RUNNING || this->pid == 0)
+	if ((this->_state != TM_P_RUNNING && this->_state != TM_P_STARTING && this->_state != TM_P_STOPPING) || this->pid == 0)
 	{
 		return (TM_SUCCESS);
 	}

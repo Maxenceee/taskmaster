@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 23:24:24 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/29 22:32:12 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/11 15:54:47 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,8 @@
 #include <sys/select.h>
 #include <sys/un.h>
 #include <sys/resource.h>
+#include <pwd.h>
+#include <uuid/uuid.h>
 
 // Net
 #include <netinet/in.h>

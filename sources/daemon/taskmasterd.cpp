@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/08 08:50:00 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/11 15:56:39 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,7 +168,6 @@ main(int argc, char* const* argv, char* const* envp)
 	}
 
 	ignore_signals();
-
 	setup_signal(SIGPIPE, SIG_IGN);
 
 	try
