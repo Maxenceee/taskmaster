@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/11 17:07:29 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/11 19:59:12 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -391,49 +391,77 @@ _search_and_load_config(void)
 	throw std::runtime_error("No valid configuration file found");
 }
 
-int
-Taskmaster::parseConfig(const std::string& filename)
+tm_Config
+_parseConfig(const std::string& filename)
 {
 	inipp::Ini<char> ini;
 	tm_Config new_conf;
-	
-	std::string fname = filename;
-	if (fname.empty())
+
+	std::ifstream is(filename);
+	ini.parse(is);
+	for (auto section : ini.sections)
 	{
-		fname = _search_and_load_config();
+		if (section.first == "unix_server")
+		{
+			new_conf.server = _parseUnixServerConfig(section.second);
+		}
+		else if (section.first == "taskmasterd")
+		{
+			new_conf.daemon = _parseDaemonConfig(section.second);
+		}
+		else if (section.first.find("program:") == 0)
+		{
+			new_conf.programs.push_back(_parseProgramConfig(section.first, section.second));
+		}
+		else
+		{
+			throw std::invalid_argument("Unknown section: " + section.first);
+		}
 	}
 
-	std::ifstream is(fname);
-	ini.parse(is);
+	return (new_conf);
+}
+
+int
+Taskmaster::readconfig(void)
+{
 	try
 	{
-		for (auto section : ini.sections)
+		if (this->_config_file.empty())
 		{
-			if (section.first == "unix_server")
-			{
-				new_conf.server = _parseUnixServerConfig(section.second);
-			}
-			else if (section.first == "taskmasterd")
-			{
-				new_conf.daemon = _parseDaemonConfig(section.second);
-			}
-			else if (section.first.find("program:") == 0)
-			{
-				new_conf.programs.push_back(_parseProgramConfig(section.first, section.second));
-			}
-			else
-			{
-				throw std::invalid_argument("Unknown section: " + section.first);
-			}
+			this->_config = _parseConfig(_search_and_load_config());
+		}
+		else
+		{
+			this->_config = _parseConfig(this->_config_file);
 		}
 	}
 	catch(const std::exception& e)
 	{
 		Logger::error("Error parsing config file:");
 		Logger::error(e.what());
+		return (TM_FAILURE);
 	}
 
-	this->_config = new_conf;
-
 	return (TM_SUCCESS);
+}
+
+bool
+Taskmaster::_has_prog(const std::string& progname) const
+{
+	for (const auto& prog : this->_processes)
+	{
+		if (prog == progname)
+			return (true);
+	}
+	return (false);
+}
+
+int
+Taskmaster::update(void)
+{
+	for (auto& prog : this->_config.programs)
+	{
+		
+	}
 }

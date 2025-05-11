@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:51 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/11 17:11:55 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/11 19:57:41 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,12 +66,16 @@ class Taskmaster
 private:
 	pid_t	pid;
 
-	tm_Config		_config;
+	const std::string	_config_file;
+	tm_Config			_config;
 
 	std::vector<Process*>		_processes;
 
+	bool	_has_prog(const std::string& progname) const;
+
 public:
 	Taskmaster(void);
+	Taskmaster(const std::string& config_file);
 	~Taskmaster(void);
 
 	static bool	running;
@@ -85,7 +89,8 @@ public:
 	int		kill(void) const;
 	int		cycle(void) const;
 
-	int		parseConfig(const std::string& filename);
+	int		readconfig(void);
+	int		update(void);
 
 	void	reopenStds(void) const;
 	
