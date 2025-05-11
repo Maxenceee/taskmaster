@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 19:44:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/30 23:19:30 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/11 21:42:17 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ Process::exited(void) const
 bool
 Process::fatal(void) const
 {
-	return (this->_state == TM_P_FATAL);
+	return (this->_state == TM_P_FATAL || this->_state == TM_P_UNKNOWN);
 }
 
 time_duration
@@ -71,7 +71,6 @@ Process::uptime(void) const
 	case TM_P_BACKOFF:
 	case TM_P_STOPPING:
 		return (std::chrono::system_clock::now() - this->start_time);
-
 	case TM_P_STOPPED:
 	case TM_P_EXITED:
 	case TM_P_FATAL:
