@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/11 19:59:12 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/11 21:45:20 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -451,7 +451,7 @@ Taskmaster::_has_prog(const std::string& progname) const
 {
 	for (const auto& prog : this->_processes)
 	{
-		if (prog == progname)
+		if (*prog == progname)
 			return (true);
 	}
 	return (false);
@@ -462,6 +462,9 @@ Taskmaster::update(void)
 {
 	for (auto& prog : this->_config.programs)
 	{
-		
+		if (false == this->_has_prog(prog.name))
+		{
+			// this->addChild();
+		}
 	}
 }

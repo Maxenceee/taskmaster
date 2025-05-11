@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/11 17:15:01 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/11 21:31:13 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,6 +199,7 @@ private:
 	int		_exit_code;
 	int		_state;
 	int		_desired_state;
+	bool	_dead;
 
 	const std::string	_program_name;
 	int					_process_group_id;
@@ -259,6 +260,9 @@ public:
 	time_duration	uptime(void) const;
 
 	bool	reachedDesiredState(void) const;
+
+	void	markAsDead(void);
+	bool	isDead(void) const;
 
 	int		getStdOutFd(void) const;
 	int		getStdErrFd(void) const;

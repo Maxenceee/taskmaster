@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/11 17:14:06 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/11 21:43:54 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,6 +97,26 @@ Process::reopenStds(void)
 		(void)close(this->std_err_fd);
 	}
 	this->_setupstds();
+}
+
+void
+Process::markAsDead(void)
+{
+	if (false == this->_dead)
+	{
+		(void)this->stop();
+	}
+	this->_dead = true;
+}
+
+bool
+Process::isDead(void) const
+{
+	if (false == this->_dead)
+	{
+		return (false);
+	}
+	return (this->stopped() || this->exited() || this->fatal());
 }
 
 int
