@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/11 15:56:39 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/11 17:11:40 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ interruptReopen(int sig_int)
 	Logger::info("Reopening log files");
 }
 
-static inline void
+inline static void
 setup_signals(void)
 {
 	setup_signal(SIGINT, interruptHandler);
@@ -55,7 +55,7 @@ setup_signals(void)
 	setup_signal(SIGUSR2, interruptReopen);
 }
 
-static inline void
+inline static void
 ignore_signals(void)
 {
 	setup_signal(SIGINT, SIG_IGN);
@@ -65,15 +65,21 @@ ignore_signals(void)
 	setup_signal(SIGUSR2, SIG_IGN);
 }
 
-static void
-start_main_loop(char* const* argv, char* const* envp)
+inline static void
+start_main_loop(char* const* argv)
 {
-	Taskmaster master(envp);
+	Taskmaster master;
 	g_master = &master;
 
-	master.parseConfig(argv[1]);
-
-	throw std::runtime_error("Temp stop");
+	// TODO: do a better option handler
+	if (argv[1] == nullptr)
+	{
+		master.parseConfig("");
+	}
+	else
+	{
+		master.parseConfig(argv[1]);
+	}
 
 	UnixSocketServer server(TM_SOCKET_PATH, master);
 	server.listen();
@@ -142,15 +148,15 @@ start_main_loop(char* const* argv, char* const* envp)
 }
 
 int
-main(int argc, char* const* argv, char* const* envp)
+main(int argc, char* const* argv)
 {
 	Logger::printHeader();
 
-	if (argc < 2)
-	{
-		std::cerr << "Usage: " << argv[0] << " <cmd>" << std::endl;
-		return (TM_FAILURE);
-	}
+	// if (argc < 2)
+	// {
+	// 	std::cerr << "Usage: " << argv[0] << " <cmd>" << std::endl;
+	// 	return (TM_FAILURE);
+	// }
 
 	// if (become_daemon(TM_NO_CHDIR | TM_NO_UMASK0 | TM_CLOSE_FILES) == TM_FAILURE)
 	// {
@@ -172,7 +178,7 @@ main(int argc, char* const* argv, char* const* envp)
 
 	try
 	{
-		start_main_loop(argv, envp);
+		start_main_loop(argv);
 	}
 	catch (const std::exception& e)
 	{
