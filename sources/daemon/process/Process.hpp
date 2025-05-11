@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/30 23:19:17 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/11 17:15:01 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #define PROCESS_HPP
 
 #include "tm.hpp"
+
+extern char **environ;
 
 enum tm_config_auto_restart {
 	TM_CONF_AUTORESTART_FALSE		= 0,
@@ -162,7 +164,7 @@ typedef struct tm_process_config {
 			}
 		}
 		return false;
-	}	
+	}
 } tm_process_config;
 
 enum tm_process_state {
@@ -215,7 +217,6 @@ private:
 	int 				_retries;
 
 	char* const*	exec;
-	char* const*	envp;
 
 	int		_wait(void);
 
@@ -229,8 +230,8 @@ private:
 	void	_setupstds(void);
 
 public:
-	Process(char* const* exec, char* const* envp, const char* program_name, tm_process_config &config, pid_t ppid, pid_t pgid = 0);
-	Process(char* const* exec, char* const* envp, const std::string& program_name, tm_process_config &config, pid_t ppid, pid_t pgid = 0);
+	Process(char* const* exec, const char* program_name, tm_process_config &config, pid_t ppid, pid_t pgid = 0);
+	Process(char* const* exec, const std::string& program_name, tm_process_config &config, pid_t ppid, pid_t pgid = 0);
 	~Process(void);
 
 	void	reopenStds(void);

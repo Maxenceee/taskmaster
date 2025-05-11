@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/11 17:12:05 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/11 17:13:20 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ Taskmaster::addChild(char* const* exec, struct tm_process_config& config)
 {
 	for (int i = 0; i < config.numprocs; ++i)
 	{
-		Process* new_child = new Process(exec, this->envp, std::string(exec[0]) + "_" + std::to_string(i), config, this->pid);
+		Process* new_child = new Process(exec, std::string(exec[0]) + "_" + std::to_string(i), config, this->pid);
 		new_child->setGroupId(i);
 		this->_processes.push_back(new_child);
 	}
