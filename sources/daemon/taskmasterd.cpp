@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/11 17:11:40 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/11 19:29:22 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,15 +71,7 @@ start_main_loop(char* const* argv)
 	Taskmaster master;
 	g_master = &master;
 
-	// TODO: do a better option handler
-	if (argv[1] == nullptr)
-	{
-		master.parseConfig("");
-	}
-	else
-	{
-		master.parseConfig(argv[1]);
-	}
+	(void)master.readconfig();
 
 	UnixSocketServer server(TM_SOCKET_PATH, master);
 	server.listen();
