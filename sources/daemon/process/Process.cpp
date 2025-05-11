@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/11 12:33:30 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/11 17:14:06 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,11 @@
 #include "utils/utils.hpp"
 #include "logger/Logger.hpp"
 
-Process::Process(char* const* exec, char* const* envp, const std::string& program_name, tm_process_config &config, pid_t ppid, pid_t pgid): Process(exec, envp, program_name.c_str(), config, ppid, pgid)
+Process::Process(char* const* exec, const std::string& program_name, tm_process_config &config, pid_t ppid, pid_t pgid): Process(exec, program_name.c_str(), config, ppid, pgid)
 {
 }
 
-Process::Process(char* const* exec, char* const* envp, const char* program_name, tm_process_config &config, pid_t ppid, pid_t pgid): uid(u_uint16()), _program_name(program_name)
+Process::Process(char* const* exec, const char* program_name, tm_process_config &config, pid_t ppid, pid_t pgid): uid(u_uint16()), _program_name(program_name)
 {
 	this->pid = 0;
 	this->ppid = ppid;
@@ -39,7 +39,6 @@ Process::Process(char* const* exec, char* const* envp, const char* program_name,
 	this->config = config;
 
 	this->exec = exec;
-	this->envp = envp;
 
 	this->_setupstds();
 }
@@ -122,7 +121,7 @@ Process::_spawn(void)
 		return (TM_FAILURE);
 	}
 
-	if ((this->pid = spawn_child(this->exec, this->envp, this->std_in_fd, this->std_out_fd, this->std_err_fd, this->config.directory)) == 0)
+	if ((this->pid = spawn_child(this->exec, environ, this->std_in_fd, this->std_out_fd, this->std_err_fd, this->config.directory)) == 0)
 	{
 		Logger::perror("could not spawn child");
 		this->_state = TM_P_FATAL;
