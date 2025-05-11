@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/01 09:42:02 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/11 17:12:05 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,9 @@
 #include "taskmaster/Taskmaster.hpp"
 #include "logger/Logger.hpp"
 
-Taskmaster::Taskmaster(char* const* envp)
+Taskmaster::Taskmaster(void)
 {
 	this->running = true;
-
-	this->envp = envp;
 
 	this->pid = getpid();
 }

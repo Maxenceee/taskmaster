@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:15:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/20 13:14:59 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/11 16:47:17 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,9 @@
 
 int
 spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, int stderr_fd
+#ifdef TM_SPAWN_CHILD_USE_FORK
+	, uid_t uid
+#endif /* TM_SPAWN_CHILD_USE_FORK */
 #ifdef TM_SPAWN_CHILD_SUPPORT_PGID
 	, int pgid
 #endif /* TM_SPAWN_CHILD_SUPPORT_PGID */
@@ -23,7 +26,6 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 	pid_t pid;
 
 #ifndef TM_SPAWN_CHILD_USE_FORK
-// #if 0
 
 	posix_spawn_file_actions_t actions;
 	posix_spawn_file_actions_init(&actions);
@@ -118,30 +120,21 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 		// because the logger can't handle subprocesses
 
 		// Redirect stdin
-		if (stdin_fd != -1) {
-			if (dup2(stdin_fd, STDIN_FILENO) == -1) {
-				perror("dup2 stdin failed");
-				exit(TM_FAILURE);
-			}
-			// close(stdin_fd);
+		if (stdin_fd != -1 && dup2(stdin_fd, STDIN_FILENO) == -1) {
+			perror("dup2 stdin failed");
+			exit(TM_FAILURE);
 		}
 
 		// Redirect stdout
-		if (stdout_fd != -1) {
-			if (dup2(stdout_fd, STDOUT_FILENO) == -1) {
-				perror("dup2 stdout failed");
-				exit(TM_FAILURE);
-			}
-			// close(stdout_fd);
+		if (stdout_fd != -1 && dup2(stdout_fd, STDOUT_FILENO) == -1) {
+			perror("dup2 stdout failed");
+			exit(TM_FAILURE);
 		}
 
 		// Redirect stderr
-		if (stderr_fd != -1) {
-			if (dup2(stderr_fd, STDERR_FILENO) == -1) {
-				perror("dup2 stderr failed");
-				exit(TM_FAILURE);
-			}
-			// close(stderr_fd);
+		if (stderr_fd != -1 && dup2(stderr_fd, STDERR_FILENO) == -1) {
+			perror("dup2 stderr failed");
+			exit(TM_FAILURE);
 		}
 
 		// Since the parent is handling these signals we need to reset their default behavior
@@ -150,8 +143,13 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 		signal(SIGTERM, SIG_DFL);
 		signal(SIGPIPE, SIG_DFL);
 
+		if (uid != -1 && setuid(uid) == -1) {
+			perror("setuid");
+			exit(TM_FAILURE);
+		}
+
 #ifdef TM_SPAWN_CHILD_SUPPORT_PGID
-		if (setpgid(0, pgid) == -1) {
+		if (pgid != -1 && setpgid(0, pgid) == -1) {
 			perror("setpgid");
 			exit(TM_FAILURE);
 		}

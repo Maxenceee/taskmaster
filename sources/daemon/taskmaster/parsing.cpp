@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/11 16:30:33 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/11 17:07:29 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,51 +15,6 @@
 #include "logger/Logger.hpp"
 #include "utils/utils.hpp"
 #include "taskmaster/Taskmaster.hpp"
-
-#define TRUTHY_STRINGS(str) (str == "true" || str == "TRUE" || str == "True" || str == "1")
-#define FALSY_STRINGS(str) (str == "false" || str == "FALSE" || str == "False" || str == "0")
-
-struct tm_Config {
-	struct UnixServer {
-		std::string	file;
-		uint16_t	chmod;
-		uint32_t	chown[2]; // [uid, gid]
-	} server;
-	struct Daemon {
-		std::string	logfile;
-		std::string	pidfile;
-		size_t		logfile_maxbytes;
-		uint16_t	umask;
-		bool		nodaemon;
-		std::string	childlogdir;
-		uid_t		user;
-		std::string	directory;
-		std::vector<std::string> environment;
-	} daemon;
-	struct Program {
-		std::string name;
-		std::string	command;
-		std::string	process_name;
-		uint16_t	numprocs;
-		int			priority;
-		bool		autostart;
-		uint16_t	startsecs;
-		uint16_t	startretries;
-		tm_config_auto_restart	autorestart;
-		std::vector<int>	exitcodes;
-		unsigned	stopsignal;
-		uint16_t	stopwaitsecs;
-		bool		stopasgroup;
-		bool		killasgroup;
-		uid_t		user;
-		std::string	stdout_logfile;
-		std::string	stderr_logfile;
-		std::vector<std::string> environment;
-		std::string	directory;
-		uint16_t	umask;
-	};
-	std::vector<Program> programs;
-};
 
 template<typename T>
 inline static std::optional<T>
@@ -317,7 +272,10 @@ _exit_codes(const std::optional<std::string>& str, const std::vector<int>& _defa
 	{
 		try
 		{
-			result.push_back(std::stoi(item));
+			auto code = std::stoi(item);
+			if (code < 0 || code > 255)
+				throw std::out_of_range("Exit code out of range: " + item);
+			result.push_back(code);
 		}
 		catch (const std::invalid_argument&)
 		{
@@ -338,7 +296,7 @@ _exec(const std::optional<std::string>& str)
 		throw std::invalid_argument("The command '" + *str + "' must have an absolute path");
 	}
 
-	if (access(str->c_str(), X_OK) != 0)
+	if (access(str->c_str(), F_OK | X_OK) != 0)
 	{
 		throw std::invalid_argument("The command '" + *str + "' does not exist or is not executable");
 	}
@@ -410,13 +368,42 @@ _parseProgramConfig(const std::string& section_name, const std::map<std::string,
 	return (config);
 }
 
+inline static std::string
+_search_and_load_config(void)
+{
+	const char* env_config = getenv("TASKMASTER_CONFIG");
+	if (env_config && access(env_config, R_OK) == 0)
+		return std::string(env_config);
+
+	static const std::vector<const char *> default_paths = {
+		"/etc/" TM_PROJECTD ".conf",
+		"/etc/taskmaster/" TM_PROJECTD ".conf",
+		"/usr/local/etc/taskmaster/" TM_PROJECTD ".conf",
+		"./" TM_PROJECTD ".conf"
+	};
+
+	for (const auto& path : default_paths)
+	{
+		if (access(path, R_OK) == 0)
+			return (path);
+	}
+
+	throw std::runtime_error("No valid configuration file found");
+}
+
 int
 Taskmaster::parseConfig(const std::string& filename)
 {
 	inipp::Ini<char> ini;
-	tm_Config config;
+	tm_Config new_conf;
+	
+	std::string fname = filename;
+	if (fname.empty())
+	{
+		fname = _search_and_load_config();
+	}
 
-	std::ifstream is(filename);
+	std::ifstream is(fname);
 	ini.parse(is);
 	try
 	{
@@ -424,15 +411,15 @@ Taskmaster::parseConfig(const std::string& filename)
 		{
 			if (section.first == "unix_server")
 			{
-				config.server = _parseUnixServerConfig(section.second);
+				new_conf.server = _parseUnixServerConfig(section.second);
 			}
 			else if (section.first == "taskmasterd")
 			{
-				config.daemon = _parseDaemonConfig(section.second);
+				new_conf.daemon = _parseDaemonConfig(section.second);
 			}
 			else if (section.first.find("program:") == 0)
 			{
-				config.programs.push_back(_parseProgramConfig(section.first, section.second));
+				new_conf.programs.push_back(_parseProgramConfig(section.first, section.second));
 			}
 			else
 			{
@@ -445,6 +432,8 @@ Taskmaster::parseConfig(const std::string& filename)
 		Logger::error("Error parsing config file:");
 		Logger::error(e.what());
 	}
+
+	this->_config = new_conf;
 
 	return (TM_SUCCESS);
 }
