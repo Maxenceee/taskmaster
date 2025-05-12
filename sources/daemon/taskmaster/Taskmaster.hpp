@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:51 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/11 19:57:41 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/12 21:37:08 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,8 @@ private:
 	const std::string	_config_file;
 	tm_Config			_config;
 
-	std::vector<Process*>		_processes;
+	std::vector<ProcessGroup*>	_processes;
+	std::vector<Process*>		_unic_processes;
 
 	bool	_has_prog(const std::string& progname) const;
 
