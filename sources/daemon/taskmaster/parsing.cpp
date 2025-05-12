@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/11 21:45:20 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/12 19:03:26 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ _octal_type(const std::optional<std::string>& str, const uint16_t _default)
 		return (_default);
 	
 	if (!is_digits(*str))
-		throw std::invalid_argument("Invalid integer value: " + *str);
+		throw std::invalid_argument("Invalid octal value: " + *str);
 
 	try
 	{
