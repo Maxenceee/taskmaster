@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/11 21:31:13 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/12 21:32:46 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -282,6 +282,20 @@ public:
 
 	char const*		getExecName(void) const;
 	char* const*	getExecArgs(void) const;
+};
+
+class ProcessGroup
+{
+private:
+	tm_Config::Program	_config;
+
+	std::vector<Process*>	_replicas;
+
+public:
+	ProcessGroup(tm_Config::Program &config, pid_t ppid);
+	~ProcessGroup(void);
+
+	const std::vector<Process*>&	getReplicas(void) const;
 };
 
 #endif /* PROCESS_HPP */
