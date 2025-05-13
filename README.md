@@ -27,7 +27,7 @@
 	- environment
 
 - program:*
-	- process_name
+	<!-- - process_name -->
 	- numprocs
 	- priority
 	- autostart

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 09:47:45 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/13 09:48:54 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/13 18:33:34 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,10 @@ struct tm_Config {
 	struct UnixServer {
 		std::string	file;
 		uint16_t	chmod;
-		uint32_t	chown[2]; // [uid, gid]
+		struct owner {
+			pid_t	uid;
+			gid_t	gid;
+		} chown;
 	} server;
 	struct Daemon {
 		std::string	logfile;

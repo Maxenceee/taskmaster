@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:51 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/13 09:48:20 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/13 19:44:20 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,11 @@ private:
 	pid_t	pid;
 
 	const std::string	_config_file;
-	tm_Config			_config;
+	tm_Config			_active_config;
+	tm_Config			_read_config;
 
 	std::vector<ProcessGroup*>	_processes;
-	std::vector<Process*>		_unic_processes;
+	// std::vector<Process*>		_unic_processes;
 
 	bool	_has_prog(const std::string& progname) const;
 
@@ -38,7 +39,6 @@ public:
 	static bool	running;
 	static bool	reload;
 
-	int		addChild(char* const* exec, struct tm_process_config& config);
 	int		start(void) const;
 	int		restart(void) const;
 	int		stop(void) const;
@@ -47,17 +47,16 @@ public:
 	int		cycle(void) const;
 
 	int		readconfig(void);
-	int		update(void);
+	void	update(void);
 
 	void	reopenStds(void) const;
 	
 	bool	allStopped(void) const;
 
-	size_t		getNumProcesses(void) const;
-	std::string	getDetailedStatus(void) const;
 	std::string	getProcsStatus(void) const;
+	const tm_Config::UnixServer& getServerConf(void) const;
 
-	const std::vector<Process*>&	all(void) const;
+	const std::vector<Process*>	all(void) const;
 	Process*	find(const std::string& progname) const;
 	Process*	get(uint16_t uid) const;
 };

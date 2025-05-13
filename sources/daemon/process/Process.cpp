@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/13 09:51:54 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/13 19:54:56 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,15 +15,26 @@
 #include "utils/utils.hpp"
 #include "logger/Logger.hpp"
 
-Process::Process(char* const* exec, const std::string& program_name, tm_process_config &config, pid_t ppid, pid_t pgid): Process(exec, program_name.c_str(), config, ppid, pgid)
+inline static std::string
+_getProcessName(const std::string& pgname, uint16_t numproc)
 {
+	return (pgname + "_" + std::to_string(numproc));
 }
 
-Process::Process(char* const* exec, const char* program_name, tm_process_config &config, pid_t ppid, pid_t pgid): uid(u_uint16()), _program_name(program_name)
+inline static bool
+_isExitCodeSuccessful(const std::vector<int>& codes, int current)
+{
+	for (const auto c : codes)
+	{
+		if (c == current)
+			return (true);
+	}
+	return (false);
+}
+
+Process::Process(tm_Config::Program& config, uint16_t& gid, const std::string& program_name, uint16_t numproc): gid(gid), uid(numproc), _process_name(_getProcessName(program_name, numproc)), config(config)
 {
 	this->pid = 0;
-	this->ppid = ppid;
-	this->pgid = pgid;
 	this->_wpstatus = 0;
 	this->_signal = 0;
 	this->_exit_code = 0;
@@ -35,10 +46,6 @@ Process::Process(char* const* exec, const char* program_name, tm_process_config 
 	this->std_err_fd = -1;
 
 	this->_process_group_id = 0; // 0 means it is the leader of the process group
-
-	this->config = config;
-
-	this->exec = exec;
 
 	this->_setupstds();
 }
@@ -55,9 +62,9 @@ Process::~Process(void)
 void
 Process::_setupstds(void)
 {
-	if (this->config.stdout_logfile[0] != '\0')
+	if (!this->config.stdout_logfile.empty())
 	{
-		if ((this->std_out_fd = open(this->config.stdout_logfile, O_WRONLY | O_CREAT | O_APPEND, 0644)) == -1)
+		if ((this->std_out_fd = open(this->config.stdout_logfile.c_str(), O_WRONLY | O_CREAT | O_APPEND, 0644)) == -1)
 		{
 			Logger::perror("could not open stdout logfile");
 		}
@@ -66,9 +73,9 @@ Process::_setupstds(void)
 	{
 		this->std_out_fd = tempfile("out");
 	}
-	if (this->config.stderr_logfile[0] != '\0')
+	if (!this->config.stderr_logfile.empty())
 	{
-		if ((this->std_err_fd = open(this->config.stderr_logfile, O_WRONLY | O_CREAT | O_APPEND, 0644)) == -1)
+		if ((this->std_err_fd = open(this->config.stderr_logfile.c_str(), O_WRONLY | O_CREAT | O_APPEND, 0644)) == -1)
 		{
 			Logger::perror("could not open stderr logfile");
 		}
@@ -141,14 +148,14 @@ Process::_spawn(void)
 		return (TM_FAILURE);
 	}
 
-	if ((this->pid = spawn_child(this->exec, environ, this->std_in_fd, this->std_out_fd, this->std_err_fd, this->config.directory)) == 0)
+	if ((this->pid = spawn_child(this->exec, environ, this->std_in_fd, this->std_out_fd, this->std_err_fd, this->config.directory.c_str())) == 0)
 	{
 		Logger::perror("could not spawn child");
 		this->_state = TM_P_FATAL;
 		return (TM_FAILURE);
 	}
 
-	Logger::info("spawned: " + this->_program_name + " with pid " + std::to_string(this->pid));
+	Logger::info("spawned: " + this->_process_name + " with pid " + std::to_string(this->pid));
 
 	return (TM_SUCCESS);
 }
@@ -222,7 +229,7 @@ Process::kill(void)
 		this->_desired_state = TM_P_EXITED;
 	}
 
-	Logger::warning("Killing " + this->_program_name + " (" + std::to_string(this->pid) + ")" + " with SIGKILL");
+	Logger::warning("Killing " + this->_process_name + " (" + std::to_string(this->pid) + ")" + " with SIGKILL");
 	return (::kill(this->pid, SIGKILL));
 }
 
@@ -304,14 +311,14 @@ Process::_monitor_starting(void)
 		else
 		{
 			this->_state = TM_P_FATAL;
-			Logger::warning("gave up: " + this->_program_name + " entered FATAL state, too many start retries too quickly");
+			Logger::warning("gave up: " + this->_process_name + " entered FATAL state, too many start retries too quickly");
 		}
 		return (1);
 	}
 	else if (std::chrono::system_clock::now() - this->start_time > std::chrono::seconds(this->config.startsecs))
 	{
 		this->_state = TM_P_RUNNING;
-		Logger::info("success: " + this->_program_name + " entered RUNNING state, process has stayed up for > than " + std::to_string(this->config.startsecs) + " seconds (startsecs)");
+		Logger::info("success: " + this->_process_name + " entered RUNNING state, process has stayed up for > than " + std::to_string(this->config.startsecs) + " seconds (startsecs)");
 		return (1);
 	}
 
@@ -326,7 +333,7 @@ Process::_monitor_running(void)
 		this->_printStopInfo();
 		this->_state = TM_P_EXITED;
 		if (this->config.autorestart == TM_CONF_AUTORESTART_TRUE
-			|| (this->config.autorestart == TM_CONF_AUTORESTART_UNEXPECTED && false == this->config.isExitCodeSuccessful(this->_exit_code))
+			|| (this->config.autorestart == TM_CONF_AUTORESTART_UNEXPECTED && false == _isExitCodeSuccessful(this->config.exitcodes, this->_exit_code))
 			|| this->_signal != 0)
 		{
 			this->_desired_state = TM_P_RUNNING;
@@ -361,7 +368,7 @@ void
 Process::_printStopInfo(void)
 {
 	std::ostringstream oss;
-	oss << "exited: " << this->_program_name;
+	oss << "exited: " << this->_process_name;
 	oss << " (";
 	if (this->_signal != 0)
 	{
@@ -371,7 +378,7 @@ Process::_printStopInfo(void)
 	{
 		oss << "exit code " << this->_exit_code;
 	}
-	if (false == this->config.isExitCodeSuccessful(this->_exit_code) && this->_desired_state != TM_P_EXITED)
+	if (false == _isExitCodeSuccessful(this->config.exitcodes, this->_exit_code) && this->_desired_state != TM_P_EXITED)
 	{
 		oss << "; not expected)";
 		Logger::warning(oss.str());
@@ -381,10 +388,4 @@ Process::_printStopInfo(void)
 		oss << ")";
 		Logger::info(oss.str());
 	}
-}
-
-const std::vector<Process*>&
-ProcessGroup::getReplicas(void) const
-{
-	return (this->_replicas);
 }
