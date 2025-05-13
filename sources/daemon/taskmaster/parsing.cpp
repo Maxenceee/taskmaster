@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/13 19:56:57 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/13 21:15:01 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -294,22 +294,28 @@ _exit_codes(const std::optional<std::string>& str, const std::vector<int>& _defa
 	return (result);
 }
 
-inline static std::string
+inline static std::vector<std::string>
 _exec(const std::optional<std::string>& str)
 {
 	if (!str || str->empty())
 		throw std::invalid_argument("You must provide a command to execute");
+		
+	auto l = split(str.value());
+	if (l.size() == 0)
+		throw std::invalid_argument("You must provide a command to execute");
 
-	if (str->find('/') != 0)
+	auto cmd = l.front();
+
+	if (cmd.find('/') != 0)
 	{
 		throw std::invalid_argument("The command '" + *str + "' must have an absolute path");
 	}
 
-	if (access(str->c_str(), F_OK | X_OK) != 0)
+	if (access(cmd.c_str(), F_OK | X_OK) != 0)
 	{
 		throw std::invalid_argument("The command '" + *str + "' does not exist or is not executable");
 	}
-	return (*str);
+	return (l);
 }
 
 inline static tm_Config::UnixServer
@@ -355,6 +361,7 @@ _parseProgramConfig(const std::string& section_name, const std::map<std::string,
 
 	config.name = section_name.substr(1 + colpos);
 	config.command = _exec(_get(section, "command"));
+	config.raw_command = _or_throw(_get(section, "command"), "");
 	config.process_name = _get(section, "process_name").value_or("%(program_name)s");
 	config.numprocs = _integer(_get(section, "numprocs"), 1);
 	config.priority = _integer(_get(section, "priority"), 999);

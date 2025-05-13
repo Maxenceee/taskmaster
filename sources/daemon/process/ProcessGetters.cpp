@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 19:44:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/13 20:10:08 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/13 21:15:26 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,18 +175,6 @@ Process::getStateName(int _state)
 	default:
 		return ("UNKNOWN");
 	}
-}
-
-char const*
-Process::getExecName(void) const
-{
-	return (this->exec[0]);
-}
-
-char* const*
-Process::getExecArgs(void) const
-{
-	return (this->exec + 1);
 }
 
 std::string

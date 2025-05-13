@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/13 20:15:24 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/13 21:15:32 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -206,8 +206,6 @@ private:
 	tm_Config::Program&	config; 
 	int 				_retries;
 
-	char* const*	exec;
-
 	int		_wait(void);
 
 	int		_spawn(void);
@@ -271,9 +269,6 @@ public:
 	static std::string	getStateName(int _state);
 
 	std::string	getStatus(void) const;
-
-	char const*		getExecName(void) const;
-	char* const*	getExecArgs(void) const;
 };
 
 class ProcessGroup

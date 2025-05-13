@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 11:38:42 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 19:57:07 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/13 21:09:09 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 #include "tm.hpp"
 
-std::vector<std::string>	split(const std::string &str, char c);
+std::vector<std::string>	split(const std::string &str, char c = ' ');
 std::vector<std::string>	parseQuotedAndSplit(const std::string &input);
 std::vector<std::string>	tokenize(const char *line);
 std::vector<std::string>	tokenize(const std::string &input);
