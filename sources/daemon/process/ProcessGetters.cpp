@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 19:44:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/11 21:42:17 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/13 20:10:08 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,13 @@ Process::getUid(void) const
 	return (this->uid);
 }
 
+uint32_t
+Process::getPuid(void) const
+{
+	std::cout << "gid: " << this->gid << " uid: " << this->uid << std::endl;
+	return (TM_P_UID(this->gid, this->uid));
+}
+
 bool
 Process::operator==(uint16_t other) const
 {
@@ -34,7 +41,7 @@ Process::operator==(uint16_t other) const
 bool
 Process::operator==(const std::string& other) const
 {
-	return (this->_program_name == other);
+	return (this->_process_name == other);
 }
 
 bool
@@ -81,9 +88,9 @@ Process::uptime(void) const
 }
 
 const std::string&
-Process::getProgramName() const
+Process::getProcessName() const
 {
-	return (this->_program_name);
+	return (this->_process_name);
 }
 
 int
@@ -186,7 +193,7 @@ std::string
 Process::getStatus(void) const
 {
 	std::ostringstream oss;
-	oss << std::setw(30) << std::left << this->getProgramName();
+	oss << std::setw(30) << std::left << this->getProcessName();
 	oss << std::setw(9) << Process::getStateName(this->_state) << " ";
 	switch (this->_state)
 	{
@@ -211,4 +218,18 @@ Process::getStatus(void) const
 	oss << "\n";
 
 	return (oss.str());
+}
+
+std::ostream&
+operator<<(std::ostream& os, const Process& proc)
+{
+	os << proc.getStatus();
+	return os;
+}
+
+std::ostream&
+Process::operator<<(std::ostream& os) const
+{
+	os << this->getStatus();
+	return os;
 }

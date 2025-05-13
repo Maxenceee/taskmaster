@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:40:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/25 18:23:13 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/13 19:14:02 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -213,7 +213,7 @@ UnixSocketServer::Client::exec(void)
 			auto a = this->_master.all();
 			for (const auto& p : a)
 			{
-				(void)this->send(p->getProgramName());
+				(void)this->send(p->getProcessName());
 				(void)this->send(TM_CRLF);
 			}
 			return (TM_POLL_CLIENT_DISCONNECT);

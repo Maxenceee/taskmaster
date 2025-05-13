@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/13 09:48:50 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/13 20:15:24 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,11 @@
 
 #include "tm.hpp"
 #include "config.hpp"
+
+typedef uint32_t tm_process_uid;
+#define TM_P_GID(uid) ((uid >> 0x10) & 0xFFFF)
+#define TM_P_PID(uid) (uid & 0xFFFF)
+#define TM_P_UID(gid, pid) ((gid << 0x10) | pid)
 
 extern char **environ;
 
@@ -174,11 +179,10 @@ enum tm_process_state {
 class Process
 {
 private:
+	uint16_t&	gid;
 	uint16_t	uid;
 
 	pid_t	pid;
-	pid_t	ppid;
-	pid_t	pgid;
 	int		_wpstatus;
 	int		_signal;
 	int		_exit_code;
@@ -186,7 +190,7 @@ private:
 	int		_desired_state;
 	bool	_dead;
 
-	const std::string	_program_name;
+	const std::string	_process_name;
 	int					_process_group_id;
 
 	time_point	start_time;
@@ -199,7 +203,7 @@ private:
 	int		std_out_fd;
 	int		std_err_fd;
 
-	tm_process_config	config; 
+	tm_Config::Program&	config; 
 	int 				_retries;
 
 	char* const*	exec;
@@ -216,8 +220,7 @@ private:
 	void	_setupstds(void);
 
 public:
-	explicit Process(char* const* exec, const char* program_name, tm_process_config &config, pid_t ppid, pid_t pgid = 0);
-	explicit Process(char* const* exec, const std::string& program_name, tm_process_config &config, pid_t ppid, pid_t pgid = 0);
+	explicit Process(tm_Config::Program &config, uint16_t& gid, const std::string& program_name, uint16_t numproc);
 	~Process(void);
 
 	void	reopenStds(void);
@@ -233,9 +236,13 @@ public:
 
 	pid_t		getPid() const;
 	uint16_t	getUid(void) const;
+	uint32_t	getPuid(void) const;
 
 	bool	operator==(uint16_t other) const;
 	bool	operator==(const std::string& other) const;
+	std::ostream&	operator<<(std::ostream& os) const;
+
+	friend std::ostream&	operator<<(std::ostream& os, const Process& proc);
 
 	bool	started(void) const;
 	bool	stopped(void) const;
@@ -252,7 +259,7 @@ public:
 	int		getStdOutFd(void) const;
 	int		getStdErrFd(void) const;
 
-	const std::string&	getProgramName(void) const;
+	const std::string&	getProcessName(void) const;
 	int			getGroupId(void) const;
 	int			getNumProcs(void) const;
 	int			getStopSignal(void) const;
@@ -272,13 +279,27 @@ public:
 class ProcessGroup
 {
 private:
+	uint16_t			gid;
 	tm_Config::Program	_config;
 
 	std::vector<Process*>	_replicas;
+	std::vector<Process*>	_transitioning;
 
 public:
-	explicit ProcessGroup(tm_Config::Program &config, pid_t ppid);
+	explicit ProcessGroup(tm_Config::Program &config);
 	~ProcessGroup(void);
+
+	void	enque(void);
+	void	deque(void);
+
+	void	monitor(void);
+	void	update(tm_Config::Program &new_conf);
+
+	bool	operator==(uint16_t other) const;
+	bool	operator==(const std::string& other) const;
+	std::ostream&	operator<<(std::ostream& os) const;
+
+	friend std::ostream&	operator<<(std::ostream& os, const ProcessGroup& group);
 
 	const std::vector<Process*>&	getReplicas(void) const;
 };

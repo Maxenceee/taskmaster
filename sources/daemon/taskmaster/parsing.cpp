@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/13 09:55:38 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/13 19:56:57 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 
 template<typename T>
 inline static std::optional<T>
-_get(const std::map<std::string, T>& map, const std::string& key)
+_get(const std::map<std::string, T>& map, const std::string& key) noexcept
 {
 	auto it = map.find(key);
 	if (it != map.end())
@@ -220,14 +220,16 @@ _name_to_gid(const std::optional<std::string>& name)
 	return (pw->pw_gid);
 }
 
-inline static void
-_user_separated_by_colon(const std::optional<std::string>& str, uint32_t _target[2])
+inline static tm_Config::UnixServer::owner
+_user_separated_by_colon(const std::optional<std::string>& str)
 {
+	tm_Config::UnixServer::owner _target;
+
 	if (!str || str->empty())
 	{
-		_target[0] = getuid();
-		_target[1] = getgid();
-		return;
+		_target.uid = getuid();
+		_target.gid = getgid();
+		return (_target);
 	}
 
 	size_t pos = str->find(':');
@@ -239,8 +241,9 @@ _user_separated_by_colon(const std::optional<std::string>& str, uint32_t _target
 		{
 			throw std::invalid_argument("Invalid user:group format: " + *str);
 		}
-		_target[0] = _name_to_uid(uid);
-		_target[1] = _name_to_gid(git);
+		_target.uid = _name_to_uid(uid);
+		_target.gid = _name_to_gid(git);
+		return (_target);
 	}
 	else
 	{
@@ -316,7 +319,7 @@ _parseUnixServerConfig(const std::map<std::string, std::string>& section)
 
 	config.file = _existring_dirpath(_get(section, "file"), TM_SOCKET_PATH);
 	config.chmod = _octal_type(_get(section, "chmod"), 0660);
-	_user_separated_by_colon(_get(section, "chown"), config.chown);
+	config.chown = _user_separated_by_colon(_get(section, "chown"));
 
 	return (config);
 }
@@ -344,13 +347,13 @@ _parseProgramConfig(const std::string& section_name, const std::map<std::string,
 {
 	tm_Config::Program config;
 
-	auto pn = split(section_name, ':');
-	if (pn.size() != 2)
+	size_t colpos = section_name.find(":");
+	if (colpos == std::string::npos)
 	{
 		throw std::invalid_argument("Invalid program name format: " + section_name);
 	}
 
-	config.name = pn[1];
+	config.name = section_name.substr(1 + colpos);
 	config.command = _exec(_get(section, "command"));
 	config.process_name = _get(section, "process_name").value_or("%(program_name)s");
 	config.numprocs = _integer(_get(section, "numprocs"), 1);
@@ -435,11 +438,11 @@ Taskmaster::readconfig(void)
 	{
 		if (this->_config_file.empty())
 		{
-			this->_config = _parseConfig(_search_and_load_config());
+			this->_read_config = _parseConfig(_search_and_load_config());
 		}
 		else
 		{
-			this->_config = _parseConfig(this->_config_file);
+			this->_read_config = _parseConfig(this->_config_file);
 		}
 	}
 	catch(const std::exception& e)
@@ -455,7 +458,7 @@ Taskmaster::readconfig(void)
 bool
 Taskmaster::_has_prog(const std::string& progname) const
 {
-	for (const auto& prog : this->_unic_processes)
+	for (const auto& prog : this->_processes)
 	{
 		if (*prog == progname)
 			return (true);
@@ -463,14 +466,18 @@ Taskmaster::_has_prog(const std::string& progname) const
 	return (false);
 }
 
-int
+void
 Taskmaster::update(void)
 {
-	for (auto& prog : this->_config.programs)
+	this->_active_config = this->_read_config;
+
+	for (auto& prog : this->_active_config.programs)
 	{
 		if (false == this->_has_prog(prog.name))
 		{
-			// this->addChild();
+			auto newp = new ProcessGroup(prog);
+			this->_processes.push_back(newp);
 		}
+		// TODO: handle processes removal
 	}
 }

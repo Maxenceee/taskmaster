@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:45:59 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/13 09:49:37 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/13 20:06:01 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ typedef struct tm_pollclient {
 } tm_pollclient;
 
 struct tm_pollclient_process_handler {
-	uint16_t	puid;
+	uint32_t	puid;
 	int 		initial_state;
 	int 		requested_state;
 	bool		done;

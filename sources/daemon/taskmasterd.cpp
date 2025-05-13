@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/11 19:29:22 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/13 19:26:55 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,43 +72,14 @@ start_main_loop(char* const* argv)
 	g_master = &master;
 
 	(void)master.readconfig();
+	master.update();
 
-	UnixSocketServer server(TM_SOCKET_PATH, master);
+	UnixSocketServer server(master.getServerConf().file.c_str(), master);
 	server.listen();
 
 	setup_signals();
 
 	Logger::print("Daemon started with pid: " + std::to_string(getpid()));
-
-	tm_process_config config(
-		1,
-		false,
-		TM_CONF_AUTORESTART_UNEXPECTED,
-		{0, 4},
-		TM_S_TERM,
-		5,
-		3,
-		10
-	);
-
-	(void)master.addChild(argv + 1, config);
-	if (argv[2] != nullptr)
-	{
-		tm_process_config config(
-			1,
-			false,
-			TM_CONF_AUTORESTART_UNEXPECTED,
-			{0, 4},
-			TM_S_TERM,
-			3,
-			3,
-			5
-		);
-
-		(void)master.addChild(argv + 2, config);
-	}
-
-	std::cout << "Starting with " << master.getNumProcesses() << " processes" << std::endl;
 
 	do
 	{

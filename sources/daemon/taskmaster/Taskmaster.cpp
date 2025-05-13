@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/12 21:42:16 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/13 19:51:24 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,40 +28,18 @@ Taskmaster::Taskmaster(void): Taskmaster("")
 
 Taskmaster::~Taskmaster(void)
 {
-	for(const auto& process : this->_unic_processes)
+	for(const auto& group : this->_processes)
 	{
-		delete process;
+		delete group;
 	}
-
-	setup_signal(SIGUSR2, SIG_IGN);
-}
-
-int
-Taskmaster::addChild(char* const* exec, struct tm_process_config& config)
-{
-	for (int i = 0; i < config.numprocs; ++i)
-	{
-		Process* new_child = new Process(exec, std::string(exec[0]) + "_" + std::to_string(i), config, this->pid);
-		new_child->setGroupId(i);
-		this->_unic_processes.push_back(new_child);
-	}
-	return (TM_SUCCESS);
 }
 
 int
 Taskmaster::cycle(void) const
 {
-	for(const auto& process : this->_unic_processes)
-	{
-		(void)process->monitor();
-	}
-
 	for (const auto& group : this->_processes)
 	{
-		for (const auto& process : group->getReplicas())
-		{
-			(void)process->monitor();
-		}
+		group->monitor();
 	}
 
 	return (TM_SUCCESS);
@@ -70,11 +48,6 @@ Taskmaster::cycle(void) const
 int
 Taskmaster::start(void) const
 {
-	for(const auto& process : this->_unic_processes)
-	{
-		(void)process->start();
-	}
-
 	for (const auto& group : this->_processes)
 	{
 		for (const auto& process : group->getReplicas())
@@ -89,11 +62,6 @@ Taskmaster::start(void) const
 int
 Taskmaster::restart(void) const
 {
-	for(const auto& process : this->_unic_processes)
-	{
-		(void)process->restart();
-	}
-
 	for (const auto& group : this->_processes)
 	{
 		for (const auto& process : group->getReplicas())
@@ -108,11 +76,6 @@ Taskmaster::restart(void) const
 int
 Taskmaster::stop(void) const
 {
-	for(const auto& process : this->_unic_processes)
-	{
-		(void)process->stop();
-	}
-
 	for (const auto& group : this->_processes)
 	{
 		for (const auto& process : group->getReplicas())
@@ -127,11 +90,6 @@ Taskmaster::stop(void) const
 int
 Taskmaster::signal(int sig) const
 {
-	for(const auto& process : this->_unic_processes)
-	{
-		(void)process->signal(sig);
-	}
-
 	for (const auto& group : this->_processes)
 	{
 		for (const auto& process : group->getReplicas())
@@ -146,11 +104,6 @@ Taskmaster::signal(int sig) const
 int
 Taskmaster::kill(void) const
 {
-	for(const auto& process : this->_unic_processes)
-	{
-		(void)process->kill();
-	}
-
 	for (const auto& group : this->_processes)
 	{
 		for (const auto& process : group->getReplicas())
@@ -165,11 +118,6 @@ Taskmaster::kill(void) const
 void
 Taskmaster::reopenStds(void) const
 {
-	for(const auto& process : this->_unic_processes)
-	{
-		(void)process->reopenStds();
-	}
-
 	for (const auto& group : this->_processes)
 	{
 		for (const auto& process : group->getReplicas())
@@ -184,12 +132,6 @@ Taskmaster::reopenStds(void) const
 bool
 Taskmaster::allStopped() const
 {
-	for(const auto& process : this->_unic_processes)
-	{
-		if (false == process->stopped() && false == process->exited() && false == process->fatal())
-			return (false);
-	}
-
 	for (const auto& group : this->_processes)
 	{
 		for (const auto& process : group->getReplicas())
@@ -202,25 +144,30 @@ Taskmaster::allStopped() const
 	return (true);
 }
 
-size_t
-Taskmaster::getNumProcesses(void) const
-{
-	return (this->_unic_processes.size());
-}
-
-const std::vector<Process*>&
+const std::vector<Process*>
 Taskmaster::all(void) const
 {
-	return (this->_unic_processes);
+	std::vector<Process*> res;
+	for (const auto& group : this->_processes)
+	{
+		for (const auto& process : group->getReplicas())
+		{
+			res.push_back(process);
+		}
+	}
+	return (res);
 }
 
 Process*
 Taskmaster::find(const std::string& progname) const
 {
-	for (const auto& process : this->_unic_processes)
+	for (const auto& group : this->_processes)
 	{
-		if (process->getProgramName() == progname)
-			return (process);
+		for (const auto& process : group->getReplicas())
+		{
+			if (*process == progname)
+				return (process);
+		}
 	}
 	return (nullptr);
 }
@@ -228,50 +175,37 @@ Taskmaster::find(const std::string& progname) const
 Process*
 Taskmaster::get(uint16_t uid) const
 {
-	for (const auto& process : this->_unic_processes)
-	{
-		if (*process == uid)
-			return (process);
-	}
-	return (nullptr);
-}
+	uint16_t gid = TM_P_GID(uid);
+	uint16_t pid = TM_P_PID(uid);
 
-std::string
-Taskmaster::getDetailedStatus(void) const
-{
-	std::ostringstream oss;
-	oss << "{\n";
-	oss << "  PID: " << this->pid << ";\n";
-	oss << "  Processes: {\n";
-	for (const auto& process : this->_unic_processes)
+	for (const auto& group : this->_processes)
 	{
-		oss << "    - Name: " << process->getProgramName() << " (" << process->getUid() << ")" << ";\n";
-		oss << "      PID: " << process->getPid() << ";\n";
-		oss << "      State: " << Process::getStateName(process->getState()) << ";\n";
-		oss << "      Signal: " << process->getSignal() << ";\n";
-		oss << "      Exit code: " << process->getExitCode() << ";\n";
-		oss << "      Uptime: " << format_duration(process->uptime()) << ";\n";
-		oss << "      Program: " << process->getExecName() << ";\n";
-		oss << "      ProgramArguments: (" << "\n";
-		for (char* const* arg = process->getExecArgs(); *arg != nullptr; ++arg)
+		if (*group == gid)
 		{
-			oss << "        " << *arg << ";\n";
+			for (const auto& process : group->getReplicas())
+			{
+				if (*process == pid)
+					return (process);
+			}
 		}
-		oss << "      );\n";
 	}
-	oss << "  };\n";
-	oss << "  Running: " << (this->running ? "true" : "false") << ";\n";
-	oss << "}\n";
-	return oss.str();
+
+	return (nullptr);
 }
 
 std::string
 Taskmaster::getProcsStatus(void) const
 {
 	std::ostringstream oss;
-	for (const auto& process : this->_unic_processes)
+	for (const auto* group : this->_processes)
 	{
-		oss << process->getStatus();
+		oss << *group;
 	}
 	return oss.str();
+}
+
+const tm_Config::UnixServer&
+Taskmaster::getServerConf(void) const
+{
+	return (this->_active_config.server);
 }

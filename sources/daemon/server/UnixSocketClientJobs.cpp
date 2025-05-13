@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/01 10:25:33 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/13 20:17:17 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,13 +51,14 @@ UnixSocketServer::Client::_find_processes(const std::vector<std::string>& progs)
 		this->handlers.clear();
 		for (const auto& p : this->_master.all())
 		{
-			this->handlers.push_back({p->getUid(), p->getState(), -1, false});
+			this->handlers.push_back({p->getPuid(), p->getState(), -1, false});
 		}
 		return (TM_POLL_CLIENT_OK);
 	}
 
 	for (const auto& prog : progs)
 	{
+		std::cout << "find " << prog << std::endl;
 		auto p = this->_master.find(prog);
 		if (!p)
 		{
@@ -65,7 +66,9 @@ UnixSocketServer::Client::_find_processes(const std::vector<std::string>& progs)
 			continue;
 		}
 
-		this->handlers.push_back({p->getUid(), p->getState(), 0, false});
+		std::cout << p->getPuid() << " " << TM_P_GID(p->getPuid()) << " " << TM_P_PID(p->getPuid()) << std::endl;
+
+		this->handlers.push_back({p->getPuid(), p->getState(), 0, false});
 	}
 
 	if (this->handlers.empty())
@@ -146,7 +149,7 @@ UnixSocketServer::Client::_pid(void)
 	{
 		for (const auto& p : this->_master.all())
 		{
-			(void)this->send("Process " + p->getProgramName() + " pid: " + std::to_string(p->getPid()) + "\n");
+			(void)this->send("Process " + p->getProcessName() + " pid: " + std::to_string(p->getPid()) + "\n");
 		}
 	}
 	else
@@ -157,7 +160,7 @@ UnixSocketServer::Client::_pid(void)
 			(void)this->send("The process could not be found\n");
 			return (TM_POLL_CLIENT_DISCONNECT);
 		}
-		(void)this->send("Process " + p->getProgramName() + " pid: " + std::to_string(p->getPid()) + "\n");
+		(void)this->send("Process " + p->getProcessName() + " pid: " + std::to_string(p->getPid()) + "\n");
 	}
 	return (TM_POLL_CLIENT_DISCONNECT);
 }

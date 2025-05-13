@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/02 13:35:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 13:44:21 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/13 19:28:49 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,11 @@
 std::string
 resolve_path(const std::string& url, const std::string& scheme)
 {
+	if (url.length() == 0)
+	{
+		throw std::runtime_error("The path to resolve cannot be empty");
+	}
+
 	std::string path;
 
 	// Vérifier si l'URL commence par `scheme`
