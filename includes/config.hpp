@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 09:47:45 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/13 18:33:34 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/13 21:10:49 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,8 @@ struct tm_Config {
 	} daemon;
 	struct Program {
 		std::string name;
-		std::string	command;
+		std::string	raw_command;
+		std::vector<std::string>	command;
 		std::string	process_name;
 		uint16_t	numprocs;
 		int			priority;

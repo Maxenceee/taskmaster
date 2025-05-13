@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/13 19:51:24 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/13 20:59:59 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,12 +158,12 @@ Taskmaster::all(void) const
 	return (res);
 }
 
-Process*
+Process* const
 Taskmaster::find(const std::string& progname) const
 {
-	for (const auto& group : this->_processes)
+	for (const auto* group : this->_processes)
 	{
-		for (const auto& process : group->getReplicas())
+		for (auto* process : group->getReplicas())
 		{
 			if (*process == progname)
 				return (process);
@@ -172,18 +172,22 @@ Taskmaster::find(const std::string& progname) const
 	return (nullptr);
 }
 
-Process*
-Taskmaster::get(uint16_t uid) const
+Process* const
+Taskmaster::get(uint32_t uid) const
 {
 	uint16_t gid = TM_P_GID(uid);
 	uint16_t pid = TM_P_PID(uid);
 
-	for (const auto& group : this->_processes)
+	std::cout << "get " << gid << " " << pid << std::endl;
+
+	for (const auto* group : this->_processes)
 	{
 		if (*group == gid)
 		{
-			for (const auto& process : group->getReplicas())
+			std::cout << "found group " << *group << std::endl;
+			for (auto* process : group->getReplicas())
 			{
+				std::cout << process->getPuid() << std::endl;
 				if (*process == pid)
 					return (process);
 			}

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/13 19:54:56 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/13 21:16:08 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,13 +142,19 @@ Process::_spawn(void)
 	this->_retries++;
 	this->start_time = std::chrono::system_clock::now();
 
-	if (access(exec[0], F_OK | X_OK) == -1)
+	if (access(this->config.command.front().c_str(), F_OK | X_OK) == -1)
 	{
 		Logger::error("requested executable does not exist or is not executable");
+		this->_state = TM_P_FATAL;
 		return (TM_FAILURE);
 	}
 
-	if ((this->pid = spawn_child(this->exec, environ, this->std_in_fd, this->std_out_fd, this->std_err_fd, this->config.directory.c_str())) == 0)
+	std::vector<char*> argv;
+	for (auto& s : this->config.command)
+		argv.push_back(const_cast<char*>(s.c_str()));
+	argv.push_back(nullptr);
+
+	if ((this->pid = spawn_child(argv.data(), environ, this->std_in_fd, this->std_out_fd, this->std_err_fd, this->config.directory.c_str())) == 0)
 	{
 		Logger::perror("could not spawn child");
 		this->_state = TM_P_FATAL;

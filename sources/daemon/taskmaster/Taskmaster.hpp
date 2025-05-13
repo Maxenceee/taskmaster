@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:51 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/13 19:44:20 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/13 20:58:03 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,8 +57,8 @@ public:
 	const tm_Config::UnixServer& getServerConf(void) const;
 
 	const std::vector<Process*>	all(void) const;
-	Process*	find(const std::string& progname) const;
-	Process*	get(uint16_t uid) const;
+	Process* const	find(const std::string& progname) const;
+	Process* const	get(uint32_t uid) const;
 };
 
 #endif /* TASKMASTER_HPP */
