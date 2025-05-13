@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 19:44:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/13 21:15:26 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/13 21:17:34 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ Process::getUid(void) const
 uint32_t
 Process::getPuid(void) const
 {
-	std::cout << "gid: " << this->gid << " uid: " << this->uid << std::endl;
 	return (TM_P_UID(this->gid, this->uid));
 }
 

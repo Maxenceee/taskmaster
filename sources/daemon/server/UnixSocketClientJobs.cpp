@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/13 21:00:45 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/13 21:17:51 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,6 @@ UnixSocketServer::Client::_find_processes(const std::vector<std::string>& progs)
 
 	for (const auto& prog : progs)
 	{
-		std::cout << "find " << prog << std::endl;
 		auto p = this->_master.find(prog);
 		if (!p)
 		{
@@ -66,10 +65,7 @@ UnixSocketServer::Client::_find_processes(const std::vector<std::string>& progs)
 			continue;
 		}
 
-		auto puid = p->getPuid();
-		std::cout << prog << " " << puid << " " << TM_P_GID(puid) << " " << TM_P_PID(puid) << std::endl;
-
-		this->handlers.push_back({puid, p->getState(), 0, false});
+		this->handlers.push_back({p->getPuid(), p->getState(), 0, false});
 	}
 
 	if (this->handlers.empty())
