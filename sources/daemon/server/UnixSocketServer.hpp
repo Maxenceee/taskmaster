@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:45:59 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/01 10:22:51 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/13 09:49:37 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,7 @@ public:
 		static const std::unordered_map<std::string, GenHandler> general_command_map;
 
 	public:
-		Client(int fd, const Taskmaster& master): fd(fd), input_received(false), _master(master) {}
+		explicit Client(int fd, const Taskmaster& master): fd(fd), input_received(false), _master(master) {}
 
 		int		recv(void);
 		int		send(const std::string& msg);
@@ -107,7 +107,7 @@ private:
 	bool	_test_socket();
 
 public:
-	UnixSocketServer(const char* socket_path, const Taskmaster &master);
+	explicit UnixSocketServer(const char* socket_path, const Taskmaster &master);
 	~UnixSocketServer(void);
 
 	int	listen(void);

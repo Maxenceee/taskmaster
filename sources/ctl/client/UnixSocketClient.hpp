@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:58:50 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 19:11:40 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/13 09:49:43 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 class UnixSocketClient: public UnixSocket
 {
 public:
-	UnixSocketClient(const char* socket_path);
+	explicit UnixSocketClient(const char* socket_path);
 	~UnixSocketClient(void);
 
 	int	connect(void);

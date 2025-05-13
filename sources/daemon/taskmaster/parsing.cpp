@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/12 21:23:16 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/13 09:55:38 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -233,8 +233,14 @@ _user_separated_by_colon(const std::optional<std::string>& str, uint32_t _target
 	size_t pos = str->find(':');
 	if (pos != std::string::npos)
 	{
-		_target[0] = _name_to_uid(str->substr(0, pos));
-		_target[1] = _name_to_gid(str->substr(pos + 1));
+		auto uid = str->substr(0, pos);
+		auto git = str->substr(pos + 1);
+		if (uid.empty() || git.empty())
+		{
+			throw std::invalid_argument("Invalid user:group format: " + *str);
+		}
+		_target[0] = _name_to_uid(uid);
+		_target[1] = _name_to_gid(git);
 	}
 	else
 	{
@@ -449,7 +455,7 @@ Taskmaster::readconfig(void)
 bool
 Taskmaster::_has_prog(const std::string& progname) const
 {
-	for (const auto& prog : this->_processes)
+	for (const auto& prog : this->_unic_processes)
 	{
 		if (*prog == progname)
 			return (true);
