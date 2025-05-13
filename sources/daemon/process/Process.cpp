@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/11 21:43:54 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/13 09:51:54 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -381,4 +381,10 @@ Process::_printStopInfo(void)
 		oss << ")";
 		Logger::info(oss.str());
 	}
+}
+
+const std::vector<Process*>&
+ProcessGroup::getReplicas(void) const
+{
+	return (this->_replicas);
 }

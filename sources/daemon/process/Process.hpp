@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/12 21:32:46 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/13 09:48:50 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,24 +14,9 @@
 #define PROCESS_HPP
 
 #include "tm.hpp"
+#include "config.hpp"
 
 extern char **environ;
-
-enum tm_config_auto_restart {
-	TM_CONF_AUTORESTART_FALSE		= 0,
-	TM_CONF_AUTORESTART_UNEXPECTED	= 1,
-	TM_CONF_AUTORESTART_TRUE		= 2,
-};
-
-enum tm_config_stop_signal {
-	TM_S_TERM	= SIGTERM,
-	TM_S_HUP	= SIGHUP,
-	TM_S_INT	= SIGINT,
-	TM_S_QUIT	= SIGQUIT,
-	TM_S_KILL	= SIGKILL,
-	TM_S_USR1	= SIGUSR1,
-	TM_S_USR2	= SIGUSR2,
-};
 
 typedef struct tm_process_config {
 	/**
@@ -231,8 +216,8 @@ private:
 	void	_setupstds(void);
 
 public:
-	Process(char* const* exec, const char* program_name, tm_process_config &config, pid_t ppid, pid_t pgid = 0);
-	Process(char* const* exec, const std::string& program_name, tm_process_config &config, pid_t ppid, pid_t pgid = 0);
+	explicit Process(char* const* exec, const char* program_name, tm_process_config &config, pid_t ppid, pid_t pgid = 0);
+	explicit Process(char* const* exec, const std::string& program_name, tm_process_config &config, pid_t ppid, pid_t pgid = 0);
 	~Process(void);
 
 	void	reopenStds(void);
@@ -292,7 +277,7 @@ private:
 	std::vector<Process*>	_replicas;
 
 public:
-	ProcessGroup(tm_Config::Program &config, pid_t ppid);
+	explicit ProcessGroup(tm_Config::Program &config, pid_t ppid);
 	~ProcessGroup(void);
 
 	const std::vector<Process*>&	getReplicas(void) const;
