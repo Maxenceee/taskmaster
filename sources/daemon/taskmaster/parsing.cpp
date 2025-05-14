@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/13 21:21:45 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/14 17:35:35 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -323,7 +323,7 @@ _parseUnixServerConfig(const std::map<std::string, std::string>& section)
 {
 	tm_Config::UnixServer config;
 
-	config.file = _existring_dirpath(_get(section, "file"), TM_SOCKET_PATH);
+	config.file = _get(section, "file").value_or(TM_SOCKET_PATH);
 	config.chmod = _octal_type(_get(section, "chmod"), 0660);
 	config.chown = _user_separated_by_colon(_get(section, "chown"));
 
