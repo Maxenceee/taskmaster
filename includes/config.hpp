@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 09:47:45 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/13 21:10:49 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/15 15:58:25 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,6 @@ struct tm_Config {
 		std::string name;
 		std::string	raw_command;
 		std::vector<std::string>	command;
-		std::string	process_name;
 		uint16_t	numprocs;
 		int			priority;
 		bool		autostart;
@@ -79,5 +78,10 @@ struct tm_Config {
 	};
 	std::vector<Program> programs;
 };
+
+std::ostream&	operator<<(std::ostream& os, const tm_Config::UnixServer& server);
+std::ostream&	operator<<(std::ostream& os, const tm_Config::Daemon& daemon);
+std::ostream&	operator<<(std::ostream& os, const tm_Config::Program& program);
+std::ostream&	operator<<(std::ostream& os, const tm_Config& config);
 
 #endif /* CONFIG_HPP */

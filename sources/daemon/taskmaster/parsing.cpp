@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/14 17:37:49 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/15 16:16:56 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -335,14 +335,14 @@ _parseDaemonConfig(const std::map<std::string, std::string>& section)
 {
 	tm_Config::Daemon config;
 
-	config.logfile = _existring_dirpath(_get(section, "logfile"), TM_PREFIX TM_PROJECTD ".log");
+	config.logfile = _existring_dirpath(_get(section, "logfile"), TM_LOG_FILE);
 	config.pidfile = _existring_dirpath(_get(section, "pidfile"), TM_PID_FILE);
 	config.logfile_maxbytes = _max_bytes(_get(section, "logfile_maxbytes"), 1024 * 1024);
 	config.umask = _octal_type(_get(section, "umask"), 022);
 	config.nodaemon = _boolean(_get(section, "nodaemon"), false);
-	config.childlogdir = _existring_dirpath(_get(section, "childlogdir"), "./");
+	config.childlogdir = _existring_dirpath(_get(section, "childlogdir"), TM_MAIN_LOG_DIR);
 	config.user = _name_to_uid(_get(section, "user"));
-	config.directory = _existring_dirpath(_get(section, "directory"), "./");
+	config.directory = _existring_dirpath(_get(section, "directory"), TM_MAIN_LOG_DIR);
 	config.environment = _list(_get(section, "environment"));
 
 	return (config);
@@ -362,7 +362,6 @@ _parseProgramConfig(const std::string& section_name, const std::map<std::string,
 	config.name = section_name.substr(1 + colpos);
 	config.command = _exec(_get(section, "command"));
 	config.raw_command = _or_throw(_get(section, "command"), "");
-	config.process_name = _get(section, "process_name").value_or("%(program_name)s");
 	config.numprocs = _integer(_get(section, "numprocs"), 1);
 	config.priority = _integer(_get(section, "priority"), 999);
 	config.autostart = _boolean(_get(section, "autostart"), true);
@@ -378,7 +377,7 @@ _parseProgramConfig(const std::string& section_name, const std::map<std::string,
 	config.stdout_logfile = _existring_dirpath(_get(section, "stdout_logfile"), "");
 	config.stderr_logfile = _existring_dirpath(_get(section, "stderr_logfile"), "");
 	config.environment = _list(_get(section, "environment"));
-	config.directory = _existring_dirpath(_get(section, "directory"), "./");
+	config.directory = _existring_dirpath(_get(section, "directory"), TM_CURRENT_DIR);
 	config.umask = _octal_type(_get(section, "umask"), 022);
 
 	return (config);
@@ -395,7 +394,7 @@ _search_and_load_config(void)
 		"/etc/" TM_PROJECTD ".conf",
 		"/etc/taskmaster/" TM_PROJECTD ".conf",
 		"/usr/local/etc/taskmaster/" TM_PROJECTD ".conf",
-		"./" TM_PROJECTD ".conf"
+		TM_CURRENT_DIR TM_PROJECTD ".conf"
 	};
 
 	for (const auto& path : default_paths)
@@ -417,22 +416,24 @@ _parseConfig(const std::string& filename)
 	ini.parse(is);
 	for (auto section : ini.sections)
 	{
-		if (section.first == "unix_server")
-		{
-			new_conf.server = _parseUnixServerConfig(section.second);
-		}
-		else if (section.first == "taskmasterd")
-		{
-			new_conf.daemon = _parseDaemonConfig(section.second);
-		}
-		else if (section.first.find("program:") == 0)
+		if (section.first.find("program:") == 0)
 		{
 			new_conf.programs.push_back(_parseProgramConfig(section.first, section.second));
 		}
-		else
+		else if (section.first != "unix_server" && section.first != "taskmasterd")
 		{
 			throw std::invalid_argument("Unknown section: " + section.first);
 		}
+	}
+	new_conf.server = _parseUnixServerConfig(_get(ini.sections, "unix_server").value_or(std::map<std::string, std::string>{}));
+	new_conf.daemon = _parseDaemonConfig(_get(ini.sections, "taskmasterd").value_or(std::map<std::string, std::string>{}));
+
+	if (Logger::isDebug())
+	{
+		std::ostringstream oss;
+		oss << "Parsed config file:" << "\n";
+		oss << new_conf;
+		Logger::debug(oss.str());
 	}
 
 	return (new_conf);
