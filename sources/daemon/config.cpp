@@ -6,12 +6,31 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/15 16:12:33 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/17 11:54:39 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "config.hpp"
 #include "utils/utils.hpp"
+
+template<typename T>
+void
+_print_list(std::ostream& os, const std::vector<T>& list, size_t padding = 0)
+{
+	os << "[";
+	if (!list.empty())
+	{
+		os << "\n" << std::string(padding, ' ');
+	}
+	for (auto it = list.begin(); it != list.end(); ++it) {
+		os << "  " << *it;
+		if (std::next(it) != list.end()) {
+			os << ", ";
+		}
+		os << "\n" << std::string(padding, ' ');
+	}
+	os << "]\n";
+}
 
 std::ostream& operator<<(std::ostream& os, const tm_Config::UnixServer& server) {
 	os << "UnixServer:\n";
@@ -31,41 +50,23 @@ std::ostream& operator<<(std::ostream& os, const tm_Config::Daemon& daemon) {
 	os << "  childlogdir: " << daemon.childlogdir << "\n";
 	os << "  user: " << daemon.user << "\n";
 	os << "  directory: " << daemon.directory << "\n";
-	os << "  environment: [";
-	for (auto it = daemon.environment.begin(); it != daemon.environment.end(); ++it) {
-		os << *it;
-		if (std::next(it) != daemon.environment.end()) {
-			os << ", ";
-		}
-	}
-	os << "]\n";
+	os << "  environment: ";
+	_print_list(os, daemon.environment, 2);
 	return os;
 }
 std::ostream& operator<<(std::ostream& os, const tm_Config::Program& program) {
 	os << "Program: " << program.name << "\n";
 	os << "  raw_command: " << program.raw_command << "\n";
-	os << "  command: [";
-	for (auto it = program.command.begin(); it != program.command.end(); ++it) {
-		os << *it;
-		if (std::next(it) != program.command.end()) {
-			os << ", ";
-		}
-	}
-	os << "]\n";
+	os << "  command: ";
+	_print_list(os, program.command, 2);
 	os << "  numprocs: " << program.numprocs << "\n";
 	os << "  priority: " << program.priority << "\n";
 	os << "  autostart: " << (program.autostart ? "true" : "false") << "\n";
 	os << "  startsecs: " << program.startsecs << "\n";
 	os << "  startretries: " << program.startretries << "\n";
 	os << "  autorestart: " << program.autorestart << "\n";
-	os << "  exitcodes: [";
-	for (auto it = program.exitcodes.begin(); it != program.exitcodes.end(); ++it) {
-		os << *it;
-		if (std::next(it) != program.exitcodes.end()) {
-			os << ", ";
-		}
-	}
-	os << "]\n";
+	os << "  exitcodes: ";
+	_print_list(os, program.exitcodes, 2);
 	os << "  stopsignal: " << getSignalName(program.stopsignal) << "\n";
 	os << "  stopwaitsecs: " << program.stopwaitsecs << "\n";
 	os << "  stopasgroup: " << (program.stopasgroup ? "true" : "false") << "\n";
@@ -73,14 +74,8 @@ std::ostream& operator<<(std::ostream& os, const tm_Config::Program& program) {
 	os << "  user: " << program.user << "\n";
 	os << "  stdout_logfile: " << (program.stdout_logfile.length() ? program.stdout_logfile : "tempfile") << "\n";
 	os << "  stderr_logfile: " << (program.stderr_logfile.length() ? program.stderr_logfile : "tempfile") << "\n";
-	os << "  environment: [";
-	for (auto it = program.environment.begin(); it != program.environment.end(); ++it) {
-		os << *it;
-		if (std::next(it) != program.environment.end()) {
-			os << ", ";
-		}
-	}
-	os << "]\n";
+	os << "  environment: ";
+	_print_list(os, program.environment, 2);
 	os << "  directory: " << program.directory << "\n";
 	os << "  umask: " << std::oct << std::setfill('0') << std::setw(3) << program.umask << std::dec << "\n";
 	return os;
