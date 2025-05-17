@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/13 21:17:51 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/17 10:11:48 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -494,6 +494,9 @@ UnixSocketServer::Client::_update(void)
 		(void)this->send("Invalid usage\n");
 		return (TM_POLL_CLIENT_ERROR);
 	}
+
+	(void)this->_master.readconfig();
+	this->_master.update();
 
 	return (TM_POLL_CLIENT_DISCONNECT);
 }

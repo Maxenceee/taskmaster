@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/13 21:16:08 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/17 11:05:58 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,6 +93,17 @@ Process::setGroupId(int id)
 }
 
 void
+Process::update(tm_Config::Program &new_conf)
+{
+	this->config = new_conf;
+	std::cout << "Updating process: " << this->_process_name << std::endl;
+	for (const auto& s : new_conf.command)
+	{
+		std::cout << s << " ";
+	}
+}
+
+void
 Process::reopenStds(void)
 {
 	if (this->std_out_fd != -1)
@@ -141,6 +152,13 @@ Process::_spawn(void)
 	this->_state = TM_P_STARTING;
 	this->_retries++;
 	this->start_time = std::chrono::system_clock::now();
+
+	std::cout << "Starting process: ";
+	for (const auto& s : this->config.command)
+	{
+		std::cout << s << " ";
+	}
+	std::cout << std::endl;
 
 	if (access(this->config.command.front().c_str(), F_OK | X_OK) == -1)
 	{

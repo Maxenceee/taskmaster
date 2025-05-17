@@ -6,14 +6,14 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 19:54:32 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/13 19:56:15 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/17 11:02:43 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "process/Process.hpp"
 #include "utils/utils.hpp"
 
-ProcessGroup::ProcessGroup(tm_Config::Program &config): gid(u_uint16()), _config(config)
+ProcessGroup::ProcessGroup(const tm_Config::Program &config): gid(u_uint16()), _config(config)
 {
 	for (int i = 0; i < config.numprocs; i++)
 	{
@@ -33,22 +33,24 @@ ProcessGroup::~ProcessGroup(void)
 	}
 }
 
-void
+size_t
 ProcessGroup::enque(void)
 {
 	auto newId = this->_replicas.size();
 
 	auto p = new Process(this->_config, this->gid, this->_config.name, newId);
 	this->_replicas.push_back(p);
+	return (this->_replicas.size());
 }
 
-void
+size_t
 ProcessGroup::deque(void)
 {
 	auto last = this->_replicas.back();
 	last->markAsDead();
 	this->_transitioning.push_back(last);
 	this->_replicas.pop_back();
+	return (this->_replicas.size());
 }
 
 void
@@ -77,15 +79,22 @@ ProcessGroup::update(tm_Config::Program &new_conf)
 	bool shouldrestartprocs = false;
 
 	if (
-		this->_config.command != new_conf.command
+		this->_config.raw_command != new_conf.raw_command
 		|| this->_config.environment != new_conf.environment
 		|| this->_config.directory != new_conf.directory
 		|| this->_config.umask != new_conf.umask
 	)
 	{
-		shouldrestartprocs = true;
+		if (new_conf.numprocs > 0)
+		{
+			shouldrestartprocs = true;
+		}
 	}
-	// TODO: update process_name
+
+	for (const auto& p : this->_replicas)
+	{
+		p->update(new_conf);
+	}
 
 	if (this->_config.stdout_logfile != new_conf.stdout_logfile || this->_config.stderr_logfile != new_conf.stderr_logfile)
 	{
@@ -100,6 +109,7 @@ ProcessGroup::update(tm_Config::Program &new_conf)
 
 	if (shouldrestartprocs)
 	{
+		std::cout << "should restart procs" << std::endl;
 		for (const auto& p : this->_replicas)
 		{
 			(void)p->restart();
@@ -110,22 +120,53 @@ ProcessGroup::update(tm_Config::Program &new_conf)
 	{
 		for (int i = new_conf.numprocs - old_numprocs; i < new_conf.numprocs; i++)
 		{
-			this->enque();
+			(void)this->enque();
 		}
 	}
 	else if (old_numprocs > new_conf.numprocs)
 	{
 		for (int i = old_numprocs - new_conf.numprocs; i < new_conf.numprocs; i++)
 		{
-			this->deque();
+			(void)this->deque();
 		}
 	}
+}
+
+void
+ProcessGroup::remove(void)
+{
+	for (size_t i = 0; i < this->_replicas.size(); i++)
+	{
+		(void)this->deque();
+	}
+}
+
+bool
+ProcessGroup::safeToRemove(void) const
+{
+	if (!this->_replicas.empty())
+	{
+		return (false);
+	}
+
+	for (const auto& p : this->_transitioning)
+	{
+		if (p->isDead() == false)
+			return (false);
+	}
+	return (true);
 }
 
 const std::vector<Process*>&
 ProcessGroup::getReplicas(void) const
 {
 	return (this->_replicas);
+}
+
+const std::string&
+ProcessGroup::getName(void) const
+{
+	return (this->_config.name);
 }
 
 std::ostream&

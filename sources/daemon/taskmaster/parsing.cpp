@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/15 16:16:56 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/17 11:18:43 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -463,29 +463,103 @@ Taskmaster::readconfig(void)
 	return (TM_SUCCESS);
 }
 
-bool
-Taskmaster::_has_prog(const std::string& progname) const
+void
+Taskmaster::_remove(const ProcessGroup *process)
 {
-	for (const auto& prog : this->_processes)
+	auto it = std::find(this->_processes.begin(), this->_processes.end(), process);
+	if (it != this->_processes.end())
 	{
-		if (*prog == progname)
-			return (true);
+		(*it)->remove();
+		this->_transitioning.push_back(*it);
+		this->_processes.erase(it);
 	}
-	return (false);
+}
+
+void
+_diff_process_vs_config(
+	const std::vector<ProcessGroup*>&		processes,
+	const std::vector<tm_Config::Program>&	programs,
+	std::vector<const tm_Config::Program*>&	to_add,
+	std::vector<ProcessGroup*>&				to_remove
+)
+{
+	/* ---- 1) Mettre tous les Program.name dans un set ---- */
+	std::unordered_set<std::string> progNames;
+	progNames.reserve(programs.size());
+	for (const auto& p : programs)
+	{
+		progNames.insert(p.name);
+	}
+
+	/* ---- 2) Parcourir les ProcessGroup : A\B ------------- */
+	std::unordered_set<std::string> procNames;  // servira pour B\A
+	procNames.reserve(processes.size());
+	for (const auto grp : processes)
+	{
+		const std::string& name = grp->getName();
+		procNames.insert(name);
+		if (!progNames.contains(name))
+		{
+			to_remove.push_back(grp);          // présent dans A mais pas dans B
+		}
+	}
+
+	/* ---- 3) Parcourir les Program : B\A ------------------ */
+	for (const auto& p : programs)
+	{
+		if (!procNames.contains(p.name))
+		{
+			to_add.push_back(&p);           // présent dans B mais pas dans A
+		}
+	}
 }
 
 void
 Taskmaster::update(void)
 {
 	this->_active_config = this->_read_config;
+	std::vector<const tm_Config::Program*> to_add;
+	std::vector<ProcessGroup*> to_remove;
 
-	for (auto& prog : this->_active_config.programs)
+	_diff_process_vs_config(this->_processes, this->_active_config.programs, to_add, to_remove);
+
+	std::cout << "\nProcesses to remove: ";
+	for (const auto* process : to_remove)
 	{
-		if (false == this->_has_prog(prog.name))
-		{
-			auto newp = new ProcessGroup(prog);
-			this->_processes.push_back(newp);
-		}
-		// TODO: handle processes removal
+		std::cout << process->getName() << " ";
+		this->_remove(process);
 	}
+	to_remove.clear();
+	for (const auto process : this->_processes)
+	{
+		auto conf = std::find_if(
+			this->_active_config.programs.begin(),
+			this->_active_config.programs.end(),
+			[&](const tm_Config::Program& program) {
+				return program.name == process->getName();
+			}
+		);
+		// This should never happen, but just in case
+		if (conf == this->_active_config.programs.end())
+		{
+			Logger::error("Process not bound to any config: " + process->getName());
+			(void)process->remove();
+			to_remove.push_back(process);
+			continue;
+		}
+		process->update(*conf);
+	}
+	for (const auto* process : to_remove)
+	{
+		std::cout << process->getName() << " ";
+		this->_remove(process);
+	}
+	std::cout << "Processes to add: ";
+	for (const auto* program : to_add)
+	{
+		std::cout << program->name << " ";
+		auto newp = new ProcessGroup(*program);
+		this->_processes.push_back(newp);
+	}
+	std::cout << std::endl;
 }

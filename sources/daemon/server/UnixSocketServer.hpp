@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:45:59 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/13 20:06:01 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/17 10:14:01 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ public:
 		int			fd;
 		bool		input_received;
 		
-		const Taskmaster&	_master;
+		Taskmaster&	_master;
 		std::vector<struct tm_pollclient_process_handler>	handlers;
 
 		std::vector<std::string>		input;
@@ -82,7 +82,7 @@ public:
 		static const std::unordered_map<std::string, GenHandler> general_command_map;
 
 	public:
-		explicit Client(int fd, const Taskmaster& master): fd(fd), input_received(false), _master(master) {}
+		explicit Client(int fd, Taskmaster& master): fd(fd), input_received(false), _master(master) {}
 
 		int		recv(void);
 		int		send(const std::string& msg);
@@ -97,8 +97,8 @@ public:
 	};
 
 private:
-	bool				_running;
-	const Taskmaster&	_master;
+	bool			_running;
+	Taskmaster&		_master;
 
 	std::map<int, tm_pollclient>	_poll_clients;
 
@@ -107,7 +107,7 @@ private:
 	bool	_test_socket();
 
 public:
-	explicit UnixSocketServer(const char* socket_path, const Taskmaster &master);
+	explicit UnixSocketServer(const char* socket_path, Taskmaster &master);
 	~UnixSocketServer(void);
 
 	int	listen(void);

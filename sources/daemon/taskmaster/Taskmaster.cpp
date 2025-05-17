@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/13 21:17:28 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/17 10:49:59 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,11 +35,27 @@ Taskmaster::~Taskmaster(void)
 }
 
 int
-Taskmaster::cycle(void) const
+Taskmaster::cycle(void)
 {
-	for (const auto& group : this->_processes)
+	for (const auto group : this->_processes)
 	{
 		group->monitor();
+	}
+
+	for (auto it = this->_transitioning.begin(); it != this->_transitioning.end(); )
+	{
+		auto group = *it;
+		group->monitor();
+		if (group->safeToRemove())
+		{
+			std::cout << "Process group " << *group << " removed" << std::endl;
+			it = this->_transitioning.erase(it);
+			delete group;
+		}
+		else
+		{
+			++it;
+		}
 	}
 
 	return (TM_SUCCESS);

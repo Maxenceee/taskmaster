@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:51 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/13 20:58:03 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/17 11:17:53 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,9 +27,10 @@ private:
 	tm_Config			_read_config;
 
 	std::vector<ProcessGroup*>	_processes;
+	std::vector<ProcessGroup*>	_transitioning;
 	// std::vector<Process*>		_unic_processes;
 
-	bool	_has_prog(const std::string& progname) const;
+	void	_remove(const ProcessGroup *process);
 
 public:
 	explicit Taskmaster(void);
@@ -44,7 +45,7 @@ public:
 	int		stop(void) const;
 	int		signal(int sig) const;
 	int		kill(void) const;
-	int		cycle(void) const;
+	int		cycle(void);
 
 	int		readconfig(void);
 	void	update(void);

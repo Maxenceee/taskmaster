@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/13 21:15:32 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/17 10:55:05 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -225,6 +225,8 @@ public:
 
 	void	setGroupId(int id);
 
+	void	update(tm_Config::Program &new_conf);
+
 	int		start(void);
 	int		restart(void);
 	int		stop(void);
@@ -281,14 +283,17 @@ private:
 	std::vector<Process*>	_transitioning;
 
 public:
-	explicit ProcessGroup(tm_Config::Program &config);
+	explicit ProcessGroup(const tm_Config::Program &config);
 	~ProcessGroup(void);
 
-	void	enque(void);
-	void	deque(void);
+	size_t	enque(void);
+	size_t	deque(void);
 
 	void	monitor(void);
 	void	update(tm_Config::Program &new_conf);
+	void	remove(void);
+
+	bool	safeToRemove(void) const;
 
 	bool	operator==(uint16_t other) const;
 	bool	operator==(const std::string& other) const;
@@ -297,6 +302,7 @@ public:
 	friend std::ostream&	operator<<(std::ostream& os, const ProcessGroup& group);
 
 	const std::vector<Process*>&	getReplicas(void) const;
+	const std::string&	getName(void) const;
 };
 
 #endif /* PROCESS_HPP */
