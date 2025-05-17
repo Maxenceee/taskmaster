@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/17 10:49:59 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/17 11:33:16 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,6 @@ Taskmaster::cycle(void)
 		group->monitor();
 		if (group->safeToRemove())
 		{
-			std::cout << "Process group " << *group << " removed" << std::endl;
 			it = this->_transitioning.erase(it);
 			delete group;
 		}
@@ -214,6 +213,10 @@ Taskmaster::getProcsStatus(void) const
 {
 	std::ostringstream oss;
 	for (const auto* group : this->_processes)
+	{
+		oss << *group;
+	}
+	for (const auto* group : this->_transitioning)
 	{
 		oss << *group;
 	}

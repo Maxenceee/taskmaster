@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 19:54:32 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/17 11:02:43 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/17 11:32:19 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,10 @@ ProcessGroup::monitor(void)
 			delete *it;
 			it = this->_transitioning.erase(it);
 		}
+		else
+		{
+			++it;
+		}
 	}
 }
 
@@ -109,7 +113,6 @@ ProcessGroup::update(tm_Config::Program &new_conf)
 
 	if (shouldrestartprocs)
 	{
-		std::cout << "should restart procs" << std::endl;
 		for (const auto& p : this->_replicas)
 		{
 			(void)p->restart();
@@ -173,6 +176,10 @@ std::ostream&
 operator<<(std::ostream& os, const ProcessGroup& group)
 {
 	for (const auto* p : group.getReplicas())
+	{
+		os << *p;
+	}
+	for (const auto* p : group._transitioning)
 	{
 		os << *p;
 	}
