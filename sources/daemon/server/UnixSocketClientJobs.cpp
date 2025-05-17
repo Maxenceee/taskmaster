@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/17 11:38:43 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/17 12:06:05 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,6 +100,7 @@ int
 UnixSocketServer::Client::_clear(struct tm_pollclient_process_handler& ps)
 {
 	(void)ps;
+	// TODO:
 	return (TM_POLL_CLIENT_DISCONNECT);
 }
 
@@ -185,6 +186,7 @@ int
 UnixSocketServer::Client::_remove(struct tm_pollclient_process_handler& ps)
 {
 	(void)ps;
+	// TODO:
 	return (TM_POLL_CLIENT_DISCONNECT);
 }
 
@@ -196,6 +198,8 @@ UnixSocketServer::Client::_reread(void)
 		(void)this->send("Invalid usage\n");
 		return (TM_POLL_CLIENT_ERROR);
 	}
+
+	// TODO:
 
 	return (TM_POLL_CLIENT_DISCONNECT);
 }
