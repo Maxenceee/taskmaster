@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/17 11:18:43 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/17 11:40:34 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -469,8 +469,9 @@ Taskmaster::_remove(const ProcessGroup *process)
 	auto it = std::find(this->_processes.begin(), this->_processes.end(), process);
 	if (it != this->_processes.end())
 	{
-		(*it)->remove();
-		this->_transitioning.push_back(*it);
+		auto group = *it;
+		group->remove();
+		this->_transitioning.push_back(group);
 		this->_processes.erase(it);
 	}
 }
@@ -514,19 +515,20 @@ _diff_process_vs_config(
 	}
 }
 
-void
+std::string
 Taskmaster::update(void)
 {
 	this->_active_config = this->_read_config;
 	std::vector<const tm_Config::Program*> to_add;
 	std::vector<ProcessGroup*> to_remove;
+	
+	std::ostringstream oss;
 
 	_diff_process_vs_config(this->_processes, this->_active_config.programs, to_add, to_remove);
 
-	std::cout << "\nProcesses to remove: ";
 	for (const auto* process : to_remove)
 	{
-		std::cout << process->getName() << " ";
+		oss << process->getName() << ": removed process group" << "\n";
 		this->_remove(process);
 	}
 	to_remove.clear();
@@ -551,15 +553,14 @@ Taskmaster::update(void)
 	}
 	for (const auto* process : to_remove)
 	{
-		std::cout << process->getName() << " ";
+		oss << process->getName() << ": removed process group" << "\n";
 		this->_remove(process);
 	}
-	std::cout << "Processes to add: ";
 	for (const auto* program : to_add)
 	{
-		std::cout << program->name << " ";
 		auto newp = new ProcessGroup(*program);
 		this->_processes.push_back(newp);
+		oss << program->name << ": added process group" << "\n";
 	}
-	std::cout << std::endl;
+	return (oss.str());
 }

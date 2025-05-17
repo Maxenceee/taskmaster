@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:51 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/17 11:17:53 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/17 11:40:41 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ public:
 	int		cycle(void);
 
 	int		readconfig(void);
-	void	update(void);
+	std::string	update(void);
 
 	void	reopenStds(void) const;
 	
