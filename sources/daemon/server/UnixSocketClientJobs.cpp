@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/17 12:06:05 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/18 10:54:01 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -499,8 +499,13 @@ UnixSocketServer::Client::_update(void)
 		return (TM_POLL_CLIENT_ERROR);
 	}
 
-	(void)this->_master.readconfig();
-	this->send(this->_master.update());
+	if (this->_master.readconfig() == TM_FAILURE)
+	{
+		(void)this->send("Failed to read config file\n");
+		return (TM_POLL_CLIENT_DISCONNECT);
+	}
+	
+	(void)this->send(this->_master.update());
 
 	return (TM_POLL_CLIENT_DISCONNECT);
 }

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/17 12:00:10 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/18 10:49:02 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -357,6 +357,11 @@ _parseProgramConfig(const std::string& section_name, const std::map<std::string,
 	if (colpos == std::string::npos)
 	{
 		throw std::invalid_argument("Invalid program name format: " + section_name);
+	}
+
+	if (colpos == 0 || colpos == section_name.size() - 1)
+	{
+		throw std::invalid_argument("Program name cannot be empty: " + section_name);
 	}
 
 	config.name = section_name.substr(1 + colpos);
