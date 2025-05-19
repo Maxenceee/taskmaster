@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:45:59 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/19 12:15:10 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/19 12:41:38 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ public:
 	private:
 		int			fd;
 		bool		input_received;
-		
+
 		Taskmaster&	_master;
 		std::vector<struct tm_pollclient_process_handler>	handlers;
 

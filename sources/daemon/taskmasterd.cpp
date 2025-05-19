@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/14 17:38:42 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/19 12:37:12 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include "daemon/daemon.hpp"
 
 bool	Taskmaster::running = false;
+bool	Taskmaster::reload = false;
 Taskmaster*	g_master = nullptr;
 
 static void
@@ -141,7 +142,10 @@ main(int argc, char* const* argv)
 
 	try
 	{
-		start_main_loop(argv);
+		do
+		{
+			start_main_loop(argv);
+		} while (Taskmaster::reload);
 	}
 	catch (const std::exception& e)
 	{

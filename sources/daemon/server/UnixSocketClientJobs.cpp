@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/19 12:26:19 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/19 12:40:36 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -207,16 +207,12 @@ UnixSocketServer::Client::_reload()
 		return (TM_POLL_CLIENT_ERROR);
 	}
 
-	(void)this->send("Reloading the daemon");
+	(void)this->send("Reloading the daemon...");
 	(void)this->send(TM_CRLF);
+	Taskmaster::running = false;
+	Taskmaster::reload = true;
 
-	if (this->_master.restart())
-	{
-		(void)this->send("Fail to reload the daemon");
-		(void)this->send(TM_CRLF);
-	}
-
-	return (TM_POLL_CLIENT_DISCONNECT);
+	return (TM_POLL_CLIENT_OK);
 }
 
 int

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 17:43:04 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/19 11:58:58 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/19 12:43:29 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,8 +155,11 @@ UnixSocketServer::stop(void)
 		if (client.second.type == TM_POLL_CLIENT)
 		{
 			auto c = reinterpret_cast<UnixSocketServer::Client *>(client.second.data);
-			(void)c->send("Good bye!");
-			(void)c->send(TM_CRLF);
+			if (false == Taskmaster::reload)
+			{
+				(void)c->send("Good bye!");
+				(void)c->send(TM_CRLF);
+			}
 			(void)::shutdown(c->getFd(), SHUT_RDWR);
 		}
 	}
