@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:45:59 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/17 10:14:01 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/19 12:15:10 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,8 @@ struct tm_pollclient_process_handler {
 	int 		initial_state;
 	int 		requested_state;
 	bool		done;
+	bool		group_request;
+	const char*	success_message;
 };
 
 class UnixSocketServer: public UnixSocket

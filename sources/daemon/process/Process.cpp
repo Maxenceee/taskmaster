@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/17 11:24:57 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/19 11:40:06 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,6 +110,38 @@ Process::reopenStds(void)
 		(void)close(this->std_err_fd);
 	}
 	this->_setupstds();
+}
+
+int
+Process::clearLogFiles(void) const
+{
+	if (this->std_out_fd != -1)
+	{
+		if (lseek(this->std_out_fd, 0, SEEK_SET) == -1)
+		{
+			Logger::perror("lseek error");
+			return (TM_FAILURE);
+		}
+		if (ftruncate(this->std_out_fd, 0) == -1)
+		{
+			Logger::perror("ftruncate error");
+			return (TM_FAILURE);
+		}
+	}
+	if (this->std_err_fd != -1)
+	{
+		if (lseek(this->std_err_fd, 0, SEEK_SET) == -1)
+		{
+			Logger::perror("lseek error");
+			return (TM_FAILURE);
+		}
+		if (ftruncate(this->std_err_fd, 0) == -1)
+		{
+			Logger::perror("ftruncate error");
+			return (TM_FAILURE);
+		}
+	}
+	return (TM_SUCCESS);
 }
 
 void

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/17 10:55:05 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/19 11:36:49 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -222,6 +222,7 @@ public:
 	~Process(void);
 
 	void	reopenStds(void);
+	int		clearLogFiles(void) const;
 
 	void	setGroupId(int id);
 

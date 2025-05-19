@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:40:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/19 10:47:48 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/19 11:56:39 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,13 @@ UnixSocketServer::Client::_work(struct tm_pollclient_process_handler& ps)
 	}
 	if (p->reachedDesiredState())
 	{
-		(void)this->send(p->getStatus());
+		if (ps.success_message != nullptr)
+		{
+			(void)this->send(p->getProcessName());
+			(void)this->send(": ");
+			(void)this->send(ps.success_message);
+			(void)this->send(TM_CRLF);
+		}
 		ps.done = true;
 		return (TM_POLL_CLIENT_DISCONNECT);	
 	}
@@ -112,13 +118,15 @@ UnixSocketServer::Client::_work(struct tm_pollclient_process_handler& ps)
 	if (p->getDesiredState() != ps.requested_state)
 	{
 		ps.requested_state = p->getDesiredState();
-		(void)this->send("Request interrupted by another request\n");
+		(void)this->send("Request interrupted by another request");
+		(void)this->send(TM_CRLF);
 		return (TM_POLL_CLIENT_OK);
 	}
 
 	if (p->getState() == TM_P_FATAL || p->getState() == TM_P_UNKNOWN)
 	{
-		(void)this->send("The process is in a fatal state\n");
+		(void)this->send("The process is in a fatal state");
+		(void)this->send(TM_CRLF);
 		ps.done = true;
 		return (TM_POLL_CLIENT_ERROR);
 	}
@@ -165,14 +173,16 @@ UnixSocketServer::Client::exec(void)
 {
 	if (this->input.empty())
 	{
-		(void)this->send("Invalid usage\n");
+		(void)this->send("Invalid usage");
+		(void)this->send(TM_CRLF);
 		return (TM_POLL_CLIENT_ERROR);
 	}
 
 	const std::string& command = this->input[0];
 	if (command.empty())
 	{
-		(void)this->send("Invalid command\n");
+		(void)this->send("Invalid command");
+		(void)this->send(TM_CRLF);
 		return (TM_POLL_CLIENT_ERROR);
 	}
 
@@ -187,7 +197,8 @@ UnixSocketServer::Client::exec(void)
 	{
 		if (this->input.size() < 2)
 		{
-			(void)this->send("Invalid usage\n");
+			(void)this->send("Invalid usage");
+			(void)this->send(TM_CRLF);
 			return (TM_POLL_CLIENT_ERROR);
 		}
 
@@ -220,6 +231,7 @@ UnixSocketServer::Client::exec(void)
 		}
 	}
 
-	(void)this->send("Invalid command\n");
+	(void)this->send("Invalid command");
+	(void)this->send(TM_CRLF);
 	return (TM_POLL_CLIENT_ERROR);
 }
