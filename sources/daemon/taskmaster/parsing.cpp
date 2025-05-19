@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/18 10:49:02 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/19 11:26:37 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -481,7 +481,7 @@ Taskmaster::_remove(const ProcessGroup *process)
 	}
 }
 
-void
+inline static void
 _diff_process_vs_config(
 	const std::vector<ProcessGroup*>&		processes,
 	const std::vector<tm_Config::Program>&	programs,
@@ -489,7 +489,6 @@ _diff_process_vs_config(
 	std::vector<ProcessGroup*>&				to_remove
 )
 {
-	/* ---- 1) Mettre tous les Program.name dans un set ---- */
 	std::unordered_set<std::string> progNames;
 	progNames.reserve(programs.size());
 	for (const auto& p : programs)
@@ -497,8 +496,7 @@ _diff_process_vs_config(
 		progNames.insert(p.name);
 	}
 
-	/* ---- 2) Parcourir les ProcessGroup : A\B ------------- */
-	std::unordered_set<std::string> procNames;  // servira pour B\A
+	std::unordered_set<std::string> procNames;
 	procNames.reserve(processes.size());
 	for (const auto grp : processes)
 	{
@@ -506,18 +504,33 @@ _diff_process_vs_config(
 		procNames.insert(name);
 		if (!progNames.contains(name))
 		{
-			to_remove.push_back(grp);          // présent dans A mais pas dans B
+			to_remove.push_back(grp);
 		}
 	}
 
-	/* ---- 3) Parcourir les Program : B\A ------------------ */
 	for (const auto& p : programs)
 	{
 		if (!procNames.contains(p.name))
 		{
-			to_add.push_back(&p);           // présent dans B mais pas dans A
+			to_add.push_back(&p);
 		}
 	}
+}
+
+inline static void
+_diff_conf_programs(
+    const std::vector<tm_Config::Program>& old_programs,
+    const std::vector<tm_Config::Program>& new_programs,
+	std::unordered_set<std::string>& old_names,
+	std::unordered_set<std::string>& new_names
+) {
+    for (const auto& prog : old_programs) {
+        old_names.insert(prog.name);
+    }
+
+    for (const auto& prog : new_programs) {
+        new_names.insert(prog.name);
+    }
 }
 
 std::string
@@ -567,5 +580,58 @@ Taskmaster::update(void)
 		this->_processes.push_back(newp);
 		oss << program->name << ": added process group" << "\n";
 	}
+	return (oss.str());
+}
+
+std::string
+Taskmaster::getConfChanges(void) const
+{
+	std::unordered_set<std::string> old_names;
+	std::unordered_set<std::string> new_names;
+	std::ostringstream oss;
+
+	_diff_conf_programs(this->_active_config.programs, this->_read_config.programs, old_names, new_names);
+
+	if (new_names.size() == old_names.size())
+	{
+		return ("No config updates to processes\n");
+	}
+
+    for (const auto& name : old_names) {
+        if (new_names.find(name) == new_names.end()) {
+            oss << name << ": disappeared\n";
+        }
+    }
+
+    for (const auto& name : new_names) {
+        if (old_names.find(name) == old_names.end()) {
+            oss << name << ": available\n";
+        }
+    }
+
+	return (oss.str());
+}
+
+std::string
+Taskmaster::getAvailableProcs(void) const
+{
+	std::unordered_set<std::string> in_use;
+	std::ostringstream oss;
+
+	for (const auto& group : this->_processes)
+	{
+		in_use.insert(group->getName());
+	}
+
+	for (const auto& program : this->_read_config.programs)
+	{
+		bool is_in_use = in_use.find(program.name) != in_use.end();
+
+		oss << std::setw(30) << std::left << program.name << " ";
+		oss << std::setw(10) << std::left << (is_in_use ? "in use" : "avail") << " ";
+		oss << std::setw(10) << std::left << (program.autostart ? "auto" : "manual") << " ";
+		oss << "\n";
+	}
+
 	return (oss.str());
 }

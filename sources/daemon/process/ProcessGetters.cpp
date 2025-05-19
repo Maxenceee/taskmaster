@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 19:44:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/13 21:17:34 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/19 11:11:30 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -180,7 +180,7 @@ std::string
 Process::getStatus(void) const
 {
 	std::ostringstream oss;
-	oss << std::setw(30) << std::left << this->getProcessName();
+	oss << std::setw(30) << std::left << this->getProcessName() << " ";
 	oss << std::setw(9) << Process::getStateName(this->_state) << " ";
 	switch (this->_state)
 	{

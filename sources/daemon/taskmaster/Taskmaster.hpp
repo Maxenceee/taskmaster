@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:51 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/17 11:40:41 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/19 11:05:56 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,8 @@ public:
 
 	std::string	getProcsStatus(void) const;
 	const tm_Config::UnixServer& getServerConf(void) const;
+	std::string	getConfChanges(void) const;
+	std::string	getAvailableProcs(void) const;
 
 	const std::vector<Process*>	all(void) const;
 	Process* const	find(const std::string& progname) const;

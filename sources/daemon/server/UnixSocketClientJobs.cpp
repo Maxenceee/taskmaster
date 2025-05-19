@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/18 10:54:01 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/19 11:19:53 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,6 +92,8 @@ UnixSocketServer::Client::_avail(void)
 		(void)this->send("Invalid usage\n");
 		return (TM_POLL_CLIENT_ERROR);
 	}
+
+	(void)this->send(this->_master.getAvailableProcs());
 
 	return (TM_POLL_CLIENT_DISCONNECT);
 }
@@ -199,7 +201,13 @@ UnixSocketServer::Client::_reread(void)
 		return (TM_POLL_CLIENT_ERROR);
 	}
 
-	// TODO:
+	if (this->_master.readconfig() == TM_FAILURE)
+	{
+		(void)this->send("Failed to reread the config file\n");
+		return (TM_POLL_CLIENT_DISCONNECT);
+	}
+
+	(void)this->send(this->_master.getConfChanges());
 
 	return (TM_POLL_CLIENT_DISCONNECT);
 }
