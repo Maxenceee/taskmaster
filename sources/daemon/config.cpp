@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/20 11:21:45 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/20 11:59:39 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,8 +72,8 @@ std::ostream& operator<<(std::ostream& os, const tm_Config::Program& program) {
 	os << "  stopasgroup: " << (program.stopasgroup ? "true" : "false") << "\n";
 	os << "  killasgroup: " << (program.killasgroup ? "true" : "false") << "\n";
 	os << "  user: " << program.user << "\n";
-	os << "  stdout_logfile: " << (program.stdout_logfile.length() ? program.stdout_logfile : "[tmpfile]") << "\n";
-	os << "  stderr_logfile: " << (program.stderr_logfile.length() ? program.stderr_logfile : "[tmpfile]") << "\n";
+	os << "  stdout_logfile: " << (program.stdout_logfile.length() ? program.stdout_logfile : "(tmpfile)") << "\n";
+	os << "  stderr_logfile: " << (program.stderr_logfile.length() ? program.stderr_logfile : "(tmpfile)") << "\n";
 	os << "  environment: ";
 	_print_list(os, program.environment, 2);
 	os << "  directory: " << program.directory << "\n";
