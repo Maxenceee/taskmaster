@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/19 11:26:37 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/20 19:11:04 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -247,7 +247,9 @@ _user_separated_by_colon(const std::optional<std::string>& str)
 	}
 	else
 	{
-		throw std::invalid_argument("Invalid user:group format: " + *str);
+		_target.uid = _name_to_uid(str);
+		_target.gid = _name_to_gid(str);
+		return (_target);
 	}
 }
 

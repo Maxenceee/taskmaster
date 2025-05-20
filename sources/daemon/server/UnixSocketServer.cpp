@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 17:43:04 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/19 12:43:29 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/20 19:13:28 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,20 @@ UnixSocketServer::UnixSocketServer(const char* unix_path, Taskmaster& master): U
 			Logger::perror("unix server: bind error");
 		}
 		throw std::runtime_error("could not bind socket to address");
+	}
+
+	auto conf = this->_master.getServerConf();
+
+	if (chmod(this->socket_path.c_str(), conf.chmod) == -1)
+	{
+		Logger::perror("unix server: chmod failed");
+		throw std::runtime_error("could not chmod socket");
+	}
+
+	if (chown(this->socket_path.c_str(), conf.chown.uid, conf.chown.gid) == -1)
+	{
+		Logger::perror("unix server: chown failed");
+		throw std::runtime_error("could not socket owner");
 	}
 }
 

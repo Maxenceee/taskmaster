@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/19 11:40:06 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/20 19:47:35 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -188,13 +188,17 @@ Process::_spawn(void)
 	}
 
 	std::vector<char*> argv;
+	argv.reserve(this->config.command.size() + 1);
 	for (auto& s : this->config.command)
 		argv.push_back(const_cast<char*>(s.c_str()));
 	argv.push_back(nullptr);
 
-	if ((this->pid = spawn_child(argv.data(), environ, this->std_in_fd, this->std_out_fd, this->std_err_fd, this->config.directory.c_str())) == 0)
+	if ((this->pid = spawn_child(argv.data(), environ, this->std_in_fd, this->std_out_fd, this->std_err_fd
+#ifdef TM_SPAWN_CHILD_USE_FORK
+		, this->config.user
+#endif /* TM_SPAWN_CHILD_USE_FORK */
+	, 0, this->config.directory.c_str())) == -1)
 	{
-		Logger::perror("could not spawn child");
 		this->_state = TM_P_FATAL;
 		return (TM_FAILURE);
 	}
@@ -247,7 +251,15 @@ Process::stop(void)
 	this->_state = TM_P_STOPPING;
 	this->request_stop_time = std::chrono::steady_clock::now();
 
-	return (::kill(this->pid, this->config.stopsignal));
+	pid_t pid = this->pid;
+	if (this->config.killasgroup)
+	{
+		pid = -pid;
+	}
+
+	std::cout << "stopping pid: " << pid << std::endl;
+
+	return (::kill(pid, this->config.stopsignal));
 }
 
 int
@@ -273,8 +285,16 @@ Process::kill(void)
 		this->_desired_state = TM_P_EXITED;
 	}
 
+	pid_t pid = this->pid;
+	if (this->config.killasgroup)
+	{
+		pid = -pid;
+	}
+
+	std::cout << "killing pid: " << pid << std::endl;
+
 	Logger::warning("Killing " + this->_process_name + " (" + std::to_string(this->pid) + ")" + " with SIGKILL");
-	return (::kill(this->pid, SIGKILL));
+	return (::kill(pid, SIGKILL));
 }
 
 int

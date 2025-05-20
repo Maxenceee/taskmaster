@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:15:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/11 16:47:17 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/20 19:46:55 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,36 +18,30 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 #ifdef TM_SPAWN_CHILD_USE_FORK
 	, uid_t uid
 #endif /* TM_SPAWN_CHILD_USE_FORK */
-#ifdef TM_SPAWN_CHILD_SUPPORT_PGID
-	, int pgid
-#endif /* TM_SPAWN_CHILD_SUPPORT_PGID */
-, const char* dir)
+	, gid_t pgid, const char* dir)
 {
 	pid_t pid;
 
 #ifndef TM_SPAWN_CHILD_USE_FORK
 
 	posix_spawn_file_actions_t actions;
-	posix_spawn_file_actions_init(&actions);
+	(void)posix_spawn_file_actions_init(&actions);
 
 	if (stdin_fd != -1)
 	{
-		posix_spawn_file_actions_adddup2(&actions, stdin_fd, STDIN_FILENO);
-		// posix_spawn_file_actions_addclose(&actions, stdin_fd);
+		(void)posix_spawn_file_actions_adddup2(&actions, stdin_fd, STDIN_FILENO);
 	}
 	if (stdout_fd != -1)
 	{
-		posix_spawn_file_actions_adddup2(&actions, stdout_fd, STDOUT_FILENO);
-		// posix_spawn_file_actions_addclose(&actions, stdout_fd);
+		(void)posix_spawn_file_actions_adddup2(&actions, stdout_fd, STDOUT_FILENO);
 	}
 	if (stderr_fd != -1)
 	{
-		posix_spawn_file_actions_adddup2(&actions, stderr_fd, STDERR_FILENO);
-		// posix_spawn_file_actions_addclose(&actions, stderr_fd);
+		(void)posix_spawn_file_actions_adddup2(&actions, stderr_fd, STDERR_FILENO);
 	}
 
 	posix_spawnattr_t attr;
-	posix_spawnattr_init(&attr);
+	(void)posix_spawnattr_init(&attr);
 
 	sigset_t signal_set;
 	sigemptyset(&signal_set);
@@ -57,39 +51,37 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 	sigaddset(&signal_set, SIGTERM);
 	sigaddset(&signal_set, SIGPIPE);
 
-	posix_spawnattr_setflags(&attr, POSIX_SPAWN_SETSIGMASK);
+	(void)posix_spawnattr_setflags(&attr, POSIX_SPAWN_SETSIGMASK);
 	if (posix_spawnattr_setsigmask(&attr, &signal_set) != 0)
 	{
 		Logger::perror("posix_spawnattr_setsigmask failed");
-		posix_spawn_file_actions_destroy(&actions);
-		posix_spawnattr_destroy(&attr);
+		(void)posix_spawn_file_actions_destroy(&actions);
+		(void)posix_spawnattr_destroy(&attr);
 		return (-1);
 	}
 
-#ifdef TM_SPAWN_CHILD_SUPPORT_PGID
-	posix_spawnattr_setflags(&attr, POSIX_SPAWN_SETPGROUP);
+	(void)posix_spawnattr_setflags(&attr, POSIX_SPAWN_SETPGROUP);
 	if (posix_spawnattr_setpgroup(&attr, pgid) != 0)
 	{
 		Logger::perror("posix_spawnattr_setpgroup failed");
-		posix_spawn_file_actions_destroy(&actions);
-		posix_spawnattr_destroy(&attr);
+		(void)posix_spawn_file_actions_destroy(&actions);
+		(void)posix_spawnattr_destroy(&attr);
 		return (-1);
 	}
-#endif /* TM_SPAWN_CHILD_SUPPORT_PGID */
 
-	if (dir && dir[0] != '\0') {
+	if (dir) {
 		// Vérifie si le dossier existe avant
 		if (access(dir, X_OK) != 0) {
 			Logger::perror("invalid working directory");
-			posix_spawn_file_actions_destroy(&actions);
-			posix_spawnattr_destroy(&attr);
+			(void)posix_spawn_file_actions_destroy(&actions);
+			(void)posix_spawnattr_destroy(&attr);
 			return (-1);
 		}
 
 		if (posix_spawn_file_actions_addchdir_np(&actions, dir) != 0) {
 			Logger::perror("posix_spawn_file_actions_addchdir_np failed");
-			posix_spawn_file_actions_destroy(&actions);
-			posix_spawnattr_destroy(&attr);
+			(void)posix_spawn_file_actions_destroy(&actions);
+			(void)posix_spawnattr_destroy(&attr);
 			return (-1);
 		}
 	}
@@ -98,13 +90,13 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 	if (posix_spawn(&pid, argv[0], &actions, &attr, argv, envp) != 0)
 	{
 		Logger::perror("posix_spawn failed");
-		posix_spawn_file_actions_destroy(&actions);
-		posix_spawnattr_destroy(&attr);
+		(void)posix_spawn_file_actions_destroy(&actions);
+		(void)posix_spawnattr_destroy(&attr);
 		return (-1);
 	}
 
-	posix_spawn_file_actions_destroy(&actions);
-	posix_spawnattr_destroy(&attr);
+	(void)posix_spawn_file_actions_destroy(&actions);
+	(void)posix_spawnattr_destroy(&attr);
 
 #else
 
@@ -116,24 +108,21 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 	if (pid == 0) {
 		// In child process
 
-		// In the child process, we use perror instead of Logger::perror
-		// because the logger can't handle subprocesses
-
 		// Redirect stdin
 		if (stdin_fd != -1 && dup2(stdin_fd, STDIN_FILENO) == -1) {
-			perror("dup2 stdin failed");
+			Logger::perror("dup2 stdin failed");
 			exit(TM_FAILURE);
 		}
 
 		// Redirect stdout
 		if (stdout_fd != -1 && dup2(stdout_fd, STDOUT_FILENO) == -1) {
-			perror("dup2 stdout failed");
+			Logger::perror("dup2 stdout failed");
 			exit(TM_FAILURE);
 		}
 
 		// Redirect stderr
 		if (stderr_fd != -1 && dup2(stderr_fd, STDERR_FILENO) == -1) {
-			perror("dup2 stderr failed");
+			Logger::perror("dup2 stderr failed");
 			exit(TM_FAILURE);
 		}
 
@@ -144,32 +133,30 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 		signal(SIGPIPE, SIG_DFL);
 
 		if (uid != -1 && setuid(uid) == -1) {
-			perror("setuid");
+			Logger::perror("setuid");
 			exit(TM_FAILURE);
 		}
 
-#ifdef TM_SPAWN_CHILD_SUPPORT_PGID
-		if (pgid != -1 && setpgid(0, pgid) == -1) {
-			perror("setpgid");
+		if (setpgid(0, pgid) == -1) {
+			Logger::perror("setpgid");
 			exit(TM_FAILURE);
 		}
-#endif /* TM_SPAWN_CHILD_SUPPORT_PGID */
 
-		if (dir && dir[0] != '\0') {
+		if (dir) {
 			if (access(dir, X_OK) != 0) {
-				perror("invalid working directory");
+				Logger::perror("invalid working directory");
 				exit(TM_FAILURE);
 			}
 
 			if (chdir(dir) != 0) {
-				perror("chdir failed");
+				Logger::perror("chdir failed");
 				exit(TM_FAILURE);
 			}
 		}
 
 		// Execute the child process
 		if (execve(argv[0], argv, envp) == -1) {
-			perror("execve");
+			Logger::perror("execve");
 			exit(TM_FAILURE);
 		}
 	}

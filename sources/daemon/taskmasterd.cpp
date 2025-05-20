@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/19 12:37:12 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/20 19:25:05 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,12 +47,22 @@ interruptReopen(int sig_int)
 	Logger::info("Reopening log files");
 }
 
+static void
+interruptReload(int sig_int)
+{
+	(void)sig_int;
+	Logger::print("Reloading the daemon...");
+	Taskmaster::running = false;
+	Taskmaster::reload = true;
+}
+
 inline static void
 setup_signals(void)
 {
 	setup_signal(SIGINT, interruptHandler);
 	setup_signal(SIGQUIT, interruptHandler);
 	setup_signal(SIGTERM, interruptHandler);
+	setup_signal(SIGHUP, interruptReload);
 	setup_signal(SIGUSR2, interruptReopen);
 }
 

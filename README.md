@@ -11,16 +11,15 @@
 ## Configuration
 
 - unix_server
-	- file
-	- chmod
-	- chown
+	- file ✅
+	- chmod ✅
+	- chown ✅
 
 - taskmasterd
-	- logfile
+	- logfile ✅
 	- pidfile
 	- logfile_maxbytes
 	- umask
-	- nodaemon
 	- childlogdir
 	- user
 	- directory
@@ -28,21 +27,20 @@
 
 - program:*
 	<!-- - process_name -->
-	- numprocs
+	- numprocs ✅
 	- priority
-	- autostart
-	- startsecs
-	- startretries
-	- autorestart
-	- exitcodes
-	- stopsignal
-	- stopwaitsecs
+	- autostart ✅
+	- startsecs ✅
+	- startretries ✅
+	- autorestart ✅
+	- exitcodes ✅
+	- stopsignal ✅
+	- stopwaitsecs ✅
 	- stopasgroup
 	- killasgroup
-	- user
-	- stdout_logfile
-	- stdout_syslog
-	- stderr_logfile
+	- user ✅
+	- stdout_logfile ✅
+	- stderr_logfile ✅
 	- environment
-	- directory
+	- directory ✅
 	- umask

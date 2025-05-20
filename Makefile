@@ -44,6 +44,9 @@ CUT				=	"\033[K"
 
 all: $(NAME_D) $(NAME_CTL)
 
+use_fork: CFLAGS += -DTM_SPAWN_CHILD_USE_FORK
+use_fork: $(NAME_D) $(NAME_CTL)
+
 $(OBJ_DIR)/%.o: $(SOURCES_DIR)/%.cpp $(HEADERS) Makefile
 	@mkdir -p $(@D)
 	@echo "$(YELLOW)Compiling [$<]$(DEFAULT)"
