@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/20 19:11:04 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/20 20:13:36 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -539,6 +539,9 @@ std::string
 Taskmaster::update(void)
 {
 	this->_active_config = this->_read_config;
+
+	/** Processes **/
+
 	std::vector<const tm_Config::Program*> to_add;
 	std::vector<ProcessGroup*> to_remove;
 	
@@ -582,6 +585,11 @@ Taskmaster::update(void)
 		this->_processes.push_back(newp);
 		oss << program->name << ": added process group" << "\n";
 	}
+
+	/** Daemon **/
+
+	(void)umask(this->_active_config.daemon.umask);
+
 	return (oss.str());
 }
 

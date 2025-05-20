@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:15:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/20 19:46:55 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/20 20:04:11 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 #ifdef TM_SPAWN_CHILD_USE_FORK
 	, uid_t uid
 #endif /* TM_SPAWN_CHILD_USE_FORK */
-	, gid_t pgid, const char* dir)
+	, gid_t pgid, const char* dir, mode_t mode)
 {
 	pid_t pid;
 
@@ -86,17 +86,25 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 		}
 	}
 
+	// Since posix_spawn doesn't support umask, we need to set it manually
+	// to save the old one and restore it after the spawn
+	mode_t mask = umask(mode);
+
+	std::cout << std::oct << "old: " << mask << " new: " << mode << std::endl;
+
 	// Spawn the child process
 	if (posix_spawn(&pid, argv[0], &actions, &attr, argv, envp) != 0)
 	{
 		Logger::perror("posix_spawn failed");
 		(void)posix_spawn_file_actions_destroy(&actions);
 		(void)posix_spawnattr_destroy(&attr);
+		(void)umask(mask);
 		return (-1);
 	}
-
+	
 	(void)posix_spawn_file_actions_destroy(&actions);
 	(void)posix_spawnattr_destroy(&attr);
+	(void)umask(mask);
 
 #else
 
@@ -153,6 +161,8 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 				exit(TM_FAILURE);
 			}
 		}
+
+		(void)umask(mode);
 
 		// Execute the child process
 		if (execve(argv[0], argv, envp) == -1) {

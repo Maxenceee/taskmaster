@@ -36,8 +36,8 @@
 	- exitcodes ✅
 	- stopsignal ✅
 	- stopwaitsecs ✅
-	- stopasgroup
-	- killasgroup
+	- stopasgroup ✅
+	- killasgroup ✅
 	- user ✅
 	- stdout_logfile ✅
 	- stderr_logfile ✅

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/20 19:47:35 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/20 20:05:29 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -257,8 +257,6 @@ Process::stop(void)
 		pid = -pid;
 	}
 
-	std::cout << "stopping pid: " << pid << std::endl;
-
 	return (::kill(pid, this->config.stopsignal));
 }
 
@@ -290,8 +288,6 @@ Process::kill(void)
 	{
 		pid = -pid;
 	}
-
-	std::cout << "killing pid: " << pid << std::endl;
 
 	Logger::warning("Killing " + this->_process_name + " (" + std::to_string(this->pid) + ")" + " with SIGKILL");
 	return (::kill(pid, SIGKILL));

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 09:47:45 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/15 15:58:25 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/20 20:09:47 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ struct tm_Config {
 		std::string	logfile;
 		std::string	pidfile;
 		size_t		logfile_maxbytes;
-		uint16_t	umask;
+		mode_t		umask;
 		bool		nodaemon;
 		std::string	childlogdir;
 		uid_t		user;
@@ -74,7 +74,7 @@ struct tm_Config {
 		std::string	stderr_logfile;
 		std::vector<std::string> environment;
 		std::string	directory;
-		uint16_t	umask;
+		mode_t		umask;
 	};
 	std::vector<Program> programs;
 };
