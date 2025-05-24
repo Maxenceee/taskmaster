@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:51 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/20 20:14:00 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/24 22:57:58 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ private:
 
 	std::vector<ProcessGroup*>	_processes;
 	std::vector<ProcessGroup*>	_transitioning;
-	// std::vector<Process*>		_unic_processes;
 
 	void	_remove(const ProcessGroup *process);
 
