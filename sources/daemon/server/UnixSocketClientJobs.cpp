@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/20 19:18:03 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/28 12:05:18 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -269,20 +269,20 @@ UnixSocketServer::Client::_restart(struct tm_pollclient_process_handler& ps)
 		}
 		return (TM_POLL_CLIENT_DISCONNECT); 
 	case TM_P_BACKOFF:
-	case TM_P_FATAL:
+	// case TM_P_FATAL:
 		if (false == ps.group_request)
 		{
 			(void)this->send("The process is in a fatal state");
 			(void)this->send(TM_CRLF);
 		}
 		return (TM_POLL_CLIENT_DISCONNECT);
-	case TM_P_UNKNOWN:
-		if (false == ps.group_request)
-		{
-			(void)this->send("Process is in an unknown state");
-			(void)this->send(TM_CRLF);	
-		}
-		return (TM_POLL_CLIENT_DISCONNECT);
+	// case TM_P_UNKNOWN:
+	// 	if (false == ps.group_request)
+	// 	{
+	// 		(void)this->send("Process is in an unknown state");
+	// 		(void)this->send(TM_CRLF);	
+	// 	}
+	// 	return (TM_POLL_CLIENT_DISCONNECT);
 	}
 
 	ps.requested_state = TM_P_RUNNING;
@@ -397,20 +397,20 @@ UnixSocketServer::Client::_start(struct tm_pollclient_process_handler& ps)
 		}
 		return (TM_POLL_CLIENT_DISCONNECT);
 	case TM_P_BACKOFF:
-	case TM_P_FATAL:
+	// case TM_P_FATAL:
 		if (false == ps.group_request)
 		{
 			(void)this->send("The process is in a fatal state");
 			(void)this->send(TM_CRLF);
 		}
 		return (TM_POLL_CLIENT_DISCONNECT);
-	case TM_P_UNKNOWN:
-		if (false == ps.group_request)
-		{
-			(void)this->send("Process is in an unknown state");
-			(void)this->send(TM_CRLF);
-		}
-		return (TM_POLL_CLIENT_DISCONNECT);
+	// case TM_P_UNKNOWN:
+	// 	if (false == ps.group_request)
+	// 	{
+	// 		(void)this->send("Process is in an unknown state");
+	// 		(void)this->send(TM_CRLF);
+	// 	}
+	// 	return (TM_POLL_CLIENT_DISCONNECT);
 	}
 
 	ps.requested_state = TM_P_RUNNING;
