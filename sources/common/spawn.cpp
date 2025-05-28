@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:15:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/20 20:04:11 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/28 11:22:09 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,8 +89,6 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 	// Since posix_spawn doesn't support umask, we need to set it manually
 	// to save the old one and restore it after the spawn
 	mode_t mask = umask(mode);
-
-	std::cout << std::oct << "old: " << mask << " new: " << mode << std::endl;
 
 	// Spawn the child process
 	if (posix_spawn(&pid, argv[0], &actions, &attr, argv, envp) != 0)
