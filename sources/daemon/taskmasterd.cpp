@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 18:59:22 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 20:19:53 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,7 +98,10 @@ start_main_loop(const std::string& config_file)
 	Taskmaster master(config_file);
 	g_master = &master;
 
-	(void)master.readconfig();
+	if (master.readconfig() == TM_FAILURE)
+	{
+		throw std::runtime_error("Could not start the daemon.");
+	}
 	master.update();
 
 	auto pidfile = master.getDaemonConf().pidfile;
