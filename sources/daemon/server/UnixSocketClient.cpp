@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:40:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 12:46:17 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 12:46:49 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -216,13 +216,6 @@ UnixSocketServer::Client::exec(void)
 		(void)this->send(TM_CRLF);
 		return (TM_POLL_CLIENT_ERROR);
 	}
-
-	std::cout << "Received command: " << this->name << std::endl;
-	std::cout << "Args:";
-	for (const auto& a : this->args) std::cout << " " << a;
-	std::cout << "\nOpts:";
-	for (const auto& o : this->opts) std::cout << " " << o;
-	std::cout << std::endl;
 
 	auto itg = this->general_command_map.find(name);
 	if (itg != this->general_command_map.end())
