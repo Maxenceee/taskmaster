@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/19 12:37:38 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 15:13:18 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -222,6 +222,30 @@ Taskmaster::getProcsStatus(void) const
 		oss << *group;
 	}
 	return oss.str();
+}
+
+std::string
+Taskmaster::getAvailableProcs(void) const
+{
+	std::unordered_set<std::string> in_use;
+	std::ostringstream oss;
+
+	for (const auto& group : this->_processes)
+	{
+		in_use.insert(group->getName());
+	}
+
+	for (const auto& program : this->_read_config.programs)
+	{
+		bool is_in_use = in_use.find(program.name) != in_use.end();
+
+		oss << std::setw(30) << std::left << program.name << " ";
+		oss << std::setw(10) << std::left << (is_in_use ? "in use" : "avail") << " ";
+		oss << std::setw(10) << std::left << (program.autostart ? "auto" : "manual") << " ";
+		oss << "\n";
+	}
+
+	return (oss.str());
 }
 
 const tm_Config::UnixServer&
