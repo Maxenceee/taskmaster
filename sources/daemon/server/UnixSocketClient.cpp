@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:40:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/19 11:56:39 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 12:21:28 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -178,37 +178,79 @@ UnixSocketServer::Client::exec(void)
 		return (TM_POLL_CLIENT_ERROR);
 	}
 
-	const std::string& command = this->input[0];
-	if (command.empty())
+	std::string name;
+	std::vector<std::string> args;
+	std::vector<std::string> opts;
+
+	for (const auto& line : this->input)
+	{
+		if (line.empty()) // fin du bloc
+			break;
+
+		if (line.rfind("Name:", 0) == 0)
+		{
+			name = line.substr(5);
+			name.erase(0, name.find_first_not_of(" \t")); // trim left
+		}
+		else if (line.rfind("Args:", 0) == 0)
+		{
+			std::string argline = line.substr(5);
+			std::istringstream iss(argline);
+			std::string token;
+			while (iss >> token)
+			{
+				args.push_back(token);
+			}
+		}
+		else if (line.rfind("Opts:", 0) == 0)
+		{
+			std::string optline = line.substr(5);
+			std::istringstream iss(optline);
+			std::string token;
+			while (iss >> token)
+			{
+				opts.push_back(token);
+			}
+		}
+	}
+
+	if (name.empty())
 	{
 		(void)this->send("Invalid command");
 		(void)this->send(TM_CRLF);
 		return (TM_POLL_CLIENT_ERROR);
 	}
 
-	auto itg = this->general_command_map.find(command);
+	std::cout << "Received command: " << name << std::endl;
+	std::cout << "Args:";
+	for (const auto& a : args) std::cout << " " << a;
+		std::cout << "\nOpts:";
+	for (const auto& o : opts) std::cout << " " << o;
+		std::cout << std::endl;
+
+
+	auto itg = this->general_command_map.find(name);
 	if (itg != this->general_command_map.end())
 	{
 		return ((this->*(itg->second))());
 	}
 
-	auto itp = this->process_command_map.find(command);
+	auto itp = this->process_command_map.find(name);
 	if (itp != this->process_command_map.end())
 	{
-		if (this->input.size() < 2)
+		if (args.empty())
 		{
 			(void)this->send("Invalid usage");
 			(void)this->send(TM_CRLF);
 			return (TM_POLL_CLIENT_ERROR);
 		}
 
-		std::vector<std::string> processes(this->input.begin() + 1, this->input.end());
-
-		auto ps = this->_find_processes(processes);
+		auto ps = this->_find_processes(args, opts);
 		if (ps != TM_POLL_CLIENT_OK)
 		{
 			return (ps);
 		}
+
 		for (auto& h : this->handlers)
 		{
 			(void)(this->*(itp->second))(h);
@@ -217,9 +259,9 @@ UnixSocketServer::Client::exec(void)
 		return (TM_POLL_CLIENT_OK);
 	}
 
-	if (command == "internal")
+	if (name == "internal")
 	{
-		if (this->input.size() == 3 && this->input[1] == "processes" && this->input[2] == "avail")
+		if (args.size() == 2 && args[0] == "processes" && args[1] == "avail")
 		{
 			auto a = this->_master.all();
 			for (const auto& p : a)

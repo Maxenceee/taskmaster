@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/28 12:05:18 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 12:30:03 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,10 @@ const std::unordered_map<std::string, UnixSocketServer::Client::ProcHandler> Uni
 	{"clear", &UnixSocketServer::Client::_clear},
 	{"remove", &UnixSocketServer::Client::_remove},
 	{"restart", &UnixSocketServer::Client::_restart},
+	{"signal", &UnixSocketServer::Client::_signal},
 	{"start", &UnixSocketServer::Client::_start},
-	{"stop", &UnixSocketServer::Client::_stop}
+	{"stop", &UnixSocketServer::Client::_stop},
+	{"tail", &UnixSocketServer::Client::_tail}
 };
 
 const std::unordered_map<std::string, UnixSocketServer::Client::GenHandler> UnixSocketServer::Client::general_command_map = {
@@ -30,9 +32,7 @@ const std::unordered_map<std::string, UnixSocketServer::Client::GenHandler> Unix
 	{"reload", &UnixSocketServer::Client::_reload},
 	{"reread", &UnixSocketServer::Client::_reread},
 	{"shutdown", &UnixSocketServer::Client::_shutdown},
-	{"signal", &UnixSocketServer::Client::_signal},
 	{"status", &UnixSocketServer::Client::_status},
-	{"tail", &UnixSocketServer::Client::_tail},
 	{"update", &UnixSocketServer::Client::_update},
 	{"version", &UnixSocketServer::Client::_version}
 };
@@ -40,13 +40,14 @@ const std::unordered_map<std::string, UnixSocketServer::Client::GenHandler> Unix
 const std::unordered_map<std::string, const char*> tm_pollclient_delayed_success_message = {
 	{"clear", "cleared"},
 	{"restart", "restarted"},
+	{"signal", "signalled"},
 	{"start", "started"},
 	{"stop", "stopped"},
 	{"nrun", "is not running"}
 };
 
 int
-UnixSocketServer::Client::_find_processes(const std::vector<std::string>& progs)
+UnixSocketServer::Client::_find_processes(const std::vector<std::string>& progs, const std::vector<std::string>& opts)
 {
 	if (progs.empty())
 	{
@@ -59,7 +60,7 @@ UnixSocketServer::Client::_find_processes(const std::vector<std::string>& progs)
 	{
 		for (const auto& p : this->_master.all())
 		{
-			this->handlers.push_back({p->getPuid(), p->getState(), -1, false, true, nullptr});
+			this->handlers.push_back({p->getPuid(), p->getState(), -1, false, true, nullptr, opts});
 		}
 		return (TM_POLL_CLIENT_OK);
 	}
@@ -74,7 +75,7 @@ UnixSocketServer::Client::_find_processes(const std::vector<std::string>& progs)
 			continue;
 		}
 
-		this->handlers.push_back({p->getPuid(), p->getState(), -1, false, false, nullptr});
+		this->handlers.push_back({p->getPuid(), p->getState(), -1, false, false, nullptr, opts});
 	}
 
 	if (this->handlers.empty())
@@ -315,19 +316,22 @@ UnixSocketServer::Client::_shutdown(void)
 }
 
 int
-UnixSocketServer::Client::_signal(void)
+UnixSocketServer::Client::_signal(struct tm_pollclient_process_handler& ps)
 {
-	if (this->input.size() < 3)
+	auto p = this->_master.get(ps.puid);
+	if (!p)
 	{
-		(void)this->send("Invalid usage");
+		(void)this->send("The process could not be found");
 		(void)this->send(TM_CRLF);
-		return (TM_POLL_CLIENT_ERROR);
+		return (TM_POLL_CLIENT_DISCONNECT);
 	}
+
+	ps.success_message = tm_pollclient_delayed_success_message.at("signal");
 
 	int signal;
 	try
 	{
-		signal = std::stoi(this->input[1]);
+		signal = std::stoi(ps.opts[0]);
 	}
 	catch(...)
 	{
@@ -343,28 +347,14 @@ UnixSocketServer::Client::_signal(void)
 		return (TM_POLL_CLIENT_ERROR);
 	}
 
-	for (auto it = this->input.begin() + 2; it != this->input.end(); ++it)
+	if (p->getState() != TM_P_RUNNING)
 	{
-		auto p = this->_master.find(*it);
-		if (!p)
-		{
-			(void)this->send("The process " + *it + " could not be found");
-			(void)this->send(TM_CRLF);
-			continue;
-		}
-
-		if (p->getState() != TM_P_RUNNING)
-		{
-			(void)this->send("The process is not running");
-			(void)this->send(TM_CRLF);
-			continue;
-		}
-
-		(void)this->send("Sending signal " + std::to_string(signal) + " to process " + *it + "");
+		(void)this->send("The process is not running");
 		(void)this->send(TM_CRLF);
-
-		(void)p->signal(signal);
+		return (TM_POLL_CLIENT_DISCONNECT);
 	}
+
+	(void)p->signal(signal);
 
 	return (TM_POLL_CLIENT_DISCONNECT);
 }
@@ -500,23 +490,25 @@ UnixSocketServer::Client::_stop(struct tm_pollclient_process_handler& ps)
 }
 
 int
-UnixSocketServer::Client::_tail(void)
+UnixSocketServer::Client::_tail(struct tm_pollclient_process_handler& ps)
 {
-	if (this->input.size() < 2)
+	auto p = this->_master.get(ps.puid);
+	if (!p)
 	{
-		this->send("Invalid usage");
+		(void)this->send("The process could not be found");
 		(void)this->send(TM_CRLF);
 		return (TM_POLL_CLIENT_DISCONNECT);
 	}
 
-	auto p = this->_master.find(this->input[1]);
-	if (!p)
+	bool isStdOut = ps.opts.empty() || ps.opts[0] == "stdout";
+	if (!isStdOut && ps.opts[0] != "stderr")
 	{
-		this->send("The process could not be found");
+		(void)this->send("Invalid channel");
 		(void)this->send(TM_CRLF);
-		return (TM_POLL_CLIENT_DISCONNECT);
+		return (TM_POLL_CLIENT_ERROR);
 	}
-	int fd = p->getStdOutFd();
+
+	int fd = isStdOut ? p->getStdOutFd() : p->getStdErrFd();
 	if (fd < 0)
 	{
 		this->send("Invalid file descriptor");

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/25 16:30:29 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 12:12:04 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@
 #include "signal.hpp"
 
 extern int tty_fd;
+
+extern const std::unordered_map<std::string, std::string (*)(const std::vector<std::string>&)> command_handler;
 
 char*
 get_process_name(const char* text, int state)
@@ -86,6 +88,41 @@ interruptHandlerWhenWorking(int sig_int)
 	rl_on_new_line();
 }
 
+static void
+send_cmd(const std::vector<std::string>& tokens)
+{
+	if (tokens[0] == "help") {
+		if (tokens.size() == 2) {
+			show_command_info(tokens[1]);
+		} else {
+			show_help();
+		}
+		return;
+	}
+
+	auto exists = command_handler.count(tokens[0]);
+	if (exists == 0)
+	{
+		std::cerr << "*** Unknown command" << "\n";
+		rl_on_new_line();
+		return;
+	}
+
+	auto handler = command_handler.at(tokens[0]);
+
+	std::string payload = handler(tokens);
+
+	UnixSocketClient client(TM_SOCKET_PATH);
+	if (client.connect() == TM_FAILURE)
+	{
+		std::cout << "Cannot connect to the Taskmaster daemon at unix://" << client.getSocketPath() << ". Is the daemon running?" << std::endl;
+		return;
+	}
+
+	(void)client.send(payload);
+	(void)client.print();
+}
+
 static int
 handle_stdin_input(void)
 {
@@ -95,29 +132,14 @@ handle_stdin_input(void)
 	if (rl_in.empty()) {
 		return (TM_SUCCESS);
 	}
-	
+
 	std::vector<std::string> tokens = tokenize(rl_in);
 	if (tokens.empty()) {
-	}
-
-	if (tokens[0] == "help") {
-		if (tokens.size() == 2) {
-			show_command_info(tokens[1]);
-		} else {
-			show_help();
-		}
-		return (TM_SUCCESS);
-	}
-
-	UnixSocketClient client(TM_SOCKET_PATH);
-	if (client.connect() == TM_FAILURE)
-	{
-		std::cout << "Cannot connect to the Taskmaster daemon at unix://" << client.getSocketPath() << ". Is the daemon running?" << std::endl;
+		std::cerr << "*** Invalid command" << "\n";
 		return (TM_FAILURE);
 	}
 
-	(void)client.sendCmd(tokens);
-	(void)client.print();
+	send_cmd(tokens);
 
 	return (TM_SUCCESS);
 }
@@ -163,32 +185,11 @@ attach_readline()
 				continue;
 			}
 
-			if (tokens[0] == "exit") {
-				break;
-			}
-
-			if (tokens[0] == "help") {
-				if (tokens.size() == 2) {
-					show_command_info(tokens[1]);
-				} else {
-					show_help();
-				}
-				continue;
-			}
-
-			UnixSocketClient client(TM_SOCKET_PATH);
-			if (client.connect() == TM_FAILURE)
-			{
-				std::cout << "Cannot connect to the Taskmaster daemon at unix://" << client.getSocketPath() << ". Is the daemon running?" << std::endl;
-				continue;
-			}
-
-			(void)client.sendCmd(tokens);
-			(void)client.print();
+			send_cmd(tokens);
 		}
 		catch(...)
 		{
-			std::cerr << "*** Invalid command\n";
+			std::cerr << "*** Invalid command" << "\n";
 			rl_on_new_line();
 		}
 		

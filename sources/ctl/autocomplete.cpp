@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 13:24:58 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 13:29:43 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 11:26:51 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 extern int tty_fd;
 
-const std::vector<CommandNode> commands = {
+const std::vector<tm_CommandNode> commands = {
 	{"add", {
 		{"add <name> [...]", "Activates any updates in config for process/group"},
 	}, true, false, &get_process_name},
@@ -99,7 +99,7 @@ show_help()
 	const int columns = 5;
 
 	// Filtrer les commandes visibles
-	std::vector<CommandNode> visibleCommands;
+	std::vector<tm_CommandNode> visibleCommands;
 	for (const auto& command : commands) {
 		if (command.visible) {
 			visibleCommands.push_back(command);

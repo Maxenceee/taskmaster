@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:45:59 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/19 12:41:38 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 12:25:35 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ struct tm_pollclient_process_handler {
 	bool		done;
 	bool		group_request;
 	const char*	success_message;
+	std::vector<std::string>	opts;
 };
 
 class UnixSocketServer: public UnixSocket
@@ -56,7 +57,7 @@ public:
 
 		std::vector<std::string>		input;
 
-		int		_find_processes(const std::vector<std::string>& progs);
+		int		_find_processes(const std::vector<std::string>& progs, const std::vector<std::string>& opts);
 
 		int		_add(struct tm_pollclient_process_handler& p);
 		int		_avail(void);
@@ -68,11 +69,11 @@ public:
 		int		_reread(void);
 		int		_restart(struct tm_pollclient_process_handler& p);
 		int		_shutdown(void);
-		int		_signal(void);
+		int		_signal(struct tm_pollclient_process_handler& p);
 		int		_start(struct tm_pollclient_process_handler& p);
 		int		_status(void);
 		int		_stop(struct tm_pollclient_process_handler& p);
-		int		_tail(void);
+		int		_tail(struct tm_pollclient_process_handler& p);
 		int		_update(void);
 		int		_version(void);
 

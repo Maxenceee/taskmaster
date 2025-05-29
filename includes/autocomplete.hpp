@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 13:26:18 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/21 13:29:22 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 12:06:36 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,14 +17,14 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
-struct CommandNodeUsage {
+struct tm_CommandNodeUsage {
 	std::string usage;
 	std::string description;
 };
 
-struct CommandNode {
+struct tm_CommandNode {
 	std::string								name;							// Nom de la commande
-	std::vector<struct CommandNodeUsage> 	usages;							// Liste des variantes d'usage de la commande
+	std::vector<struct tm_CommandNodeUsage> usages;							// Liste des variantes d'usage de la commande
 	bool									visible;						// Indique si la commande doit être affichée dans l'aide
 	bool									ripple_autocomplete;			// Indique si l'autocomplétion doit être propagée aux sous-commandes
 	char*									(*suggest)(const char*, int);	// Pointeur vers la fonction de rappel associée à la commande

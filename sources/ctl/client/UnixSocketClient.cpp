@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:59:19 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/19 11:55:47 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 11:37:14 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,16 +56,6 @@ ssize_t
 UnixSocketClient::send(const std::string& msg)
 {
 	return (this->send(msg.c_str(), msg.length()));
-}
-
-ssize_t
-UnixSocketClient::sendCmd(const std::vector<std::string>& cmd)
-{
-	std::string message = join(cmd, TM_CRLF);
-	message += TM_CRLF; // Join does not separator at the end
-	message += TM_CRLF; // Empty line to indicate end of command
-
-	return (this->send(message));
 }
 
 ssize_t
