@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 11:57:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/23 13:43:27 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 18:22:27 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,19 @@
 int
 reopenstds(void)
 {
+	if (!isatty(STDIN_FILENO))
+	{
+		int fd = open("/dev/tty", O_RDWR);
+		if (fd == -1)
+		{
+			return (-1);
+		}
+		if (dup2(fd, STDIN_FILENO) == -1)
+		{
+			close(fd);
+			return (-1);
+		}
+	}
 	if (!isatty(STDOUT_FILENO))
 	{
 		int fd = open("/dev/tty", O_RDWR);

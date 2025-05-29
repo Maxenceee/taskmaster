@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 18:12:12 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 18:23:26 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,25 +141,6 @@ send_cmd(const std::vector<std::string>& tokens)
 	return (TM_SUCCESS);
 }
 
-static int
-handle_stdin_input(void)
-{
-	std::string rl_in;
-	std::getline(std::cin, rl_in);
-
-	if (rl_in.empty()) {
-		return (TM_SUCCESS);
-	}
-
-	std::vector<std::string> tokens = tokenize(rl_in);
-	if (tokens.empty()) {
-		std::cerr << "*** Invalid command" << "\n";
-		return (TM_FAILURE);
-	}
-
-	return (send_cmd(tokens));
-}
-
 static void
 attach_readline()
 {
@@ -265,10 +246,6 @@ main(int argc, char* const* argv)
 
 	Logger::init("Starting " TM_PROJECTCTL);
 	Logger::setDebug(true);
-	
-	// if (isatty(STDIN_FILENO) == 0) {
-	// 	return (handle_stdin_input());
-	// }
 
 	try {
 		if (false == remaining_args.empty())
