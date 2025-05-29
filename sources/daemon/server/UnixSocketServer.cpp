@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 17:43:04 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 20:09:38 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 21:55:40 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include "logger/Logger.hpp"
 #include "utils/utils.hpp"
 
-UnixSocketServer::UnixSocketServer(const char* unix_path, Taskmaster& master): UnixSocket(unix_path), _master(master)
+UnixSocketServer::UnixSocketServer(const char* unix_path, Taskmaster& master): UnixSocket(unix_path), _master(master), _running(false)
 {
 	if (!this->_test_socket())
 	{
