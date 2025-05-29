@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 19:47:16 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 19:55:19 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -462,7 +462,7 @@ UnixSocketServer::Client::_status(void)
 		return (TM_POLL_CLIENT_DISCONNECT);
 	}
 
-	for (auto it = this->args.begin() + 1; it != this->args.end(); ++it)
+	for (auto it = this->args.begin(); it != this->args.end(); ++it)
 	{
 		auto p = this->_master.find(*it);
 		if (!p)
