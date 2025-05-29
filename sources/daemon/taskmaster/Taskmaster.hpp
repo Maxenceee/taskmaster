@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:51 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/24 22:57:58 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 18:25:30 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,8 +59,8 @@ public:
 	std::string	getAvailableProcs(void) const;
 
 	const std::vector<Process*>	all(void) const;
-	Process* const	find(const std::string& progname) const;
-	Process* const	get(uint32_t uid) const;
+	Process*	find(const std::string& progname) const;
+	Process*	get(uint32_t uid) const;
 };
 
 #endif /* TASKMASTER_HPP */

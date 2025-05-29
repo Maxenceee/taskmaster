@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 15:13:18 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 18:25:43 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -174,7 +174,7 @@ Taskmaster::all(void) const
 	return (res);
 }
 
-Process* const
+Process*
 Taskmaster::find(const std::string& progname) const
 {
 	for (const auto* group : this->_processes)
@@ -188,7 +188,7 @@ Taskmaster::find(const std::string& progname) const
 	return (nullptr);
 }
 
-Process* const
+Process*
 Taskmaster::get(uint32_t uid) const
 {
 	uint16_t gid = TM_P_GID(uid);

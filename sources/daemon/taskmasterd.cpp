@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 17:56:47 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 18:32:14 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,6 +139,8 @@ start_main_loop(const std::string& config_file)
 int
 main(int argc, char* const* argv)
 {
+	(void)argc;
+
 	Logger::printHeader();
 
 	// if (become_daemon(TM_NO_CHDIR | TM_NO_UMASK0 | TM_CLOSE_FILES) == TM_FAILURE)
@@ -147,7 +149,7 @@ main(int argc, char* const* argv)
 	// 	return (TM_FAILURE);
 	// }
 
-	int ch, option = 0;
+	int ch = 0;
 	bool nodaemon = false;
 	std::string config_file;
 
@@ -157,7 +159,7 @@ main(int argc, char* const* argv)
 		{"silent", 's', TM_OPTPARSE_NONE},
 		{"help", 'h', TM_OPTPARSE_NONE},
 		{"version", 'v', TM_OPTPARSE_NONE},
-		{0}
+		{nullptr, 0, TM_OPTPARSE_NONE}
 	};
 	struct tm_getopt_s options;
 
@@ -200,6 +202,8 @@ main(int argc, char* const* argv)
 
 	ignore_signals();
 	setup_signal(SIGPIPE, SIG_IGN);
+
+	std::cout << "nodaemon: " << (nodaemon ? "true" : "false") << std::endl;
 
 	try
 	{

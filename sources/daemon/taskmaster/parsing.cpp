@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 15:13:10 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 18:26:12 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -546,7 +546,7 @@ Taskmaster::update(void)
 
 	Logger::setLogFileMaxSize(this->_active_config.daemon.logfile_maxbytes, TM_LOG_FILE_STDOUT | TM_LOG_FILE_STDERR);
 
-	int current_uid = getuid();
+	uid_t current_uid = getuid();
 	if (this->_active_config.daemon.user != current_uid)
 	{
 		if (current_uid != 0)

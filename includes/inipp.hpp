@@ -132,6 +132,8 @@ public:
 	const CharT char_interpol_sep;
 	const CharT char_interpol_end;
 
+	virtual ~Format() = default;
+
 	Format(CharT section_start, CharT section_end, CharT assign, CharT comment, CharT interpol, CharT interpol_start, CharT interpol_sep, CharT interpol_end)
 		: char_section_start(section_start)
 		, char_section_end(section_end)

@@ -18,7 +18,7 @@ HEADERS			=	$(shell find $(HEADERS_DIR) -name "*.hpp") $(shell find $(SOURCES_DI
 
 RM				=	rm -f
 CC				=	g++
-# CXXFLAGS		=	-Wall -Wextra -Werror
+CXXFLAGS		=	-Wall -Wextra -Werror
 CFLAGS			=	-g3 -std=c++20 -I $(HEADERS_DIR) -I $(COMMON_SOURCES_DIR) -I $(D_SOURCES_DIR) -I $(CTL_SOURCES_DIR) $(CXXFLAGS)
 
 RLIBS			=	-lreadline -lhistory

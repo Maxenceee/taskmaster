@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 18:23:26 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 18:32:26 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -203,14 +203,14 @@ main(int argc, char* const* argv)
 {
 	Logger::printHeader();
 
-	int ch, option = 0;
+	int ch = 0;
 	bool interactive = false;
 	std::string config_file;
 
 	struct tm_getopt_list_s optlist[] = {
 		{"interactive", 'i', TM_OPTPARSE_NONE},
 		{"help", 'h', TM_OPTPARSE_NONE},
-		{0}
+		{nullptr, 0, TM_OPTPARSE_NONE}
 	};
 	struct tm_getopt_s options;
 
