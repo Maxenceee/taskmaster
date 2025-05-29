@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 21:45:05 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 21:50:54 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,6 @@ bool	Taskmaster::reload = false;
 bool	deamonized = false;
 
 Taskmaster* g_master = nullptr;
-UnixSocketServer* g_server = nullptr;
 
 static void
 usage(char const* exec)
@@ -122,9 +121,17 @@ start_main_loop(const std::string& config_file)
 
 	UnixSocketServer server(master.getServerConf().file.c_str(), master);
 
-	if (false == deamonized && become_daemon(TM_NO_CHDIR | TM_NO_UMASK0 | TM_CLOSE_FILES) == TM_FAILURE)
+	if (false == deamonized)
 	{
-		throw std::runtime_error("Could not become daemon.");
+		pid_t b_pid;
+		if ((b_pid = become_daemon(TM_NO_CHDIR | TM_NO_UMASK0 | TM_CLOSE_FILES)) == -1)
+		{
+			throw std::runtime_error("Could not become daemon.");
+		}
+		if (b_pid > 0)
+		{
+			return;
+		}
 	}
 	deamonized = true;
 

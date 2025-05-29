@@ -6,44 +6,32 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 15:39:02 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 21:45:41 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 21:50:56 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "daemon.hpp"
 #include "logger/Logger.hpp"
 #include "taskmaster/Taskmaster.hpp"
-#include "server/UnixSocketServer.hpp"
 
 extern Taskmaster*	g_master;
-extern UnixSocketServer* g_server;
 
-int // retourne 0 en cas de succès, 1 en cas d'erreur
+int // retourne 0 en cas de succès depuis l'enfant, > 0 en cas de succès depuis le parent, -1 en cas d'erreur
 become_daemon(int flags)
 {
+	pid_t pid;
 	/**
 	 * Le premier fork va changer notre pid
 	 * mais le sid et le pgid seront ceux
 	 * du processus appelant.
 	 */
-	switch(fork())
+	switch((pid = fork()))
 	{
 		case -1:
 			Logger::perror("fork");
-			return (TM_FAILURE);
+			return (-1);
 		case 0: break;                  // l'enfant continue
-		default:
-			if (g_master) 
-		{
-				delete g_master;
-				g_master = nullptr;
-			}
-			if (g_server)
-			{
-				delete g_server;
-				g_server = nullptr;
-			}
-			exit(EXIT_SUCCESS);   // le parent se termine
+		default: return (pid);
 	}
 
 	/**
@@ -56,7 +44,7 @@ become_daemon(int flags)
 	 */
 	if(setsid() == -1) {               // devenir le leader de la nouvelle session
 		Logger::perror("setsid");
-		return (TM_FAILURE);
+		return (-1);
 	}
 
 	/**
@@ -75,7 +63,7 @@ become_daemon(int flags)
 	{
 		case -1:
 			Logger::perror("fork");
-			return (TM_FAILURE);
+			return (-1);
 		case 0: break;                  // l'enfant sort continue
 		default: exit(EXIT_SUCCESS);   // le processus parent se terminera
 	}

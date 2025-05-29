@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 15:29:56 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 21:39:04 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 21:46:56 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@
 #define TM_CLOSE_FILES		04		// Close all open files
 #define TM_MAX_CLOSE		8192	// Max file descriptors to close if sysconf(_SC_OPEN_MAX) is indeterminate
 
-// returns 0 on success -1 on error
 int become_daemon(int flags);
 
 #endif /* DAEMON_HPP */
