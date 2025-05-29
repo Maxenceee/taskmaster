@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 18:03:12 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 18:12:12 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,7 +105,7 @@ interruptHandlerWhenWorking(int sig_int)
 	rl_on_new_line();
 }
 
-static void
+static int
 send_cmd(const std::vector<std::string>& tokens)
 {
 	if (tokens[0] == "help") {
@@ -114,7 +114,7 @@ send_cmd(const std::vector<std::string>& tokens)
 		} else {
 			show_help();
 		}
-		return;
+		return (TM_SUCCESS);
 	}
 
 	auto exists = command_handler.count(tokens[0]);
@@ -122,7 +122,7 @@ send_cmd(const std::vector<std::string>& tokens)
 	{
 		std::cerr << "*** Unknown command" << "\n";
 		rl_on_new_line();
-		return;
+		return (TM_FAILURE);
 	}
 
 	auto handler = command_handler.at(tokens[0]);
@@ -133,11 +133,12 @@ send_cmd(const std::vector<std::string>& tokens)
 	if (client.connect() == TM_FAILURE)
 	{
 		std::cout << "Cannot connect to the Taskmaster daemon at unix://" << client.getSocketPath() << ". Is the daemon running?" << std::endl;
-		return;
+		return (TM_FAILURE);
 	}
 
 	(void)client.send(payload);
 	(void)client.print();
+	return (TM_SUCCESS);
 }
 
 static int
@@ -156,9 +157,7 @@ handle_stdin_input(void)
 		return (TM_FAILURE);
 	}
 
-	send_cmd(tokens);
-
-	return (TM_SUCCESS);
+	return (send_cmd(tokens));
 }
 
 static void
@@ -207,7 +206,7 @@ attach_readline()
 				break;
 			}
 
-			send_cmd(tokens);
+			(void)send_cmd(tokens);
 		}
 		catch(...)
 		{
@@ -248,11 +247,15 @@ main(int argc, char* const* argv)
 		}
 	}
 
-	if (argc - options.optind > 0)
+	std::vector<std::string> remaining_args;
+	if (argc - options.optind == 0)
 	{
-		std::cout << argc - options.optind << std::endl;
+		interactive = true;
+	}
+	else
+	{
 		for (int i = options.optind; i < argc; ++i)
-        	std::cout << "Arg restant : " << options.argv[i] << std::endl;
+			remaining_args.push_back(options.argv[i]);
 	}
 
 	if (reopenstds() == -1) {
@@ -262,13 +265,20 @@ main(int argc, char* const* argv)
 
 	Logger::init("Starting " TM_PROJECTCTL);
 	Logger::setDebug(true);
-
-	if (isatty(STDIN_FILENO) == 0) {
-		return (handle_stdin_input());
-	}
+	
+	// if (isatty(STDIN_FILENO) == 0) {
+	// 	return (handle_stdin_input());
+	// }
 
 	try {
-		attach_readline();
+		if (false == remaining_args.empty())
+		{
+			(void)send_cmd(remaining_args);
+		}
+		if (interactive)
+		{
+			attach_readline();
+		}
 	} catch (const std::exception& e) {
 		Logger::error(e.what());
 		return (TM_FAILURE);
