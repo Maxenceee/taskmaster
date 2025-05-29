@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/19 11:36:49 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 21:20:43 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,7 +197,7 @@ private:
 	time_point	stop_time;
 
 	time_point_steady	request_stop_time;
-	bool				waiting_restart;
+	bool				_waiting_restart;
 
 	int		std_in_fd;
 	int		std_out_fd;

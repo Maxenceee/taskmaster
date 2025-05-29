@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 21:20:28 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 21:20:43 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ Process::Process(tm_Config::Program& config, uint16_t& gid, const std::string& p
 	this->_state = TM_P_STOPPED;
 	this->_retries = 0;
 	this->_dead = false;
-	this->waiting_restart = false;
+	this->_waiting_restart = false;
 
 	this->std_in_fd = -1;
 	this->std_out_fd = -1;
@@ -226,7 +226,7 @@ Process::start(void)
 int
 Process::restart(void)
 {
-	this->waiting_restart = true;
+	this->_waiting_restart = true;
 
 	this->_desired_state = TM_P_RUNNING;
 
@@ -246,7 +246,7 @@ Process::stop(void)
 	{
 		return (TM_SUCCESS);
 	}
-	if (false == this->waiting_restart)
+	if (false == this->_waiting_restart)
 	{
 		this->_desired_state = TM_P_EXITED;
 	}
@@ -280,7 +280,7 @@ Process::kill(void)
 		return (TM_SUCCESS);
 	}
 	this->_state = TM_P_EXITED;
-	if (false == this->waiting_restart)
+	if (false == this->_waiting_restart)
 	{
 		this->_desired_state = TM_P_EXITED;
 	}
@@ -339,10 +339,10 @@ Process::monitor(void)
 	case TM_P_STOPPING:
 		return (this->_monitor_stopping());
 	case TM_P_EXITED:
-		if (this->waiting_restart)
+		if (this->_waiting_restart)
 		{
 			this->_retries = 0;
-			this->waiting_restart = false;
+			this->_waiting_restart = false;
 			return (this->_spawn());
 		}
 		break;
@@ -399,7 +399,7 @@ Process::_monitor_running(void)
 			|| this->_signal != 0)
 		{
 			this->_desired_state = TM_P_RUNNING;
-			this->waiting_restart = true;
+			this->_waiting_restart = true;
 		}
 		return (1);
 	}
