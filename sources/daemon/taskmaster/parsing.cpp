@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 19:35:37 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 19:57:47 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,17 +177,23 @@ _max_bytes(const std::optional<std::string>& str, const size_t _default)
 		auto it = suffixes.find(suffix);
 		if (it != suffixes.end()) {
 			std::string numberPart = input.substr(0, input.size() - 2);
-			try {
+			try
+			{
 				return static_cast<size_t>(std::stoull(numberPart)) * it->second;
-			} catch (...) {
+			}
+			catch (...)
+			{
 				throw std::invalid_argument("Invalid size value: " + *str);
 			}
 		}
 	}
 
-	try {
+	try
+	{
 		return static_cast<size_t>(std::stoull(input)) * _default;
-	} catch (...) {
+	}
+	catch (...)
+	{
 		throw std::invalid_argument("Invalid size value: " + *str);
 	}
 }
