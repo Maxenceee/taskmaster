@@ -6,21 +6,38 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 12:51:09 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 18:03:12 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "tm.hpp"
-#include "logger/Logger.hpp"
+#include "getopt.hpp"
 #include "readline.hpp"
 #include "autocomplete.hpp"
+#include "signal.hpp"
+#include "logger/Logger.hpp"
 #include "utils/utils.hpp"
 #include "client/UnixSocketClient.hpp"
-#include "signal.hpp"
 
 extern int tty_fd;
 
 extern const std::unordered_map<std::string, std::string (*)(const std::vector<std::string>&)> command_handler;
+
+static void
+usage(char const* exec)
+{
+	std::cout << TM_PROJECTCTL " -- control applications run by supervisord from the cmd line" << "\n\n";
+	std::cout << "Usage: " << exec << " [options] [action [arguments]]" << "\n\n";
+	std::cout << "Options:" << "\n";
+	std::cout << "  " << "-i" << ", " << std::left << std::setw(20) << "--interactive" << " start an interactive shell after executing commands" << "\n";
+	std::cout << "  " << "-h" << ", " << std::left << std::setw(20) << "--help" << " Display this help and exit" << "\n";
+	std::cout << "\n" << "action [arguments] -- see below" << "\n\n";
+	std::cout << "Actions are commands like \"tail\" or \"stop\".  If -i is specified or no action is\n";
+	std::cout << "specified on the command line, a \"shell\" interpreting actions typed\n";
+	std::cout << "interactively is started.  Use the action \"help\" to find out about available\n";
+	std::cout << "actions.\n";
+	exit(64);
+}
 
 char*
 get_process_name(const char* text, int state)
@@ -205,6 +222,38 @@ int
 main(int argc, char* const* argv)
 {
 	Logger::printHeader();
+
+	int ch, option = 0;
+	bool interactive = false;
+	std::string config_file;
+
+	struct tm_getopt_list_s optlist[] = {
+		{"interactive", 'i', TM_OPTPARSE_NONE},
+		{"help", 'h', TM_OPTPARSE_NONE},
+		{0}
+	};
+	struct tm_getopt_s options;
+
+	tm_getopt_init(&options, argv);
+	while ((ch = tm_getopt(&options, optlist, NULL)) != -1)
+	{
+		switch (ch)
+		{
+			case 'i':
+				interactive = true;
+				break;
+			case 'h':
+			default:
+				usage(argv[0]);
+		}
+	}
+
+	if (argc - options.optind > 0)
+	{
+		std::cout << argc - options.optind << std::endl;
+		for (int i = options.optind; i < argc; ++i)
+        	std::cout << "Arg restant : " << options.argv[i] << std::endl;
+	}
 
 	if (reopenstds() == -1) {
 		Logger::perror("Failed to reopen stds");

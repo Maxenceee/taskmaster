@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:56 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 13:01:44 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 17:45:52 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 bool			Logger::_debug = false;
 pthread_mutex_t Logger::_loggerMutex;
 bool			Logger::_initiated = false;
+bool			Logger::_silent = false;
 pid_t			Logger::_pid = getpid();
 
 Logger::LoggerFileStream	Logger::cout;
@@ -167,6 +168,12 @@ Logger::reopenFileLogging(void)
 		Logger::cout.reopen();
 		Logger::cerr.reopen();
 	}
+}
+
+void
+Logger::silent(bool mode)
+{
+	Logger::_silent = mode;
 }
 
 std::ifstream

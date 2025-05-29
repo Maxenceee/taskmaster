@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:53 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 13:01:56 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 17:45:49 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,7 @@ private:
 	static bool				_debug;
 	static pthread_mutex_t	_loggerMutex;
 	static bool				_initiated;
+	static bool 			_silent;
 
 	static pid_t			_pid;
 
@@ -124,6 +125,7 @@ public:
 	static void	enableFileLogging(const std::string& out, const std::string& err);
 	static void setLogFileMaxSize(size_t size, int channel);
 	static void reopenFileLogging(void);
+	static void silent(bool mode);
 
 	static std::ifstream dump(tm_log_file_channel channel);
 

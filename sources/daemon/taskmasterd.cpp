@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/20 19:25:05 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 17:56:47 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "spawn.hpp"
 #include "signal.hpp"
 #include "pid.hpp"
+#include "getopt.hpp"
 #include "taskmaster/Taskmaster.hpp"
 #include "logger/Logger.hpp"
 #include "server/UnixSocketServer.hpp"
@@ -22,6 +23,20 @@
 bool	Taskmaster::running = false;
 bool	Taskmaster::reload = false;
 Taskmaster*	g_master = nullptr;
+
+static void
+usage(char const* exec)
+{
+	std::cout << TM_PROJECTD " -- run a set of applications as daemons" << "\n\n";
+	std::cout << "Usage: " << exec << " [options]" << "\n\n";
+	std::cout << "Options:" << "\n";
+	std::cout << "  " << "-c" << ", " << std::left << std::setw(20) << "--configuration <file>" << " Specify configuration file" << "\n";
+	std::cout << "  " << "-n" << ", " << std::left << std::setw(20) << "--nodaemon" << " Run in foreground (do not daemonize)" << "\n";
+	std::cout << "  " << "-s" << ", " << std::left << std::setw(20) << "--silent" << " Suppress output to stdout/stderr" << "\n";
+	std::cout << "  " << "-h" << ", " << std::left << std::setw(20) << "--help" << " Display this help and exit" << "\n";
+	std::cout << "  " << "-v" << ", " << std::left << std::setw(20) << "--version" << " Display version information and exit" << "\n";
+	exit(64);
+}
 
 static void
 interruptHandler(int sig_int)
@@ -77,9 +92,9 @@ ignore_signals(void)
 }
 
 inline static void
-start_main_loop(char* const* argv)
+start_main_loop(const std::string& config_file)
 {
-	Taskmaster master;
+	Taskmaster master(config_file);
 	g_master = &master;
 
 	(void)master.readconfig();
@@ -126,17 +141,53 @@ main(int argc, char* const* argv)
 {
 	Logger::printHeader();
 
-	// if (argc < 2)
-	// {
-	// 	std::cerr << "Usage: " << argv[0] << " <cmd>" << std::endl;
-	// 	return (TM_FAILURE);
-	// }
-
 	// if (become_daemon(TM_NO_CHDIR | TM_NO_UMASK0 | TM_CLOSE_FILES) == TM_FAILURE)
 	// {
 	// 	Logger::error("Could not become daemon");
 	// 	return (TM_FAILURE);
 	// }
+
+	int ch, option = 0;
+	bool nodaemon = false;
+	std::string config_file;
+
+	struct tm_getopt_list_s optlist[] = {
+		{"configuration", 'c', TM_OPTPARSE_REQUIRED},
+		{"nodaemon", 'n', TM_OPTPARSE_NONE},
+		{"silent", 's', TM_OPTPARSE_NONE},
+		{"help", 'h', TM_OPTPARSE_NONE},
+		{"version", 'v', TM_OPTPARSE_NONE},
+		{0}
+	};
+	struct tm_getopt_s options;
+
+	tm_getopt_init(&options, argv);
+	while ((ch = tm_getopt(&options, optlist, NULL)) != -1)
+	{
+		switch (ch)
+		{
+			case 'c':
+				if (options.optarg == nullptr)
+				{
+					Logger::error("No configuration file specified");
+					return (TM_FAILURE);
+				}
+				config_file = options.optarg;
+				break;
+			case 'n':
+				nodaemon = true;
+				break;
+			case 's':
+				Logger::silent(true);
+				break;
+			case 'v':
+				std::cout << TM_PROJECTD " " TM_VERSION " - " TM_AUTHOR << std::endl;
+				exit(0);
+			case 'h':
+			default:
+				usage(argv[0]);
+		}
+	}
 
 	Logger::enableFileLogging();
 	Logger::init("Starting daemon");
@@ -154,7 +205,7 @@ main(int argc, char* const* argv)
 	{
 		do
 		{
-			start_main_loop(argv);
+			start_main_loop(config_file);
 		} while (Taskmaster::reload);
 	}
 	catch (const std::exception& e)
