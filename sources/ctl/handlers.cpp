@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 11:26:53 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 12:42:24 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 12:54:38 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,11 @@
 static inline std::string
 _no_args_handler(const std::vector<std::string>& args)
 {
+	if (args.size() != 1)
+	{
+		throw std::invalid_argument("Invalid usage");
+	}
+
 	std::string payload = "Name: " + args[0] + TM_CRLF;
 	payload += TM_CRLF; // End of command
 
@@ -90,7 +95,7 @@ _signal_handler(const std::vector<std::string>& args)
 	{
 		payload += "Opts: " + args[1] + TM_CRLF; // Signal number
 		payload += "Args: ";
-		for (size_t i = 1; i < args.size(); ++i)
+		for (size_t i = 2; i < args.size(); ++i)
 		{
 			payload += args[i];
 			if (i < args.size() - 1)
@@ -133,7 +138,6 @@ extern const std::unordered_map<std::string, std::string (*)(const std::vector<s
 	{"add", &_procs_handler},
 	{"avail", &_no_args_handler},
 	{"clear", &_procs_handler},
-	{"exit", &_no_args_handler},
 	{"maintail", &_no_args_handler},
 	{"pid", &_procs_or_daemon_handler},
 	{"reload", &_no_args_handler},

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 12:43:14 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 12:49:43 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,6 @@ UnixSocketServer::Client::_find_processes(const std::vector<std::string>& progs)
 
 	for (const auto& prog : progs)
 	{
-		std::cout << "Looking for process: " << prog << std::endl;
 		auto p = this->_master.find(prog);
 		if (!p)
 		{
@@ -131,6 +130,8 @@ UnixSocketServer::Client::_clear(struct tm_pollclient_process_handler& ps)
 		(void)this->send(TM_CRLF);
 		return (TM_POLL_CLIENT_DISCONNECT);
 	}
+
+	ps.requested_state = p->getState();
 
 	return (TM_POLL_CLIENT_DISCONNECT);
 }

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 12:45:30 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 12:51:09 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,6 +183,11 @@ attach_readline()
 			free(rl_in);
 			if (tokens.empty()) {
 				continue;
+			}
+
+			if (tokens[0] == "exit")
+			{
+				break;
 			}
 
 			send_cmd(tokens);
