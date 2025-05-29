@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 19:49:55 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 19:58:46 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,10 @@ Taskmaster::Taskmaster(void): Taskmaster("")
 Taskmaster::~Taskmaster(void)
 {
 	for(const auto& group : this->_processes)
+	{
+		delete group;
+	}
+	for (const auto& group : this->_transitioning)
 	{
 		delete group;
 	}

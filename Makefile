@@ -29,8 +29,6 @@ endif
 CFLAGS			+=	-I$(RLIBS_DIR)/include
 CFLAGS			+=	-D TOML_EXCEPTIONS=0
 
-LIBS			=	$(RLIBS)
-
 NAME_D			=	taskmasterd
 NAME_CTL		=	taskmasterctl
 
@@ -54,11 +52,11 @@ $(OBJ_DIR)/%.o: $(SOURCES_DIR)/%.cpp $(HEADERS) Makefile
 	@printf ${UP}${CUT}
 
 $(NAME_D): $(D_OBJS) $(COMMON_OBJS)
-	@$(CC) $(D_OBJS) $(COMMON_OBJS) -o $(NAME_D) $(LIBS)
+	@$(CC) $(D_OBJS) $(COMMON_OBJS) -o $(NAME_D)
 	@echo "$(GREEN)$(NAME_D) compiled!$(DEFAULT)"
 
 $(NAME_CTL): $(CTL_OBJS) $(COMMON_OBJS)
-	@$(CC) $(CTL_OBJS) $(COMMON_OBJS) -o $(NAME_CTL) $(LIBS)
+	@$(CC) $(CTL_OBJS) $(COMMON_OBJS) -o $(NAME_CTL) $(RLIBS)
 	@echo "$(GREEN)$(NAME_CTL) compiled!$(DEFAULT)"
 
 clean:

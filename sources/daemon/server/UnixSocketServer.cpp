@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 17:43:04 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/20 19:13:28 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 20:09:38 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,6 +175,7 @@ UnixSocketServer::stop(void)
 				(void)c->send(TM_CRLF);
 			}
 			(void)::shutdown(c->getFd(), SHUT_RDWR);
+			delete c;
 		}
 	}
 	for (auto& poll_fd : this->poll_fds)
