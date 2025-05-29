@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 21:20:16 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 21:20:28 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ Process::Process(tm_Config::Program& config, uint16_t& gid, const std::string& p
 	this->_exit_code = 0;
 	this->_state = TM_P_STOPPED;
 	this->_retries = 0;
+	this->_dead = false;
 	this->waiting_restart = false;
 
 	this->std_in_fd = -1;
