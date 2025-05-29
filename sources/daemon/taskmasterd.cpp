@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 18:53:16 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 18:55:05 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,6 +167,7 @@ main(int argc, char* const* argv)
 		{"nodaemon", 'n', TM_OPTPARSE_NONE},
 		{"silent", 's', TM_OPTPARSE_NONE},
 		{"help", 'h', TM_OPTPARSE_NONE},
+		{"debug", 'd', TM_OPTPARSE_NONE},
 		{"version", 'v', TM_OPTPARSE_NONE},
 		{nullptr, 0, TM_OPTPARSE_NONE}
 	};
@@ -194,6 +195,9 @@ main(int argc, char* const* argv)
 			case 'v':
 				std::cout << TM_PROJECTD " " TM_VERSION " - " TM_AUTHOR << std::endl;
 				exit(0);
+			case 'd':
+				Logger::setDebug(true);
+				break;
 			case 'h':
 			default:
 				usage(argv[0]);
@@ -202,7 +206,6 @@ main(int argc, char* const* argv)
 
 	Logger::enableFileLogging();
 	Logger::init("Starting daemon");
-	Logger::setDebug(true);
 
 	ignore_signals();
 	setup_signal(SIGPIPE, SIG_IGN);

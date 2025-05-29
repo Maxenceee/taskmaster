@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 18:37:04 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 18:54:26 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -242,7 +242,7 @@ main(int argc, char* const* argv)
 	}
 
 	Logger::init("Starting " TM_PROJECTCTL);
-	Logger::setDebug(true);
+	// Logger::setDebug(true);
 
 	try {
 		if (false == remaining_args.empty())
