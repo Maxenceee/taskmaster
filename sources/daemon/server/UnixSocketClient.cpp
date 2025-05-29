@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:40:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 12:40:12 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 12:46:17 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -256,7 +256,7 @@ UnixSocketServer::Client::exec(void)
 
 	if (name == "internal")
 	{
-		if (this->args.size() == 2 && this->args[0] == "processes" && args[1] == "avail")
+		if (this->args[0] == "processes" && this->opts[0] == "avail")
 		{
 			auto a = this->_master.all();
 			for (const auto& p : a)
@@ -264,8 +264,8 @@ UnixSocketServer::Client::exec(void)
 				(void)this->send(p->getProcessName());
 				(void)this->send(TM_CRLF);
 			}
-			return (TM_POLL_CLIENT_DISCONNECT);
 		}
+		return (TM_POLL_CLIENT_DISCONNECT);
 	}
 
 	(void)this->send("Invalid command");

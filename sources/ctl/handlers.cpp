@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 11:26:53 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 12:14:11 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 12:42:24 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ _procs_or_daemon_handler(const std::vector<std::string>& args)
 	}
 	else
 	{
-		payload += "Args: all" TM_CRLF;
+		payload += "Args:" TM_CRLF;
 	}
 	payload += TM_CRLF; // End of command
 

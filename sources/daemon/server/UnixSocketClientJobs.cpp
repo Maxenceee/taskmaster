@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 12:40:26 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 12:43:14 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -419,7 +419,7 @@ UnixSocketServer::Client::_start(struct tm_pollclient_process_handler& ps)
 int
 UnixSocketServer::Client::_status(void)
 {
-	if (this->args.size() == 1 || this->args[0] == "all")
+	if (this->args.size() == 0 || (this->args.size() == 1 && this->args[0] == "all"))
 	{
 		(void)this->send(this->_master.getProcsStatus());
 		return (TM_POLL_CLIENT_DISCONNECT);

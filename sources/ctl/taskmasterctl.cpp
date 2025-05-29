@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 12:12:04 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 12:45:30 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ get_process_name(const char* text, int state)
 			return nullptr;
 		}
 
-		(void)client.send("internal" TM_CRLF "processes" TM_CRLF "avail" TM_CRLF TM_CRLF);
+		(void)client.send("Name: internal" TM_CRLF "Args: processes" TM_CRLF "Opts: avail" TM_CRLF TM_CRLF);
 		std::string buffer = client.recv();
 
 		if (buffer.empty())
