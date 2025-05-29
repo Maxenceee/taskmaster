@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 17:43:04 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 21:57:20 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 22:01:17 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,6 @@ UnixSocketServer::~UnixSocketServer(void)
 		(void)this->shutdown();
 		(void)this->stop();
 	}
-	std::cout << " ~UnixSocketServer called" << std::endl;
 }
 
 bool

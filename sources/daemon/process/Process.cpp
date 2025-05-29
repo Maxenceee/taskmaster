@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 21:58:55 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 22:01:12 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,6 @@ Process::Process(tm_Config::Program& config, uint16_t& gid, const std::string& p
 
 Process::~Process(void)
 {
-	std::cout << " ~Process called" << std::endl;
 	if (this->_state == TM_P_RUNNING && this->pid != 0)
 	{
 		Logger::error("Process destructor called while process is running.");
