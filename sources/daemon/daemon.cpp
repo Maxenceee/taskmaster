@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 15:39:02 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 21:50:56 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 22:00:23 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,13 +59,13 @@ become_daemon(int flags)
 	 * de processus et donc, ne pourra pas avoir de terminal de contrôle
 	 * s'il y en avait un.
 	 */
-	switch(fork())
+	switch((pid = fork()))
 	{
 		case -1:
 			Logger::perror("fork");
 			return (-1);
 		case 0: break;                  // l'enfant sort continue
-		default: exit(EXIT_SUCCESS);   // le processus parent se terminera
+		default: return (pid);
 	}
 
 	if (0 == (flags & TM_NO_UMASK0))
