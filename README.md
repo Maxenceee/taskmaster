@@ -17,7 +17,7 @@
 
 - taskmasterd
 	- logfile ✅
-	- pidfile
+	- pidfile ✅
 	- logfile_maxbytes ✅
 	- umask ✅
 	- user ✅

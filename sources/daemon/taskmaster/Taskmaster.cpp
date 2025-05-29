@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 18:25:43 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 18:40:31 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -252,4 +252,10 @@ const tm_Config::UnixServer&
 Taskmaster::getServerConf(void) const
 {
 	return (this->_active_config.server);
+}
+
+const tm_Config::Daemon&
+Taskmaster::getDaemonConf(void) const
+{
+	return (this->_active_config.daemon);
 }

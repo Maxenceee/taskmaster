@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 18:32:14 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 18:44:20 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,6 +100,13 @@ start_main_loop(const std::string& config_file)
 	(void)master.readconfig();
 	master.update();
 
+	auto pidfile = master.getDaemonConf().pidfile;
+
+	if (create_pid_file(pidfile.c_str()) == TM_FAILURE)
+	{
+		throw std::runtime_error("");
+	}
+
 	UnixSocketServer server(master.getServerConf().file.c_str(), master);
 	server.listen();
 
@@ -133,6 +140,8 @@ start_main_loop(const std::string& config_file)
 	ignore_signals();
 	g_master = nullptr;
 
+	remove_pid_file(pidfile.c_str());
+
 	Logger::print(TM_PROJECTD " stopped", B_GREEN);
 }
 
@@ -142,12 +151,6 @@ main(int argc, char* const* argv)
 	(void)argc;
 
 	Logger::printHeader();
-
-	// if (become_daemon(TM_NO_CHDIR | TM_NO_UMASK0 | TM_CLOSE_FILES) == TM_FAILURE)
-	// {
-	// 	Logger::error("Could not become daemon");
-	// 	return (TM_FAILURE);
-	// }
 
 	int ch = 0;
 	bool nodaemon = false;
@@ -195,18 +198,17 @@ main(int argc, char* const* argv)
 	Logger::init("Starting daemon");
 	Logger::setDebug(true);
 
-	if (create_pid_file() == TM_FAILURE)
-	{
-		return (TM_FAILURE);
-	}
-
 	ignore_signals();
 	setup_signal(SIGPIPE, SIG_IGN);
 
-	std::cout << "nodaemon: " << (nodaemon ? "true" : "false") << std::endl;
-
 	try
 	{
+		if (false == nodaemon && become_daemon(TM_NO_CHDIR | TM_NO_UMASK0 | TM_CLOSE_FILES) == TM_FAILURE)
+		{
+			Logger::error("Could not become daemon");
+			return (TM_FAILURE);
+		}
+
 		do
 		{
 			start_main_loop(config_file);
@@ -215,10 +217,8 @@ main(int argc, char* const* argv)
 	catch (const std::exception& e)
 	{
 		Logger::error(e.what());
-		remove_pid_file();
 		return (TM_FAILURE);
 	}
-	remove_pid_file();
 
 	return (TM_SUCCESS);
 }

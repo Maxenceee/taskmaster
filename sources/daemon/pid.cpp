@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 13:34:11 by mgama             #+#    #+#             */
-/*   Updated: 2025/04/23 13:43:50 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 18:42:23 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,14 +59,14 @@ static int lock_pid(int fd)
 }
 
 int
-create_pid_file(void)
+create_pid_file(const char* pid_file)
 {
 	int32_t	tm_pid;
 	int		pid_fd;
 
 	tm_pid = getpid();
 
-	pid_fd = open(TM_PID_FILE, O_RDWR | O_CREAT, TM_DEFAULT_FILE_MODE);
+	pid_fd = open(pid_file, O_RDWR | O_CREAT, TM_DEFAULT_FILE_MODE);
 	if (pid_fd == -1)
 	{
 		Logger::perror("open");
@@ -90,7 +90,7 @@ create_pid_file(void)
 }
 
 void
-remove_pid_file(void)
+remove_pid_file(const char* pid_file)
 {
 	if (g_pid_fd != -1)
 	{
@@ -99,5 +99,5 @@ remove_pid_file(void)
 		g_pid_fd = -1;
 	}
 
-	(void)unlink(TM_PID_FILE);
+	(void)unlink(pid_file);
 }

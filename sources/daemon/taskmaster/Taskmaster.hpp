@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:51 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 18:25:30 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 18:40:13 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@ public:
 
 	std::string	getProcsStatus(void) const;
 	const tm_Config::UnixServer& getServerConf(void) const;
+	const tm_Config::Daemon& getDaemonConf(void) const;
 	std::string	getConfChanges(void) const;
 	std::string	getAvailableProcs(void) const;
 
