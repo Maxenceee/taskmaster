@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 21:58:40 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 21:59:21 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ Taskmaster::Taskmaster(void): Taskmaster("")
 
 Taskmaster::~Taskmaster(void)
 {
+	std::cout << " ~Taskmaster called" << std::endl;
 	for(const auto& group : this->_processes)
 	{
 		delete group;
@@ -37,7 +38,6 @@ Taskmaster::~Taskmaster(void)
 	{
 		delete group;
 	}
-	std::cout << " ~Taskmaster called" << std::endl;
 }
 
 int

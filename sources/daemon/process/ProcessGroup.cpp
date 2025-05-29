@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 19:54:32 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/17 11:32:19 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 21:59:16 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ ProcessGroup::ProcessGroup(const tm_Config::Program &config): gid(u_uint16()), _
 
 ProcessGroup::~ProcessGroup(void)
 {
+	std::cout << " ~ProcessGroup called" << std::endl;
 	for (const auto& p : this->_replicas)
 	{
 		delete p;
