@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 18:44:20 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 18:53:16 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 
 bool	Taskmaster::running = false;
 bool	Taskmaster::reload = false;
+bool	deamonized = false;
 Taskmaster*	g_master = nullptr;
 
 static void
@@ -104,12 +105,18 @@ start_main_loop(const std::string& config_file)
 
 	if (create_pid_file(pidfile.c_str()) == TM_FAILURE)
 	{
-		throw std::runtime_error("");
+		throw std::runtime_error("Could not start the daemon.");
 	}
 
 	UnixSocketServer server(master.getServerConf().file.c_str(), master);
-	server.listen();
 
+	if (false == deamonized && become_daemon(TM_NO_CHDIR | TM_NO_UMASK0 | TM_CLOSE_FILES) == TM_FAILURE)
+	{
+		throw std::runtime_error("Could not become daemon.");
+	}
+	deamonized = true;
+
+	(void)server.listen();
 	setup_signals();
 
 	Logger::print("Daemon started with pid: " + std::to_string(getpid()));
@@ -153,7 +160,6 @@ main(int argc, char* const* argv)
 	Logger::printHeader();
 
 	int ch = 0;
-	bool nodaemon = false;
 	std::string config_file;
 
 	struct tm_getopt_list_s optlist[] = {
@@ -180,7 +186,7 @@ main(int argc, char* const* argv)
 				config_file = options.optarg;
 				break;
 			case 'n':
-				nodaemon = true;
+				deamonized = true;
 				break;
 			case 's':
 				Logger::silent(true);
@@ -203,12 +209,6 @@ main(int argc, char* const* argv)
 
 	try
 	{
-		if (false == nodaemon && become_daemon(TM_NO_CHDIR | TM_NO_UMASK0 | TM_CLOSE_FILES) == TM_FAILURE)
-		{
-			Logger::error("Could not become daemon");
-			return (TM_FAILURE);
-		}
-
 		do
 		{
 			start_main_loop(config_file);

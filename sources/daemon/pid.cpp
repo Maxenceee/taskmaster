@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 13:34:11 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 18:42:23 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 18:48:52 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,6 @@ create_pid_file(const char* pid_file)
 		close(pid_fd);
 		return (TM_FAILURE);
 	}
-
 
 	ftruncate(pid_fd, 0);
 	lseek(pid_fd, 0, SEEK_SET);
