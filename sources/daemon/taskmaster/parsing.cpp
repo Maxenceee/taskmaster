@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 18:26:12 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 19:35:37 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -574,7 +574,7 @@ Taskmaster::update(void)
 
 	std::vector<const tm_Config::Program*> to_add;
 	std::vector<ProcessGroup*> to_remove;
-	
+
 	std::ostringstream oss;
 
 	_diff_process_vs_config(this->_processes, this->_active_config.programs, to_add, to_remove);

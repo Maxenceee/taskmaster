@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 13:26:18 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 19:28:31 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 19:48:26 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ struct tm_CommandNode {
 };
 
 char*	get_process_name(const char* text, int state);
-char*	get_process_group_name(const char* text, int state);
+char*	get_process_avail_name(const char* text, int state);
 
 void	show_help();
 void	show_command_info(const std::string &cmd);

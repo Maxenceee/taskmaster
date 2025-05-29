@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:51 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 19:26:37 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 19:50:29 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ public:
 	std::string	update(void);
 
 	void	reopenStds(void) const;
-	
+
 	bool	allStopped(void) const;
 
 	const std::vector<ProcessGroup*>& getGroups(void) const;
@@ -59,6 +59,7 @@ public:
 
 	const tm_Config::UnixServer& getServerConf(void) const;
 	const tm_Config::Daemon& getDaemonConf(void) const;
+	const std::vector<tm_Config::Program>&	getProgramsConf(void) const;
 	std::string	getConfChanges(void) const;
 
 	const std::vector<Process*>	all(void) const;

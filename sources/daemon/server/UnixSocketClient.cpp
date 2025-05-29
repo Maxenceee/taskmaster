@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:40:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 19:27:10 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 19:50:39 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -251,7 +251,7 @@ UnixSocketServer::Client::exec(void)
 	{
 		if (this->args[0] == "processes")
 		{
-			if (this->opts[0] == "avail")
+			if (this->opts[0] == "procs")
 			{
 				auto a = this->_master.all();
 				for (const auto& p : a)
@@ -260,12 +260,12 @@ UnixSocketServer::Client::exec(void)
 					(void)this->send(TM_CRLF);
 				}
 			}
-			else if (this->opts[0] == "groups")
+			else if (this->opts[0] == "avail")
 			{
-				auto a = this->_master.getGroups();
+				auto a = this->_master.getProgramsConf();
 				for (const auto& p : a)
 				{
-					(void)this->send(p->getName());
+					(void)this->send(p.name);
 					(void)this->send(TM_CRLF);
 				}
 			}

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 19:18:49 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 19:47:16 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,9 @@ UnixSocketServer::Client::_find_processes(const std::vector<std::string>& progs)
 		auto p = this->_master.find(prog);
 		if (!p)
 		{
-			(void)this->send("The process " + prog + " could not be found");
+			(void)this->send("The process ");
+			(void)this->send(prog);
+			(void)this->send(" could not be found");
 			(void)this->send(TM_CRLF);
 			continue;
 		}
@@ -91,7 +93,21 @@ UnixSocketServer::Client::_find_processes(const std::vector<std::string>& progs)
 int
 UnixSocketServer::Client::_add(void)
 {
-	// TODO:
+	for (auto a : this->args)
+	{
+		if (this->_master.add(a))
+		{
+			(void)this->send("Failed to add the process: ");
+			(void)this->send(a);
+			(void)this->send(TM_CRLF);
+		}
+		else
+		{
+			(void)this->send(a);
+			(void)this->send(": added process group");
+			(void)this->send(TM_CRLF);
+		}
+	}
 	return (TM_POLL_CLIENT_DISCONNECT);
 }
 
@@ -125,7 +141,8 @@ UnixSocketServer::Client::_clear(struct tm_pollclient_process_handler& ps)
 
 	if (p->clearLogFiles() == TM_FAILURE)
 	{
-		(void)this->send(p->getProcessName() + ": failed to clear the log files");
+		(void)this->send(p->getProcessName());
+		(void)this->send(": failed to clear the log files");
 		(void)this->send(TM_CRLF);
 		return (TM_POLL_CLIENT_DISCONNECT);
 	}
@@ -171,7 +188,8 @@ UnixSocketServer::Client::_pid(void)
 
 	if (this->args.size() == 0)
 	{
-		(void)this->send("Daemon pid: " + std::to_string(getpid()) + "");
+		(void)this->send("Daemon pid: ");
+		(void)this->send(std::to_string(getpid()));
 		(void)this->send(TM_CRLF);
 		return (TM_POLL_CLIENT_DISCONNECT);
 	}
@@ -180,7 +198,10 @@ UnixSocketServer::Client::_pid(void)
 	{
 		for (const auto& p : this->_master.all())
 		{
-			(void)this->send("Process " + p->getProcessName() + " pid: " + std::to_string(p->getPid()) + "");
+			(void)this->send("Process ");
+			(void)this->send(p->getProcessName());
+			(void)this->send(" pid: ");
+			(void)this->send(std::to_string(p->getPid()));
 			(void)this->send(TM_CRLF);
 		}
 	}
@@ -193,7 +214,10 @@ UnixSocketServer::Client::_pid(void)
 			(void)this->send(TM_CRLF);
 			return (TM_POLL_CLIENT_DISCONNECT);
 		}
-		(void)this->send("Process " + p->getProcessName() + " pid: " + std::to_string(p->getPid()) + "");
+		(void)this->send("Process ");
+		(void)this->send(p->getProcessName());
+		(void)this->send(" pid: ");
+		(void)this->send(std::to_string(p->getPid()));
 		(void)this->send(TM_CRLF);
 	}
 	return (TM_POLL_CLIENT_DISCONNECT);
@@ -227,6 +251,12 @@ UnixSocketServer::Client::_remove(void)
 		{
 			(void)this->send("Failed to remove the process: ");
 			(void)this->send(a);
+			(void)this->send(TM_CRLF);
+		}
+		else
+		{
+			(void)this->send(a);
+			(void)this->send(": removed process group");
 			(void)this->send(TM_CRLF);
 		}
 	}
@@ -437,7 +467,9 @@ UnixSocketServer::Client::_status(void)
 		auto p = this->_master.find(*it);
 		if (!p)
 		{
-			(void)this->send("The process " + *it + " could not be found");
+			(void)this->send("The process ");
+			(void)this->send(*it);
+			(void)this->send(" could not be found");
 			(void)this->send(TM_CRLF);
 			continue;
 		}

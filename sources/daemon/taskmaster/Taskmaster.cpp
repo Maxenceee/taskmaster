@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 19:26:41 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 19:49:55 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,25 @@ Taskmaster::stop(void)
 	}
 
 	return (TM_SUCCESS);
+}
+
+int
+Taskmaster::add(const std::string& progname)
+{
+	auto it = std::find_if(this->_active_config.programs.begin(), this->_active_config.programs.end(),
+		[&progname](const tm_Config::Program& prog) { return prog.name == progname; });
+	if (it != this->_active_config.programs.end())
+	{
+		auto group = std::find_if(this->_processes.begin(), this->_processes.end(),
+			[&progname](const ProcessGroup* group) { return *group == progname; });
+		if (group == this->_processes.end())
+		{
+			auto newp = new ProcessGroup(*it);
+			this->_processes.push_back(newp);
+			return (TM_SUCCESS);
+		}
+	}
+	return (TM_FAILURE);
 }
 
 int
@@ -221,4 +240,10 @@ const tm_Config::Daemon&
 Taskmaster::getDaemonConf(void) const
 {
 	return (this->_active_config.daemon);
+}
+
+const std::vector<tm_Config::Program>&
+Taskmaster::getProgramsConf(void) const
+{
+	return (this->_active_config.programs);
 }
