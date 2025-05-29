@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 19:55:41 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 20:34:01 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,8 +65,13 @@ UnixSocketServer::Client::_find_processes(const std::vector<std::string>& progs)
 		return (TM_POLL_CLIENT_OK);
 	}
 
+	std::unordered_set<std::string> seen;
 	for (const auto& prog : progs)
 	{
+		if (seen.find(prog) != seen.end())
+			continue;
+		seen.insert(prog);
+
 		auto p = this->_master.find(prog);
 		if (!p)
 		{
