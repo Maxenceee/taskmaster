@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 21:50:54 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 21:53:35 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,6 +130,7 @@ start_main_loop(const std::string& config_file)
 		}
 		if (b_pid > 0)
 		{
+			std::cout << "i am the parent" << std::endl;
 			return;
 		}
 	}

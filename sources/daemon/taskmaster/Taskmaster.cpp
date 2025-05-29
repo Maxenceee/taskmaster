@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 20:27:53 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 21:54:00 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ Taskmaster::~Taskmaster(void)
 	{
 		delete group;
 	}
+	std::cout << " ~Taskmaster called" << std::endl;
 }
 
 int
