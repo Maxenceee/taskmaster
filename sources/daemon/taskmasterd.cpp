@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 22:03:18 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 22:09:46 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,6 +130,8 @@ start_main_loop(const std::string& config_file)
 		}
 		if (b_pid > 0)
 		{
+			// Force both parent of double fork to use "normal" exit
+			// path so C++ destructors are successfully called
 			return;
 		}
 		deamonized = true;
