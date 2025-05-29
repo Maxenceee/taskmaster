@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 19:57:47 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 20:21:49 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -468,7 +468,7 @@ Taskmaster::readconfig(void)
 	}
 	catch(const std::exception& e)
 	{
-		Logger::error("Error parsing config file:");
+		Logger::error("Error while parsing config file:");
 		Logger::error(e.what());
 		return (TM_FAILURE);
 	}
