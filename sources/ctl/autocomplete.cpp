@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 13:24:58 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 11:26:51 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 19:27:50 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ extern int tty_fd;
 const std::vector<tm_CommandNode> commands = {
 	{"add", {
 		{"add <name> [...]", "Activates any updates in config for process/group"},
-	}, true, false, &get_process_name},
+	}, true, false, &get_process_group_name},
 	{"avail", {
 		{"avail", "Display all configured processes"},
 	}, true, false, &get_process_name},
@@ -42,7 +42,7 @@ const std::vector<tm_CommandNode> commands = {
 	}, true, false, &get_process_name},
 	{"remove", {
 		{"remove <name> [...]", "Removes process from active config"},
-	}, true, false, &get_process_name},
+	}, true, false, &get_process_group_name},
 	{"reread", {
 		{"reread", "Reload the daemon's configuration files without add/remove"},
 	}, true, false, &get_process_name},

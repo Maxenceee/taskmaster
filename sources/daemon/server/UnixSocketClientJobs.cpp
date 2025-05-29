@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 12:49:43 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 19:18:49 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,7 @@
 #include "utils/utils.hpp"
 
 const std::unordered_map<std::string, UnixSocketServer::Client::ProcHandler> UnixSocketServer::Client::process_command_map = {
-	{"add", &UnixSocketServer::Client::_add},
 	{"clear", &UnixSocketServer::Client::_clear},
-	{"remove", &UnixSocketServer::Client::_remove},
 	{"restart", &UnixSocketServer::Client::_restart},
 	{"signal", &UnixSocketServer::Client::_signal},
 	{"start", &UnixSocketServer::Client::_start},
@@ -26,10 +24,12 @@ const std::unordered_map<std::string, UnixSocketServer::Client::ProcHandler> Uni
 };
 
 const std::unordered_map<std::string, UnixSocketServer::Client::GenHandler> UnixSocketServer::Client::general_command_map = {
+	{"add", &UnixSocketServer::Client::_add},
 	{"avail", &UnixSocketServer::Client::_avail},
 	{"maintail", &UnixSocketServer::Client::_maintail},
 	{"pid", &UnixSocketServer::Client::_pid},
 	{"reload", &UnixSocketServer::Client::_reload},
+	{"remove", &UnixSocketServer::Client::_remove},
 	{"reread", &UnixSocketServer::Client::_reread},
 	{"shutdown", &UnixSocketServer::Client::_shutdown},
 	{"status", &UnixSocketServer::Client::_status},
@@ -89,9 +89,8 @@ UnixSocketServer::Client::_find_processes(const std::vector<std::string>& progs)
 }
 
 int
-UnixSocketServer::Client::_add(struct tm_pollclient_process_handler& ps)
+UnixSocketServer::Client::_add(void)
 {
-	(void)ps;
 	// TODO:
 	return (TM_POLL_CLIENT_DISCONNECT);
 }
@@ -220,10 +219,17 @@ UnixSocketServer::Client::_reload()
 }
 
 int
-UnixSocketServer::Client::_remove(struct tm_pollclient_process_handler& ps)
+UnixSocketServer::Client::_remove(void)
 {
-	(void)ps;
-	// TODO:
+	for (auto a : this->args)
+	{
+		if (this->_master.remove(a))
+		{
+			(void)this->send("Failed to remove the process: ");
+			(void)this->send(a);
+			(void)this->send(TM_CRLF);
+		}
+	}
 	return (TM_POLL_CLIENT_DISCONNECT);
 }
 

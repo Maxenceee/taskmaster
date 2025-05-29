@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 18:40:31 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 19:26:41 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,35 +62,7 @@ Taskmaster::cycle(void)
 }
 
 int
-Taskmaster::start(void) const
-{
-	for (const auto& group : this->_processes)
-	{
-		for (const auto& process : group->getReplicas())
-		{
-			(void)process->start();
-		}
-	}
-
-	return (TM_SUCCESS);
-}
-
-int
-Taskmaster::restart(void) const
-{
-	for (const auto& group : this->_processes)
-	{
-		for (const auto& process : group->getReplicas())
-		{
-			(void)process->restart();
-		}
-	}
-	
-	return (TM_SUCCESS);
-}
-
-int
-Taskmaster::stop(void) const
+Taskmaster::stop(void)
 {
 	for (const auto& group : this->_processes)
 	{
@@ -104,31 +76,16 @@ Taskmaster::stop(void) const
 }
 
 int
-Taskmaster::signal(int sig) const
+Taskmaster::remove(const std::string& progname)
 {
-	for (const auto& group : this->_processes)
+	auto it = std::find_if(this->_processes.begin(), this->_processes.end(),
+		[&progname](const ProcessGroup* group) { return *group == progname; });
+	if (it != this->_processes.end())
 	{
-		for (const auto& process : group->getReplicas())
-		{
-			(void)process->signal(sig);
-		}
+		this->_remove(*it);
+		return (TM_SUCCESS);
 	}
-
-	return (TM_SUCCESS);
-}
-
-int
-Taskmaster::kill(void) const
-{
-	for (const auto& group : this->_processes)
-	{
-		for (const auto& process : group->getReplicas())
-		{
-			(void)process->kill();
-		}
-	}
-
-	return (TM_SUCCESS);
+	return (TM_FAILURE);
 }
 
 void
@@ -207,6 +164,12 @@ Taskmaster::get(uint32_t uid) const
 	}
 
 	return (nullptr);
+}
+
+const std::vector<ProcessGroup*>&
+Taskmaster::getGroups(void) const
+{
+	return this->_processes;
 }
 
 std::string

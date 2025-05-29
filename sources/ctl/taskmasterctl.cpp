@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 18:54:26 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 19:28:17 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,55 @@ usage(char const* exec)
 	std::cout << "interactively is started.  Use the action \"help\" to find out about available\n";
 	std::cout << "actions.\n";
 	exit(64);
+}
+
+char*
+get_process_group_name(const char* text, int state)
+{
+	static std::vector<std::string> suggestions;
+	static size_t index = 0;
+	static size_t len;
+
+	if (state == 0)
+	{
+		index = 0;
+		len = strlen(text);
+		suggestions.clear();
+
+		UnixSocketClient client(TM_SOCKET_PATH);
+		if (client.connect() == TM_FAILURE)
+		{
+			return nullptr;
+		}
+
+		(void)client.send("Name: internal" TM_CRLF "Args: processes" TM_CRLF "Opts: groups" TM_CRLF TM_CRLF);
+		std::string buffer = client.recv();
+
+		if (buffer.empty())
+		{
+			return nullptr;
+		}
+
+		size_t pos = 0;
+		while ((pos = buffer.find(TM_CRLF)) != std::string::npos)
+		{
+			std::string line = buffer.substr(0, pos);
+			buffer.erase(0, pos + 2);
+
+			suggestions.push_back(line);
+		}
+	}
+
+	while (index < suggestions.size()) {
+		const std::string& cmd = suggestions[index];
+		index++;
+
+		if (cmd.compare(0, len, text) == 0) {
+			return strdup(cmd.c_str());
+		}
+	}
+
+	return nullptr;
 }
 
 char*

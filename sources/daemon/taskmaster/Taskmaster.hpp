@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:51 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 18:40:13 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 19:26:37 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,12 +39,11 @@ public:
 	static bool	running;
 	static bool	reload;
 
-	int		start(void) const;
-	int		restart(void) const;
-	int		stop(void) const;
-	int		signal(int sig) const;
-	int		kill(void) const;
 	int		cycle(void);
+	int		stop(void);
+
+	int		add(const std::string& progname);
+	int		remove(const std::string& progname);
 
 	int		readconfig(void);
 	std::string	update(void);
@@ -53,11 +52,14 @@ public:
 	
 	bool	allStopped(void) const;
 
+	const std::vector<ProcessGroup*>& getGroups(void) const;
+
 	std::string	getProcsStatus(void) const;
+	std::string	getAvailableProcs(void) const;
+
 	const tm_Config::UnixServer& getServerConf(void) const;
 	const tm_Config::Daemon& getDaemonConf(void) const;
 	std::string	getConfChanges(void) const;
-	std::string	getAvailableProcs(void) const;
 
 	const std::vector<Process*>	all(void) const;
 	Process*	find(const std::string& progname) const;

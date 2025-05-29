@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:40:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 12:46:49 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 19:27:10 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -249,13 +249,25 @@ UnixSocketServer::Client::exec(void)
 
 	if (name == "internal")
 	{
-		if (this->args[0] == "processes" && this->opts[0] == "avail")
+		if (this->args[0] == "processes")
 		{
-			auto a = this->_master.all();
-			for (const auto& p : a)
+			if (this->opts[0] == "avail")
 			{
-				(void)this->send(p->getProcessName());
-				(void)this->send(TM_CRLF);
+				auto a = this->_master.all();
+				for (const auto& p : a)
+				{
+					(void)this->send(p->getProcessName());
+					(void)this->send(TM_CRLF);
+				}
+			}
+			else if (this->opts[0] == "groups")
+			{
+				auto a = this->_master.getGroups();
+				for (const auto& p : a)
+				{
+					(void)this->send(p->getName());
+					(void)this->send(TM_CRLF);
+				}
 			}
 		}
 		return (TM_POLL_CLIENT_DISCONNECT);

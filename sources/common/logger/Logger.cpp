@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:56 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 18:56:44 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 19:06:23 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,6 +92,7 @@ Logger::init(const char *action)
 		std::cerr << Logger::DisplayDate << TM_PREFIX << action << ": New logger session" << std::endl;
 	}
 	Logger::cout << Logger::DisplayDay << TM_PROJECTD << "[" << Logger::_pid << "] - " << action << ": New logger session" << std::endl;
+	Logger::cerr << Logger::DisplayDay << TM_PROJECTD << "[" << Logger::_pid << "] - " << action << ": New logger session" << std::endl;
 
 #ifndef TM_DISABLE_SYSLOG
 	syslog(LOG_INFO, "%s: New logger session", action);

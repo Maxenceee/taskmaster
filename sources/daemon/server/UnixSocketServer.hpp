@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:45:59 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 12:40:03 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 19:02:51 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,13 +61,13 @@ public:
 
 		int		_find_processes(const std::vector<std::string>& progs);
 
-		int		_add(struct tm_pollclient_process_handler& p);
+		int		_add(void);
 		int		_avail(void);
 		int		_clear(struct tm_pollclient_process_handler& p);
 		int		_maintail(void);
 		int		_pid(void);
 		int		_reload(void);
-		int		_remove(struct tm_pollclient_process_handler& p);
+		int		_remove(void);
 		int		_reread(void);
 		int		_restart(struct tm_pollclient_process_handler& p);
 		int		_shutdown(void);
