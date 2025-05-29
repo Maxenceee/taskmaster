@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:45:59 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 12:25:35 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 12:40:03 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ struct tm_pollclient_process_handler {
 	bool		done;
 	bool		group_request;
 	const char*	success_message;
-	std::vector<std::string>	opts;
 };
 
 class UnixSocketServer: public UnixSocket
@@ -55,9 +54,12 @@ public:
 		Taskmaster&	_master;
 		std::vector<struct tm_pollclient_process_handler>	handlers;
 
-		std::vector<std::string>		input;
+		std::vector<std::string>	input;
+		std::string					name;
+		std::vector<std::string>	args;
+		std::vector<std::string>	opts;
 
-		int		_find_processes(const std::vector<std::string>& progs, const std::vector<std::string>& opts);
+		int		_find_processes(const std::vector<std::string>& progs);
 
 		int		_add(struct tm_pollclient_process_handler& p);
 		int		_avail(void);
