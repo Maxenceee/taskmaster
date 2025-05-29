@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 20:25:02 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 21:35:45 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,8 @@
 bool	Taskmaster::running = false;
 bool	Taskmaster::reload = false;
 bool	deamonized = false;
-Taskmaster*	g_master = nullptr;
+
+Taskmaster* g_master = nullptr;
 
 static void
 usage(char const* exec)

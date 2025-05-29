@@ -6,15 +6,12 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 15:39:02 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 21:26:43 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 21:37:14 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "daemon.hpp"
 #include "logger/Logger.hpp"
-#include "taskmaster/Taskmaster.hpp"
-
-extern Taskmaster*	g_master;
 
 int // retourne 0 en cas de succès, 1 en cas d'erreur
 become_daemon(int flags)
@@ -33,6 +30,7 @@ become_daemon(int flags)
 		default:
 			if (g_master) {
 				delete g_master;
+				// g_master->~Taskmaster();
 				g_master = nullptr;
 			}
 			exit(EXIT_SUCCESS);   // le parent se termine
