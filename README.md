@@ -18,11 +18,10 @@
 - taskmasterd
 	- logfile ✅
 	- pidfile
-	- logfile_maxbytes
-	- umask
-	- childlogdir
-	- user
-	- directory
+	- logfile_maxbytes ✅
+	- umask ✅
+	- user ✅
+	- directory ✅
 	- environment
 
 - program:*

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/25 16:17:13 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 13:10:00 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -540,6 +540,36 @@ Taskmaster::update(void)
 {
 	this->_active_config = this->_read_config;
 
+	/** Daemon **/
+
+	(void)umask(this->_active_config.daemon.umask);
+
+	Logger::setLogFileMaxSize(this->_active_config.daemon.logfile_maxbytes, TM_LOG_FILE_STDOUT | TM_LOG_FILE_STDERR);
+
+	int current_uid = getuid();
+	if (this->_active_config.daemon.user != current_uid)
+	{
+		if (current_uid != 0)
+		{
+			Logger::error("Cannot change user from " + std::to_string(current_uid) + " to " + std::to_string(this->_active_config.daemon.user) + ": not running as root");
+			return ("Cannot change user: not running as root\n");
+		}
+		if (setuid(this->_active_config.daemon.user) == -1)
+		{
+			Logger::perror("Failed to set user for the daemon");
+			return ("Failed to set user for the daemon\n");
+		}
+	}
+
+	if (this->_active_config.daemon.directory != TM_CURRENT_DIR)
+	{
+		if (chdir(this->_active_config.daemon.directory.c_str()) == -1)
+		{
+			Logger::perror("Failed to change working directory to " + this->_active_config.daemon.directory);
+			return ("Failed to change working directory\n");
+		}
+	}
+
 	/** Processes **/
 
 	std::vector<const tm_Config::Program*> to_add;
@@ -585,10 +615,6 @@ Taskmaster::update(void)
 		this->_processes.push_back(newp);
 		oss << program->name << ": added process group" << "\n";
 	}
-
-	/** Daemon **/
-
-	(void)umask(this->_active_config.daemon.umask);
 
 	return (oss.str());
 }

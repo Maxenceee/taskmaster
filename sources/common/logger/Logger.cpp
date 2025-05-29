@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:56 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/19 10:47:53 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 13:01:44 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,7 +147,7 @@ Logger::enableFileLogging(void)
 }
 
 void
-Logger::setLogFileMaxSize(size_t size, tm_log_file_channel channel)
+Logger::setLogFileMaxSize(size_t size, int channel)
 {
 	if (channel & TM_LOG_FILE_STDOUT)
 	{

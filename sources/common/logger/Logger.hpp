@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:53 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/01 09:37:52 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 13:01:56 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,7 +122,7 @@ public:
 
 	static void	enableFileLogging(void);
 	static void	enableFileLogging(const std::string& out, const std::string& err);
-	static void setLogFileMaxSize(size_t size, tm_log_file_channel channel);
+	static void setLogFileMaxSize(size_t size, int channel);
 	static void reopenFileLogging(void);
 
 	static std::ifstream dump(tm_log_file_channel channel);
