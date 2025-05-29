@@ -6,15 +6,17 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 15:39:02 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 21:39:09 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 21:45:41 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "daemon.hpp"
 #include "logger/Logger.hpp"
 #include "taskmaster/Taskmaster.hpp"
+#include "server/UnixSocketServer.hpp"
 
 extern Taskmaster*	g_master;
+extern UnixSocketServer* g_server;
 
 int // retourne 0 en cas de succès, 1 en cas d'erreur
 become_daemon(int flags)
@@ -31,10 +33,15 @@ become_daemon(int flags)
 			return (TM_FAILURE);
 		case 0: break;                  // l'enfant continue
 		default:
-			if (g_master) {
+			if (g_master) 
+		{
 				delete g_master;
-				// g_master->~Taskmaster();
 				g_master = nullptr;
+			}
+			if (g_server)
+			{
+				delete g_server;
+				g_server = nullptr;
 			}
 			exit(EXIT_SUCCESS);   // le parent se termine
 	}

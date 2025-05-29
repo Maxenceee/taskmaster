@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 21:35:45 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 21:45:05 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,16 +15,17 @@
 #include "signal.hpp"
 #include "pid.hpp"
 #include "getopt.hpp"
+#include "daemon.hpp"
 #include "taskmaster/Taskmaster.hpp"
 #include "logger/Logger.hpp"
 #include "server/UnixSocketServer.hpp"
-#include "daemon/daemon.hpp"
 
 bool	Taskmaster::running = false;
 bool	Taskmaster::reload = false;
 bool	deamonized = false;
 
 Taskmaster* g_master = nullptr;
+UnixSocketServer* g_server = nullptr;
 
 static void
 usage(char const* exec)
