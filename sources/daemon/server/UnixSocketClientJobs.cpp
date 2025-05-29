@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 20:34:01 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 21:05:12 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,12 @@ UnixSocketServer::Client::_find_processes(const std::vector<std::string>& progs)
 		{
 			this->handlers.push_back({p->getPuid(), p->getState(), -1, false, true, nullptr});
 		}
+		if (this->handlers.empty())
+		{
+			(void)this->send("No process found");
+			(void)this->send(TM_CRLF);
+			return (TM_POLL_CLIENT_DISCONNECT);
+		}
 		return (TM_POLL_CLIENT_OK);
 	}
 
@@ -83,13 +89,6 @@ UnixSocketServer::Client::_find_processes(const std::vector<std::string>& progs)
 		}
 
 		this->handlers.push_back({p->getPuid(), p->getState(), -1, false, false, nullptr});
-	}
-
-	if (this->handlers.empty())
-	{
-		(void)this->send("No process found");
-		(void)this->send(TM_CRLF);
-		return (TM_POLL_CLIENT_DISCONNECT);
 	}
 
 	return (TM_POLL_CLIENT_OK);
