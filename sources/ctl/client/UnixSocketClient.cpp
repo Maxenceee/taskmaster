@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:59:19 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 11:37:14 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 18:37:17 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,6 @@ std::string
 UnixSocketClient::recv(void)
 {
 	char buffer[1024];
-	ssize_t total_bytes = 0;
 
 	std::string response;
 

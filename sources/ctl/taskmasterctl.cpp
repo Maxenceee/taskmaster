@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 18:32:26 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 18:37:04 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ char*
 get_process_name(const char* text, int state)
 {
 	static std::vector<std::string> suggestions;
-	static int index = 0;
+	static size_t index = 0;
 	static size_t len;
 
 	if (state == 0)
@@ -147,9 +147,6 @@ attach_readline()
 	rl_attempted_completion_function = autocomplete;
 
 	setup_signal(SIGPIPE, SIG_IGN);
-
-	size_t total_sent = 0;
-	size_t total_recv = 0;
 
 	do
 	{

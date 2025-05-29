@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 15:39:02 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/01 10:19:37 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 18:34:53 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,6 @@
 int // retourne 0 en cas de succès, 1 en cas d'erreur
 become_daemon(int flags)
 {
-	int maxfd, fd;
-
 	/**
 	 * Le premier fork va changer notre pid
 	 * mais le sid et le pgid seront ceux

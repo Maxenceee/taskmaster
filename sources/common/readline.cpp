@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 17:23:53 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 18:35:42 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -278,6 +278,8 @@ tm_rl_process_escape_basic_arrows(const char ch, const std::string &prompt, std:
 static void
 tm_rl_process_escape_ctrl_arrows(const char ch, const std::string &prompt, std::vector<char>& input_buffer, size_t& cursor_pos)
 {
+	(void)prompt;
+
 	switch (ch)
 	{
 	case TM_RL_ARROW_RIGHT: // Right arrow
