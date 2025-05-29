@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 19:58:46 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 20:27:53 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,6 +199,12 @@ std::string
 Taskmaster::getProcsStatus(void) const
 {
 	std::ostringstream oss;
+	if (this->_processes.size() == 0 && this->_transitioning.size() == 0)
+	{
+		oss << "No processes running\n";
+		return oss.str();
+	}
+
 	for (const auto* group : this->_processes)
 	{
 		oss << *group;
