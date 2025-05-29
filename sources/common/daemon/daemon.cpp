@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 15:39:02 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 18:34:53 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/29 21:16:09 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ become_daemon(int flags)
 			Logger::perror("fork");
 			return (TM_FAILURE);
 		case 0: break;                  // l'enfant continue
-		default: _exit(EXIT_SUCCESS);   // le parent se termine
+		default: exit(EXIT_SUCCESS);   // le parent se termine
 	}
 
 	/**
@@ -61,7 +61,7 @@ become_daemon(int flags)
 			Logger::perror("fork");
 			return (TM_FAILURE);
 		case 0: break;                  // l'enfant sort continue
-		default: _exit(EXIT_SUCCESS);   // le processus parent se terminera
+		default: exit(EXIT_SUCCESS);   // le processus parent se terminera
 	}
 
 	if (0 == (flags & TM_NO_UMASK0))
@@ -74,8 +74,8 @@ become_daemon(int flags)
 	{
 		int dev_null_fd = open("/dev/null", O_RDWR);
 		(void)dup2(dev_null_fd, STDIN_FILENO);    // Rediriger stdin
-        (void)dup2(dev_null_fd, STDOUT_FILENO);   // Rediriger stdout
-        (void)dup2(dev_null_fd, STDERR_FILENO);   // Rediriger stderr
+		(void)dup2(dev_null_fd, STDOUT_FILENO);   // Rediriger stdout
+		(void)dup2(dev_null_fd, STDERR_FILENO);   // Rediriger stderr
 		(void)close(dev_null_fd);                 // fermer le descripteur de fichier
 	}
 
