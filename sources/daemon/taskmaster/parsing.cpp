@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 20:21:49 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 15:08:46 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -162,6 +162,7 @@ _max_bytes(const std::optional<std::string>& str, const size_t _default)
 		return (_default);
 
 	static const std::unordered_map<std::string, size_t> suffixes = {
+		{"b", 1ULL},
 		{"kb", 1024ULL},
 		{"mb", 1024ULL * 1024},
 		{"gb", 1024ULL * 1024 * 1024},
@@ -172,17 +173,16 @@ _max_bytes(const std::optional<std::string>& str, const size_t _default)
 		return std::tolower(c);
 	});
 
-	if (input.size() >= 2) {
-		std::string suffix = input.substr(input.size() - 2);
-		auto it = suffixes.find(suffix);
-		if (it != suffixes.end()) {
-			std::string numberPart = input.substr(0, input.size() - 2);
-			try
-			{
-				return static_cast<size_t>(std::stoull(numberPart)) * it->second;
+	for (const auto& [suffix, multiplier] : suffixes)
+	{
+		if (input.size() >= suffix.size() &&
+		    input.compare(input.size() - suffix.size(), suffix.size(), suffix) == 0)
+		{
+			std::string numberPart = input.substr(0, input.size() - suffix.size());
+			try {
+				return static_cast<size_t>(std::stoull(numberPart)) * multiplier;
 			}
-			catch (...)
-			{
+			catch (...) {
 				throw std::invalid_argument("Invalid size value: " + *str);
 			}
 		}
@@ -190,7 +190,7 @@ _max_bytes(const std::optional<std::string>& str, const size_t _default)
 
 	try
 	{
-		return static_cast<size_t>(std::stoull(input)) * _default;
+		return static_cast<size_t>(std::stoull(input));
 	}
 	catch (...)
 	{

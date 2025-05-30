@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 22:09:46 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 14:53:40 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,8 +60,8 @@ interruptReopen(int sig_int)
 	{
 		throw std::logic_error("This signal handler should not be bound before the main loop");
 	}
-	g_master->reopenStds();
 	Logger::info("Reopening log files");
+	g_master->reopenStds();
 }
 
 static void

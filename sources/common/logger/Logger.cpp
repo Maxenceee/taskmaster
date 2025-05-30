@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:56 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 19:06:23 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 15:25:45 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,8 +169,9 @@ Logger::reopenFileLogging(void)
 {
 	if (Logger::_file_logging)
 	{
+		bool isSameFile = (Logger::cout.getFileName() == Logger::cerr.getFileName());
 		Logger::cout.reopen();
-		Logger::cerr.reopen();
+		Logger::cerr.reopen(isSameFile);
 	}
 }
 
@@ -222,8 +223,6 @@ Logger::LoggerFileStream::sync(void)
 	if (Logger::_file_logging)
 	{
 		Logger::LoggerFileStream::checkRotation();
-
-		(void)this->_logFile.flush();
 	}
 	return (0);
 }
@@ -235,10 +234,10 @@ Logger::LoggerFileStream::checkRotation(void)
 	{
 		if (this->_maxSize > 0 && this->_logFile.tellp() != -1 && static_cast<size_t>(this->_logFile.tellp()) > this->_maxSize)
 		{
+			(void)this->_logFile.flush();
 			this->_logFile.close();
 
 			Logger::LoggerFileStream::renameLogFile();
-
 			Logger::LoggerFileStream::openLogFile();
 		}
 	}
@@ -263,15 +262,26 @@ Logger::LoggerFileStream::renameLogFile(void)
 }
 
 inline void
-Logger::LoggerFileStream::reopen(void)
+Logger::LoggerFileStream::reopen(bool closeOnly)
 {
 	if (this->_logFile.is_open())
 	{
+		(void)this->_logFile.flush();
 		this->_logFile.close();
 	}
-	Logger::LoggerFileStream::renameLogFile();
+	if (false == closeOnly)
+	{
+		Logger::LoggerFileStream::renameLogFile();
+	}
 	Logger::LoggerFileStream::openLogFile();
 }
+
+const std::string&
+Logger::LoggerFileStream::getFileName(void) const
+{
+	return (this->_fname);
+}
+
 
 inline void
 Logger::LoggerFileStream::setFileName(const std::string& fname)
@@ -279,6 +289,7 @@ Logger::LoggerFileStream::setFileName(const std::string& fname)
 	this->_fname = fname;
 	if (this->_logFile.is_open())
 	{
+		(void)this->_logFile.flush();
 		this->_logFile.close();
 	}
 	Logger::LoggerFileStream::openLogFile();

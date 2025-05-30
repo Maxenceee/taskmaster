@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:53 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 17:45:49 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 15:24:46 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,9 @@ protected:
 		void	setFileName(const std::string& fname);
 		void	setMaxSize(size_t size);
 
-		void	reopen(void);
+		const std::string& getFileName(void) const;
+
+		void	reopen(bool c = false);
 
 		std::ifstream	dump(void) const;
 	};
