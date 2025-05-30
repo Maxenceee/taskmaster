@@ -1,6 +1,6 @@
 # Taskmaster
 
-My **Taskmaster** projet for the 42 School cursus, a `[Supervisord](https://supervisord.org)` like process manager make in C++ 20.
+My **Taskmaster** projet for the 42 School cursus, a [`Supervisord`](https://supervisord.org) like process manager make in C++ 20.
 
 ## Getting started
 
