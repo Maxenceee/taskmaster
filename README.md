@@ -188,8 +188,6 @@ If true, this program will start automatically when **taskmasterd** is started.
 
 The total number of seconds which the program needs to stay running after a startup to consider the start successful (moving the process from the `STARTING` state to the `RUNNING` state). Set to 0 to indicate that the program needn’t stay running for any particular amount of time.
 
-> Note:
->
 > Even if a process exits with an “expected” exit code (see `exitcodes`), the start will still be considered a failure if the process exits quicker than `startsecs`.
 
 *Default*: 1
@@ -200,8 +198,6 @@ The total number of seconds which the program needs to stay running after a star
 
 The number of serial failure attempts that **taskmasterd** will allow when attempting to start the program before giving up and putting the process into an `FATAL` state.
 
-> Note:
->
 > After each failed restart, process will be put in `BACKOFF` state and each retry attempt will take increasingly more time.
 
 *Default*: 3
@@ -212,8 +208,6 @@ The number of serial failure attempts that **taskmasterd** will allow when attem
 
 Specifies if **taskmasterd** should automatically restart a process if it exits when it is in the `RUNNING` state. May be one of `false`, `unexpected`, or `true`. If `false`, the process will not be autorestarted. If `unexpected`, the process will be restarted when the program exits with an exit code that is not one of the exit codes associated with this process’ configuration (see `exitcodes`). If `true`, the process will be unconditionally restarted when it exits, without regard to its exit code.
 
-> Note:
->
 > `autorestart` controls whether **taskmasterd** will autorestart a program if it exits after it has successfully started up (the process is in the `RUNNING` state).
 >
 > **taskmasterd** has a different restart mechanism for when the process is starting up (the process is in the `STARTING` state). Retries during process startup are controlled by `startsecs` and `startretries`.
