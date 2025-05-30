@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/30 16:09:47 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 16:35:49 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -193,7 +193,7 @@ Process::_spawn(void)
 #ifdef TM_SPAWN_CHILD_USE_FORK
 		, this->config.user
 #endif /* TM_SPAWN_CHILD_USE_FORK */
-	, 0, this->config.directory.c_str())) == -1)
+	, 0, this->config.directory.c_str(), this->config.umask)) == -1)
 	{
 		this->_state = TM_P_FATAL;
 		return (TM_FAILURE);

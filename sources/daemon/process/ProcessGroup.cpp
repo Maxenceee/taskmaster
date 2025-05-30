@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 19:54:32 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/30 16:08:56 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 16:23:10 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,10 @@ ProcessGroup::update(tm_Config::Program &new_conf)
 	{
 		for (const auto& p : this->_replicas)
 		{
-			(void)p->restart();
+			if (!(p->stopped() || p->exited() || p->fatal()))
+			{	
+				(void)p->restart();
+			}
 		}
 	}
 

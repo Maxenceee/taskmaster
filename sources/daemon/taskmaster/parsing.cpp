@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/30 16:14:07 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 16:42:49 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -308,7 +308,7 @@ _exec(const std::optional<std::string>& str)
 	if (!str || str->empty())
 		throw std::invalid_argument("You must provide a command to execute");
 
-	auto l = split(str.value());
+	auto l = tokenize(str.value());
 	if (l.size() == 0)
 		throw std::invalid_argument("You must provide a command to execute");
 
@@ -391,7 +391,12 @@ _parseProgramConfig(const std::string& section_name, const std::map<std::string,
 	config.stderr_logfile = _existring_dirpath(_get(section, "stderr_logfile"), "");
 	config.environment = _list(_get(section, "environment"));
 	config.directory = _existring_dirpath(_get(section, "directory"), TM_CURRENT_DIR);
-	config.umask = _octal_type(_get(section, "umask"), 022);
+	config.umask = _octal_type(_get(section, "umask"), -1);
+
+	if (config.stopasgroup && !config.killasgroup)
+	{
+		throw std::invalid_argument("The 'stopasgroup' option is set to true, but 'killasgroup' is false.");
+	}
 
 	return (config);
 }
@@ -427,19 +432,25 @@ _parseConfig(const std::string& filename)
 
 	std::ifstream is(filename);
 	ini.parse(is);
+
+	new_conf.server = _parseUnixServerConfig(_get(ini.sections, "unix_server").value_or(std::map<std::string, std::string>{}));
+	new_conf.daemon = _parseDaemonConfig(_get(ini.sections, "taskmasterd").value_or(std::map<std::string, std::string>{}));
 	for (auto section : ini.sections)
 	{
 		if (section.first.find("program:") == 0)
 		{
-			new_conf.programs.push_back(_parseProgramConfig(section.first, section.second));
+			auto c = _parseProgramConfig(section.first, section.second);
+			if (c.umask == (mode_t)-1)
+			{
+				c.umask = new_conf.daemon.umask;
+			}
+			new_conf.programs.push_back(c);
 		}
 		else if (section.first != "unix_server" && section.first != "taskmasterd")
 		{
 			throw std::invalid_argument("Unknown section: " + section.first);
 		}
 	}
-	new_conf.server = _parseUnixServerConfig(_get(ini.sections, "unix_server").value_or(std::map<std::string, std::string>{}));
-	new_conf.daemon = _parseDaemonConfig(_get(ini.sections, "taskmasterd").value_or(std::map<std::string, std::string>{}));
 
 	if (Logger::isDebug())
 	{
@@ -468,8 +479,10 @@ Taskmaster::readconfig(void)
 	}
 	catch(const std::exception& e)
 	{
-		Logger::error("Error while parsing config file:");
-		Logger::error(e.what());
+		std::ostringstream oss;
+		oss << "Failed to read config file: ";
+		oss << e.what();
+		Logger::error(oss.str());
 		return (TM_FAILURE);
 	}
 

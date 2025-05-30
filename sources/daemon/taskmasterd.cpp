@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/30 16:06:56 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 16:46:24 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,8 @@
 
 bool	Taskmaster::running = false;
 bool	Taskmaster::reload = false;
-bool	deamonized = false;
+static bool	nodaemon = false;
+static bool	deamonized = false;
 
 static void
 usage(char const* exec)
@@ -103,7 +104,7 @@ start_main_loop(const std::string& config_file)
 			throw std::runtime_error("Could not start the daemon.");
 		}
 	}
-	master.update();
+	(void)master.update();
 
 	auto pidfile = master.getDaemonConf().pidfile;
 
@@ -114,7 +115,7 @@ start_main_loop(const std::string& config_file)
 
 	UnixSocketServer server(master.getServerConf().file.c_str(), master);
 
-	if (false == deamonized)
+	if (false == nodaemon && false == deamonized)
 	{
 		pid_t b_pid;
 		if ((b_pid = become_daemon(TM_NO_CHDIR | TM_NO_UMASK0 | TM_CLOSE_FILES)) == -1)
@@ -200,7 +201,7 @@ main(int argc, char* const* argv)
 				config_file = options.optarg;
 				break;
 			case 'n':
-				deamonized = true;
+				nodaemon = true;
 				break;
 			case 's':
 				Logger::silent(true);
