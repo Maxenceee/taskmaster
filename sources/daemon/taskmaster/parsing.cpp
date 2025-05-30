@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/30 15:08:46 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 16:10:29 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -307,7 +307,7 @@ _exec(const std::optional<std::string>& str)
 {
 	if (!str || str->empty())
 		throw std::invalid_argument("You must provide a command to execute");
-		
+
 	auto l = split(str.value());
 	if (l.size() == 0)
 		throw std::invalid_argument("You must provide a command to execute");
