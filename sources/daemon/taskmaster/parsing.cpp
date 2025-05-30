@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/30 17:13:19 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 18:13:39 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,19 +109,19 @@ _signal_number(const std::optional<std::string>& str, const int _default)
 	if (!str || str->empty())
 		return (_default);
 
-	if (str == "SIGTERM")
+	if (str == "TERM")
 		return (SIGTERM);
-	else if (str == "SIGHUP")
+	else if (str == "HUP")
 		return (SIGHUP);
-	else if (str == "SIGINT")
+	else if (str == "INT")
 		return (SIGINT);
-	else if (str == "SIGQUIT")
+	else if (str == "QUIT")
 		return (SIGQUIT);
-	else if (str == "SIGKILL")
+	else if (str == "KILL")
 		return (SIGKILL);
-	else if (str == "SIGUSR1")
+	else if (str == "USR1")
 		return (SIGUSR1);
-	else if (str == "SIGUSR2")
+	else if (str == "USR2")
 		return (SIGUSR2);
 
 	throw std::invalid_argument("Invalid signal value: " + *str);
@@ -397,7 +397,6 @@ _parseProgramConfig(const std::string& section_name, const std::map<std::string,
 	config.command = _exec(_get(section, "command"));
 	config.raw_command = _or_throw(_get(section, "command"), "");
 	config.numprocs = _integer(_get(section, "numprocs"), 1);
-	config.priority = _integer(_get(section, "priority"), 999);
 	config.autostart = _boolean(_get(section, "autostart"), true);
 	config.startsecs = _integer(_get(section, "startsecs"), 1);
 	config.startretries = _integer(_get(section, "startretries"), 3);

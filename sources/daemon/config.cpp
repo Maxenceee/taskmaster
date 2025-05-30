@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/20 11:59:39 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 18:04:38 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,6 @@ std::ostream& operator<<(std::ostream& os, const tm_Config::Program& program) {
 	os << "  command: ";
 	_print_list(os, program.command, 2);
 	os << "  numprocs: " << program.numprocs << "\n";
-	os << "  priority: " << program.priority << "\n";
 	os << "  autostart: " << (program.autostart ? "true" : "false") << "\n";
 	os << "  startsecs: " << program.startsecs << "\n";
 	os << "  startretries: " << program.startretries << "\n";

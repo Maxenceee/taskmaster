@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 19:48:26 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 18:15:12 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ extern const std::unordered_map<std::string, std::string (*)(const std::vector<s
 static void
 usage(char const* exec)
 {
-	std::cout << TM_PROJECTCTL " -- control applications run by supervisord from the cmd line" << "\n\n";
+	std::cout << TM_PROJECTCTL " -- control applications run by taskmasterd from the cmd line" << "\n\n";
 	std::cout << "Usage: " << exec << " [options] [action [arguments]]" << "\n\n";
 	std::cout << "Options:" << "\n";
 	std::cout << "  " << "-i" << ", " << std::left << std::setw(20) << "--interactive" << " start an interactive shell after executing commands" << "\n";

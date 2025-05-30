@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/30 16:46:24 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 18:00:17 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,6 +127,13 @@ start_main_loop(const std::string& config_file)
 			// Force both parent of double fork to use "normal" exit
 			// path so C++ destructors are successfully called
 			return;
+		}
+		if (master.getDaemonConf().directory != TM_CURRENT_DIR)
+		{
+			if (chdir(master.getDaemonConf().directory.c_str()) == -1)
+			{
+				Logger::perror("Could not change working directory to: " + master.getDaemonConf().directory);
+			}
 		}
 		deamonized = true;
 	}

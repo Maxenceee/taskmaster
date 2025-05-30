@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 09:47:45 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/20 20:09:47 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 18:04:35 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,6 @@ struct tm_Config {
 		std::string	raw_command;
 		std::vector<std::string>	command;
 		uint16_t	numprocs;
-		int			priority;
 		bool		autostart;
 		uint16_t	startsecs;
 		uint16_t	startretries;
