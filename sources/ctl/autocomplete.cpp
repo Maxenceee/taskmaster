@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 13:24:58 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 19:48:26 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 16:13:50 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,7 +198,7 @@ autocomplete(const char *text, int start, int end)
 	}
 
 	std::string cmd = std::string(rl_line_buffer).substr(0, std::string(rl_line_buffer).find(' '));
-	
+
 (void)dprintf(tty_fd, "rl_line_buffer: %s\n", rl_line_buffer);
 (void)dprintf(tty_fd, "cmd: %s\n", cmd.c_str());
 

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 11:26:53 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 12:54:38 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 16:13:55 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ static inline std::string
 _procs_handler(const std::vector<std::string>& args)
 {
 	std::string payload = "Name: " + args[0] + TM_CRLF;
-	
+
 	if (args.size() > 1)
 	{
 		payload += "Args: ";
@@ -65,7 +65,7 @@ static inline std::string
 _procs_or_daemon_handler(const std::vector<std::string>& args)
 {
 	std::string payload = "Name: " + args[0] + TM_CRLF;
-	
+
 	if (args.size() > 1)
 	{
 		payload += "Args: ";
@@ -90,7 +90,7 @@ static inline std::string
 _signal_handler(const std::vector<std::string>& args)
 {
 	std::string payload = "Name: " + args[0] + TM_CRLF;
-	
+
 	if (args.size() > 2)
 	{
 		payload += "Opts: " + args[1] + TM_CRLF; // Signal number

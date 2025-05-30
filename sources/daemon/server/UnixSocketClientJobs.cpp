@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 21:05:12 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 16:14:02 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,7 +176,7 @@ UnixSocketServer::Client::_maintail(void)
 		bytesRead = ref.gcount();
 		(void)this->send(buf, bytesRead);
 	}
-	
+
 	return (TM_POLL_CLIENT_DISCONNECT);
 }
 
@@ -197,7 +197,7 @@ UnixSocketServer::Client::_pid(void)
 		(void)this->send(TM_CRLF);
 		return (TM_POLL_CLIENT_DISCONNECT);
 	}
-	
+
 	if (this->args[0] == "all")
 	{
 		for (const auto& p : this->_master.all())
@@ -638,7 +638,7 @@ UnixSocketServer::Client::_update(void)
 		(void)this->send(TM_CRLF);
 		return (TM_POLL_CLIENT_DISCONNECT);
 	}
-	
+
 	(void)this->send(this->_master.update());
 
 	return (TM_POLL_CLIENT_DISCONNECT);

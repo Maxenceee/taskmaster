@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:53 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/30 15:24:46 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 16:13:47 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ protected:
 	};
 
 	struct LoggerDisplayReset {};
-	
+
 	struct LoggerDisplayDate {};
 
 	struct LoggerDisplayDay {};

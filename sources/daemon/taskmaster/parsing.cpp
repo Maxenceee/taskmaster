@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/30 16:10:29 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 16:14:07 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ _octal_type(const std::optional<std::string>& str, const uint16_t _default)
 {
 	if (!str || str->empty())
 		return (_default);
-	
+
 	if (!is_digits(*str))
 		throw std::invalid_argument("Invalid octal value: " + *str);
 
@@ -92,7 +92,7 @@ _auto_restart(const std::optional<std::string>& str, const tm_config_auto_restar
 {
 	if (!str || str->empty())
 		return (_default);
-	
+
 	if (TRUTHY_STRINGS(*str))
 		return (TM_CONF_AUTORESTART_TRUE);
 	else if (FALSY_STRINGS(*str))
