@@ -1,13 +1,12 @@
 .vscode
 .objs
 public
+bin
 taskmasterd
 taskmasterctl
 output.txt
 *.conf
-/bin
 *.log
 *.log.*
 *.lock
 *.pid
-bin/stayaliveprocess
