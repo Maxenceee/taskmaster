@@ -40,49 +40,6 @@ interactively is started.  Use the action "help" to find out about available
 actions.
 ```
 
-## Signal Handlers
-
-- `SIGTERM`: taskmasterd and all its subprocesses will shut down. This may take several seconds.
-- `SIGINT`: taskmasterd and all its subprocesses will shut down. This may take several seconds.
-- `SIGQUIT`: taskmasterd and all its subprocesses will shut down. This may take several seconds.
-- `SIGHUP`: taskmasterd will stop all processes, reload the configuration from the first config file it finds, and start all processes.
-- `SIGUSR2`: taskmasterd will close and reopen the main activity log and all child log files.
-
-## Configuration
-
-- unix_server
-	- file ✅
-	- chmod ✅
-	- chown ✅
-
-- taskmasterd
-	- logfile ✅
-	- pidfile ✅
-	- logfile_maxbytes ✅
-	- umask ✅
-	- user ✅
-	- directory ✅
-	- environment ✅
-
-- program:*
-	<!-- - process_name -->
-	- numprocs ✅
-	- autostart ✅
-	- startsecs ✅
-	- startretries ✅
-	- autorestart ✅
-	- exitcodes ✅
-	- stopsignal ✅
-	- stopwaitsecs ✅
-	- stopasgroup ✅
-	- killasgroup ✅
-	- user ✅
-	- stdout_logfile ✅
-	- stderr_logfile ✅
-	- environment ✅
-	- directory ✅
-	- umask ✅
-
 ## Features
 
 ### Table of contents
@@ -353,3 +310,13 @@ An octal number (e.g. 002, 022) representing the umask of the process.
 *Default*: No special umask (inherit taskmaster’s)
 
 *Required*: No
+
+## Signal Handlers
+
+The taskmaster daemon handles several signals to control its behavior:
+
+- `SIGTERM`: taskmasterd and all its subprocesses will shut down. This may take several seconds.
+- `SIGINT`: taskmasterd and all its subprocesses will shut down. This may take several seconds.
+- `SIGQUIT`: taskmasterd and all its subprocesses will shut down. This may take several seconds.
+- `SIGHUP`: taskmasterd will stop all processes, reload the configuration from the first config file it finds, and start all processes.
+- `SIGUSR2`: taskmasterd will close and reopen the main activity log and all child log files.
