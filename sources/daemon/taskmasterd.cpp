@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/30 14:53:40 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 16:06:56 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,6 @@
 bool	Taskmaster::running = false;
 bool	Taskmaster::reload = false;
 bool	deamonized = false;
-
-Taskmaster* g_master = nullptr;
 
 static void
 usage(char const* exec)
@@ -56,12 +54,8 @@ static void
 interruptReopen(int sig_int)
 {
 	(void)sig_int;
-	if (g_master == nullptr)
-	{
-		throw std::logic_error("This signal handler should not be bound before the main loop");
-	}
 	Logger::info("Reopening log files");
-	g_master->reopenStds();
+	Logger::reopenFileLogging();
 }
 
 static void
@@ -97,7 +91,6 @@ inline static void
 start_main_loop(const std::string& config_file)
 {
 	Taskmaster master(config_file);
-	g_master = &master;
 
 	if (master.readconfig() == TM_FAILURE)
 	{
@@ -166,7 +159,6 @@ start_main_loop(const std::string& config_file)
 	(void)server.stop();
 
 	ignore_signals();
-	g_master = nullptr;
 
 	remove_pid_file(pidfile.c_str());
 

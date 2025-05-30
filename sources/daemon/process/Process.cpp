@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 22:01:12 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 16:05:48 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ Process::_setupstds(void)
 	}
 	if (this->std_err_fd == -1)
 	{
-		this->std_err_fd = tempfile("out");
+		this->std_err_fd = tempfile("err");
 	}
 }
 
@@ -98,20 +98,6 @@ void
 Process::update(tm_Config::Program &new_conf)
 {
 	this->config = new_conf;
-}
-
-void
-Process::reopenStds(void)
-{
-	if (this->std_out_fd != -1)
-	{
-		(void)close(this->std_out_fd);
-	}
-	if (this->std_err_fd != -1)
-	{
-		(void)close(this->std_err_fd);
-	}
-	this->_setupstds();
 }
 
 int

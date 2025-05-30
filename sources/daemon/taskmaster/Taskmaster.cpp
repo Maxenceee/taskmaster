@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 22:01:19 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 16:06:29 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,20 +109,6 @@ Taskmaster::remove(const std::string& progname)
 		return (TM_SUCCESS);
 	}
 	return (TM_FAILURE);
-}
-
-void
-Taskmaster::reopenStds(void) const
-{
-	for (const auto& group : this->_processes)
-	{
-		for (const auto& process : group->getReplicas())
-		{
-			(void)process->reopenStds();
-		}
-	}
-
-	Logger::reopenFileLogging();
 }
 
 bool

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 21:20:43 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 16:06:03 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -221,7 +221,6 @@ public:
 	explicit Process(tm_Config::Program &config, uint16_t& gid, const std::string& program_name, uint16_t numproc);
 	~Process(void);
 
-	void	reopenStds(void);
 	int		clearLogFiles(void) const;
 
 	void	setGroupId(int id);
