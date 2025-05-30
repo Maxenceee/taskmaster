@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <signal.h>
 
+extern char **environ;
+
 void
 handle_sigterm(int sig) {
     dprintf(1, "SIGTERM received, terminating program...\n");
@@ -26,6 +28,11 @@ main()
 	// 	// fflush(stdout);
 	// 	sleep(1);
 	// }
+
+	for (char **env = environ; *env != NULL; env++) {
+		dprintf(1, "%s\n", *env);
+	}
+
 	while (1)
 	{
 		dprintf(1, "I'm alive\n");

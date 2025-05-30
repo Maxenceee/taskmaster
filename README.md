@@ -42,4 +42,4 @@
 	- stderr_logfile ✅
 	- environment
 	- directory ✅
-	- umask
+	- umask ✅

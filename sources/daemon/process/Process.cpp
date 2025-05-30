@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/30 16:35:49 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 17:06:11 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -189,7 +189,22 @@ Process::_spawn(void)
 		argv.push_back(const_cast<char*>(s.c_str()));
 	argv.push_back(nullptr);
 
-	if ((this->pid = spawn_child(argv.data(), environ, this->std_in_fd, this->std_out_fd, this->std_err_fd
+	std::vector<char*> envp;
+	for (char **env = environ; *env != nullptr; ++env)
+		envp.push_back(*env);
+	for (const auto& env_var : this->config.environment)
+	{
+		if (env_var.find('=') == std::string::npos)
+		{
+			Logger::error("Invalid environment variable: " + env_var);
+			this->_state = TM_P_FATAL;
+			return (TM_FAILURE);
+		}
+		envp.push_back(const_cast<char*>(env_var.c_str()));
+	}
+	envp.push_back(nullptr);
+
+	if ((this->pid = spawn_child(argv.data(), envp.data(), this->std_in_fd, this->std_out_fd, this->std_err_fd
 #ifdef TM_SPAWN_CHILD_USE_FORK
 		, this->config.user
 #endif /* TM_SPAWN_CHILD_USE_FORK */

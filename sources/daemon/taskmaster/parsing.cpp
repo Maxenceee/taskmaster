@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/30 16:42:49 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 17:13:19 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -261,7 +261,7 @@ _user_separated_by_colon(const std::optional<std::string>& str)
 
 template <typename T = std::string, typename U = std::vector<T>>
 inline static U
-_list(const std::optional<std::string>& str, const U& _default = U())
+_env(const std::optional<std::string>& str, const U& _default = U())
 {
 	if (!str || str->empty())
 		return (_default);
@@ -271,7 +271,28 @@ _list(const std::optional<std::string>& str, const U& _default = U())
 	std::string item;
 	while (std::getline(iss, item, ','))
 	{
-		result.push_back(static_cast<T>(item));
+		item.erase(0, item.find_first_not_of(" \t\n\r"));
+		item.erase(item.find_last_not_of(" \t\n\r") + 1);
+
+		size_t eq_pos = item.find('=');
+		if (eq_pos != std::string::npos && eq_pos + 1 < item.size()) {
+			std::string key = item.substr(0, eq_pos);
+			std::string value = item.substr(eq_pos + 1);
+
+			key.erase(0, key.find_first_not_of(" \t\n\r"));
+			key.erase(key.find_last_not_of(" \t\n\r") + 1);
+			value.erase(0, value.find_first_not_of(" \t\n\r"));
+			value.erase(value.find_last_not_of(" \t\n\r") + 1);
+
+			if ((value.size() >= 2)
+				&& ((value.front() == '"' && value.back() == '"')
+				|| (value.front() == '\'' && value.back() == '\''))) {
+				value = value.substr(1, value.size() - 2);
+			}
+			result.push_back(static_cast<T>(key + "=" + value));
+		} else {
+			result.push_back(static_cast<T>(item));
+		}
 	}
 	return (result);
 }
@@ -351,7 +372,7 @@ _parseDaemonConfig(const std::map<std::string, std::string>& section)
 	config.childlogdir = _existring_dirpath(_get(section, "childlogdir"), TM_MAIN_LOG_DIR);
 	config.user = _name_to_uid(_get(section, "user"));
 	config.directory = _existring_dirpath(_get(section, "directory"), TM_MAIN_LOG_DIR);
-	config.environment = _list(_get(section, "environment"));
+	config.environment = _env(_get(section, "environment"));
 
 	return (config);
 }
@@ -389,7 +410,7 @@ _parseProgramConfig(const std::string& section_name, const std::map<std::string,
 	config.user = _name_to_uid(_get(section, "user"));
 	config.stdout_logfile = _existring_dirpath(_get(section, "stdout_logfile"), "");
 	config.stderr_logfile = _existring_dirpath(_get(section, "stderr_logfile"), "");
-	config.environment = _list(_get(section, "environment"));
+	config.environment = _env(_get(section, "environment"));
 	config.directory = _existring_dirpath(_get(section, "directory"), TM_CURRENT_DIR);
 	config.umask = _octal_type(_get(section, "umask"), -1);
 
@@ -443,6 +464,10 @@ _parseConfig(const std::string& filename)
 			if (c.umask == (mode_t)-1)
 			{
 				c.umask = new_conf.daemon.umask;
+			}
+			for (auto& env : new_conf.daemon.environment)
+			{
+				c.environment.push_back(env);
 			}
 			new_conf.programs.push_back(c);
 		}
