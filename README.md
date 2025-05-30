@@ -22,7 +22,7 @@
 	- umask ✅
 	- user ✅
 	- directory ✅
-	- environment
+	- environment ✅
 
 - program:*
 	<!-- - process_name -->
@@ -40,6 +40,6 @@
 	- user ✅
 	- stdout_logfile ✅
 	- stderr_logfile ✅
-	- environment
+	- environment ✅
 	- directory ✅
 	- umask ✅
