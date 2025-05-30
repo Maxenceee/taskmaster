@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/30 16:05:48 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 16:09:47 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,8 +46,6 @@ Process::Process(tm_Config::Program& config, uint16_t& gid, const std::string& p
 	this->std_in_fd = -1;
 	this->std_out_fd = -1;
 	this->std_err_fd = -1;
-
-	this->_process_group_id = 0; // 0 means it is the leader of the process group
 
 	this->_setupstds();
 }
@@ -89,15 +87,25 @@ Process::_setupstds(void)
 }
 
 void
-Process::setGroupId(int id)
-{
-	this->_process_group_id = id;
-}
-
-void
 Process::update(tm_Config::Program &new_conf)
 {
 	this->config = new_conf;
+}
+
+void
+Process::reopenStds(void)
+{
+	if (this->std_out_fd != -1)
+	{
+		(void)close(this->std_out_fd);
+		this->std_out_fd = -1;
+	}
+	if (this->std_err_fd != -1)
+	{
+		(void)close(this->std_err_fd);
+		this->std_err_fd = -1;
+	}
+	this->_setupstds();
 }
 
 int

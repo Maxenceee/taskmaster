@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 19:54:32 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 22:01:14 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 16:08:56 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,7 @@ ProcessGroup::update(tm_Config::Program &new_conf)
 			p->reopenStds();
 		}
 	}
-	
+
 	uint16_t old_numprocs = this->_config.numprocs; 
 	this->_config = new_conf;
 

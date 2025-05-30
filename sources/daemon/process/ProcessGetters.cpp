@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 19:44:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/19 11:11:30 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 16:09:40 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,12 +90,6 @@ const std::string&
 Process::getProcessName() const
 {
 	return (this->_process_name);
-}
-
-int
-Process::getGroupId(void) const
-{
-	return (this->_process_group_id);
 }
 
 int

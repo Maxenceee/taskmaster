@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/30 16:06:03 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 16:09:52 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,7 +191,6 @@ private:
 	bool	_dead;
 
 	const std::string	_process_name;
-	int					_process_group_id;
 
 	time_point	start_time;
 	time_point	stop_time;
@@ -221,9 +220,8 @@ public:
 	explicit Process(tm_Config::Program &config, uint16_t& gid, const std::string& program_name, uint16_t numproc);
 	~Process(void);
 
+	void	reopenStds(void);
 	int		clearLogFiles(void) const;
-
-	void	setGroupId(int id);
 
 	void	update(tm_Config::Program &new_conf);
 
