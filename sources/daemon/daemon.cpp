@@ -6,15 +6,13 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 15:39:02 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 22:00:23 by mgama            ###   ########.fr       */
+/*   Updated: 2025/05/30 18:34:47 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "daemon.hpp"
 #include "logger/Logger.hpp"
 #include "taskmaster/Taskmaster.hpp"
-
-extern Taskmaster*	g_master;
 
 int // retourne 0 en cas de succès depuis l'enfant, > 0 en cas de succès depuis le parent, -1 en cas d'erreur
 become_daemon(int flags)
