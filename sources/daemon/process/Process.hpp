@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:26 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/30 16:27:18 by mgama            ###   ########.fr       */
+/*   Updated: 2025/06/03 22:37:10 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@
 #include "tm.hpp"
 #include "config.hpp"
 
-typedef uint32_t tm_process_uid;
 #define TM_P_GID(uid) ((uid >> 0x10) & 0xFFFF)
 #define TM_P_PID(uid) (uid & 0xFFFF)
 #define TM_P_UID(gid, pid) ((gid << 0x10) | pid)
