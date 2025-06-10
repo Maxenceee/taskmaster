@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:56 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/30 15:25:45 by mgama            ###   ########.fr       */
+/*   Updated: 2025/06/10 14:18:30 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -180,7 +180,6 @@ Logger::silent(bool mode)
 {
 	Logger::_silent = mode;
 }
-
 std::ifstream
 Logger::dump(tm_log_file_channel channel)
 {
@@ -211,7 +210,14 @@ Logger::LoggerFileStream::overflow(int c)
 	{
 		if (Logger::_file_logging)
 		{
-			this->_logFile << static_cast<char>(c);
+			if (!this->_logFile.is_open())
+			{
+				this->openLogFile();
+			}
+			if (this->_logFile.is_open())
+			{
+				this->_logFile << static_cast<char>(c);
+			}
 		}
 	}
 	return (c);
