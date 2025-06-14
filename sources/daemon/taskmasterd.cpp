@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/30 18:00:17 by mgama            ###   ########.fr       */
+/*   Updated: 2025/06/14 15:56:27 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -205,7 +205,13 @@ main(int argc, char* const* argv)
 					Logger::error("No configuration file specified");
 					return (TM_FAILURE);
 				}
-				config_file = options.optarg;
+				char resolved_path[PATH_MAX];
+				if (realpath(options.optarg, resolved_path) == nullptr)
+				{
+					Logger::error("Failed to resolve configuration file path");
+					return (TM_FAILURE);
+				}
+				config_file = resolved_path;
 				break;
 			case 'n':
 				nodaemon = true;

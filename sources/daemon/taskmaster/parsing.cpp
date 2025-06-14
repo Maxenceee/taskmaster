@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/06/14 12:44:59 by mgama            ###   ########.fr       */
+/*   Updated: 2025/06/14 15:55:14 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,43 @@
 #include "logger/Logger.hpp"
 #include "utils/utils.hpp"
 #include "taskmaster/Taskmaster.hpp"
+
+inline static void
+_ensure_child_run_dir_exists(void)
+{
+	struct stat st;
+	if (stat(TM_CHILD_RUN_DIR, &st) == -1)
+	{
+		switch (errno)
+		{
+		case ENOENT:
+			if (mkdir(TM_CHILD_RUN_DIR, 0755) != -1)
+			{
+				break;
+			}
+			[[fallthrough]]; // Indicate to the compiler that we want to fallback to the next case
+		case EACCES:
+			Logger::warning("Permission denied for " TM_CHILD_RUN_DIR ", using " TM_TMP_DIR " instead.");
+			if (mkdir(TM_TMP_DIR, 0755) == -1 && errno != EEXIST)
+			{
+				Logger::perror("Failed to create directory: " TM_TMP_DIR);
+				throw std::runtime_error("Could not create fallback directory.");
+			}
+			break;
+		default:
+			throw std::runtime_error("Could not access child run directory.");
+			break;
+		}
+	}
+	else if (!S_ISDIR(st.st_mode))
+	{
+		throw std::runtime_error("Invalid child run directory path.");
+	}
+	else if (access(TM_CHILD_RUN_DIR, W_OK) == -1)
+	{
+		throw std::runtime_error("Could not create fallback directory.");
+	}
+}
 
 template<typename T>
 inline static std::optional<T>
@@ -377,7 +414,7 @@ _parseDaemonConfig(const std::map<std::string, std::string>& section)
 	config.nodaemon = _boolean(_get(section, "nodaemon"), false);
 	config.childlogdir = _existring_dirpath(_get(section, "childlogdir"), TM_MAIN_LOG_DIR);
 	config.user = _name_to_uid(_get(section, "user"));
-	config.directory = _existring_dirpath(_get(section, "directory"), TM_MAIN_LOG_DIR);
+	config.directory = _existring_dirpath(_get(section, "directory"), TM_CURRENT_DIR);
 	config.environment = _env(_get(section, "environment"));
 
 	return (config);
@@ -506,6 +543,7 @@ Taskmaster::readconfig(void)
 		{
 			this->_read_config = _parseConfig(this->_config_file);
 		}
+		_ensure_child_run_dir_exists();
 	}
 	catch(const std::exception& e)
 	{

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/06/14 10:52:38 by mgama            ###   ########.fr       */
+/*   Updated: 2025/06/14 15:53:26 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,7 +155,7 @@ interruptHandlerWhenWorking(int sig_int)
 }
 
 static int
-send_cmd(const std::vector<std::string>& tokens)
+send_cmd(const std::string& socket_path, const std::vector<std::string>& tokens)
 {
 	if (tokens[0] == "help") {
 		if (tokens.size() == 2) {
@@ -178,7 +178,7 @@ send_cmd(const std::vector<std::string>& tokens)
 
 	std::string payload = handler(tokens);
 
-	UnixSocketClient client(TM_SOCKET_PATH);
+	UnixSocketClient client(socket_path.c_str());
 	if (client.connect() == TM_FAILURE)
 	{
 		std::cout << "Cannot connect to the Taskmaster daemon at unix://" << client.getSocketPath() << ". Is the daemon running?" << std::endl;
@@ -191,7 +191,7 @@ send_cmd(const std::vector<std::string>& tokens)
 }
 
 static void
-attach_readline()
+attach_readline(const std::string& socket_path)
 {
 	rl_attempted_completion_function = autocomplete;
 
@@ -233,7 +233,7 @@ attach_readline()
 				break;
 			}
 
-			(void)send_cmd(tokens);
+			(void)send_cmd(socket_path, tokens);
 		}
 		catch(...)
 		{
@@ -251,10 +251,11 @@ main(int argc, char* const* argv)
 
 	int ch = 0;
 	bool interactive = false;
-	std::string config_file;
+	std::string socket_path = TM_SOCKET_PATH;
 
 	struct tm_getopt_list_s optlist[] = {
 		{"interactive", 'i', TM_OPTPARSE_NONE},
+		{"socket", 's', TM_OPTPARSE_REQUIRED},
 		{"help", 'h', TM_OPTPARSE_NONE},
 		{nullptr, 0, TM_OPTPARSE_NONE}
 	};
@@ -267,6 +268,14 @@ main(int argc, char* const* argv)
 		{
 			case 'i':
 				interactive = true;
+				break;
+			case 's':
+				if (options.optarg == nullptr)
+				{
+					Logger::error("No socket path specified");
+					return (TM_FAILURE);
+				}
+				socket_path = resolve_path(std::string(options.optarg), "unix://");
 				break;
 			case 'h':
 			default:
@@ -291,16 +300,15 @@ main(int argc, char* const* argv)
 	}
 
 	Logger::init("Starting " TM_PROJECTCTL);
-	// Logger::setDebug(true);
 
 	try {
 		if (false == remaining_args.empty())
 		{
-			(void)send_cmd(remaining_args);
+			(void)send_cmd(socket_path, remaining_args);
 		}
 		if (interactive)
 		{
-			attach_readline();
+			attach_readline(socket_path);
 		}
 	} catch (const std::exception& e) {
 		Logger::error(e.what());
