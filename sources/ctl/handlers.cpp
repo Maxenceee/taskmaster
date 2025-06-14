@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 11:26:53 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/30 16:13:55 by mgama            ###   ########.fr       */
+/*   Updated: 2025/06/14 10:53:21 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include "unix_socket/UnixSocket.hpp"
 
 /**
- * Communication format, string based:
+ * Communication format, text based:
  * 
  * Name: <command_name> CRLF
  * Args: <arg1> <arg2> ... CRLF

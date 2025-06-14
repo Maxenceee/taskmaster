@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:56 by mgama             #+#    #+#             */
-/*   Updated: 2025/06/10 14:18:30 by mgama            ###   ########.fr       */
+/*   Updated: 2025/06/14 10:51:53 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -287,7 +287,6 @@ Logger::LoggerFileStream::getFileName(void) const
 {
 	return (this->_fname);
 }
-
 
 inline void
 Logger::LoggerFileStream::setFileName(const std::string& fname)

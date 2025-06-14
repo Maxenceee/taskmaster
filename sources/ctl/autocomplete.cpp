@@ -6,13 +6,11 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 13:24:58 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/30 16:13:50 by mgama            ###   ########.fr       */
+/*   Updated: 2025/06/14 10:53:52 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "autocomplete.hpp"
-
-extern int tty_fd;
 
 const std::vector<tm_CommandNode> commands = {
 	{"add", {
@@ -163,8 +161,6 @@ command_generator(const char *text, int state)
 	static size_t index;
 	static size_t len;
 
-(void)dprintf(tty_fd, "text: %s, state: %d\n", text, state);
-
 	if (state == 0) { // Réinitialisation lors du premier appel
 		index = 0;
 		len = strlen(text);
@@ -188,8 +184,6 @@ autocomplete(const char *text, int start, int end)
 {
 	(void)end;
 
-(void)dprintf(tty_fd, "text: %s, %d, %d\n", text, start, end);
-
 	rl_attempted_completion_over = 1;
 
 	if (start == 0)
@@ -198,9 +192,6 @@ autocomplete(const char *text, int start, int end)
 	}
 
 	std::string cmd = std::string(rl_line_buffer).substr(0, std::string(rl_line_buffer).find(' '));
-
-(void)dprintf(tty_fd, "rl_line_buffer: %s\n", rl_line_buffer);
-(void)dprintf(tty_fd, "cmd: %s\n", cmd.c_str());
 
 	// Chercher la commande correspondante dans `commands`
 	for (const auto& node : commands) {

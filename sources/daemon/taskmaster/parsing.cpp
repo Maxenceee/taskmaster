@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/30 18:13:39 by mgama            ###   ########.fr       */
+/*   Updated: 2025/06/14 10:58:51 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -179,10 +179,12 @@ _max_bytes(const std::optional<std::string>& str, const size_t _default)
 		    input.compare(input.size() - suffix.size(), suffix.size(), suffix) == 0)
 		{
 			std::string numberPart = input.substr(0, input.size() - suffix.size());
-			try {
+			try
+			{
 				return static_cast<size_t>(std::stoull(numberPart)) * multiplier;
 			}
-			catch (...) {
+			catch (...)
+			{
 				throw std::invalid_argument("Invalid size value: " + *str);
 			}
 		}
@@ -275,7 +277,8 @@ _env(const std::optional<std::string>& str, const U& _default = U())
 		item.erase(item.find_last_not_of(" \t\n\r") + 1);
 
 		size_t eq_pos = item.find('=');
-		if (eq_pos != std::string::npos && eq_pos + 1 < item.size()) {
+		if (eq_pos != std::string::npos && eq_pos + 1 < item.size())
+		{
 			std::string key = item.substr(0, eq_pos);
 			std::string value = item.substr(eq_pos + 1);
 
@@ -286,11 +289,14 @@ _env(const std::optional<std::string>& str, const U& _default = U())
 
 			if ((value.size() >= 2)
 				&& ((value.front() == '"' && value.back() == '"')
-				|| (value.front() == '\'' && value.back() == '\''))) {
+				|| (value.front() == '\'' && value.back() == '\'')))
+			{
 				value = value.substr(1, value.size() - 2);
 			}
 			result.push_back(static_cast<T>(key + "=" + value));
-		} else {
+		}
+		else
+		{
 			result.push_back(static_cast<T>(item));
 		}
 	}
@@ -568,12 +574,15 @@ _diff_conf_programs(
     const std::vector<tm_Config::Program>& new_programs,
 	std::unordered_set<std::string>& old_names,
 	std::unordered_set<std::string>& new_names
-) {
-    for (const auto& prog : old_programs) {
+)
+{
+    for (const auto& prog : old_programs)
+	{
         old_names.insert(prog.name);
     }
 
-    for (const auto& prog : new_programs) {
+    for (const auto& prog : new_programs)
+	{
         new_names.insert(prog.name);
     }
 }

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:51 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/30 16:06:36 by mgama            ###   ########.fr       */
+/*   Updated: 2025/06/14 10:59:48 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,6 @@ private:
 	void	_remove(const ProcessGroup *process);
 
 public:
-	explicit Taskmaster(void);
 	explicit Taskmaster(const std::string& config_file);
 	~Taskmaster(void);
 

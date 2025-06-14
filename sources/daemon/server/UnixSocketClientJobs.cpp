@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/30 16:14:02 by mgama            ###   ########.fr       */
+/*   Updated: 2025/06/14 11:01:49 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -312,20 +312,12 @@ UnixSocketServer::Client::_restart(struct tm_pollclient_process_handler& ps)
 		}
 		return (TM_POLL_CLIENT_DISCONNECT); 
 	case TM_P_BACKOFF:
-	// case TM_P_FATAL:
 		if (false == ps.group_request)
 		{
 			(void)this->send("The process is in a fatal state");
 			(void)this->send(TM_CRLF);
 		}
 		return (TM_POLL_CLIENT_DISCONNECT);
-	// case TM_P_UNKNOWN:
-	// 	if (false == ps.group_request)
-	// 	{
-	// 		(void)this->send("Process is in an unknown state");
-	// 		(void)this->send(TM_CRLF);	
-	// 	}
-	// 	return (TM_POLL_CLIENT_DISCONNECT);
 	}
 
 	ps.requested_state = TM_P_RUNNING;
@@ -429,20 +421,12 @@ UnixSocketServer::Client::_start(struct tm_pollclient_process_handler& ps)
 		}
 		return (TM_POLL_CLIENT_DISCONNECT);
 	case TM_P_BACKOFF:
-	// case TM_P_FATAL:
 		if (false == ps.group_request)
 		{
 			(void)this->send("The process is in a fatal state");
 			(void)this->send(TM_CRLF);
 		}
 		return (TM_POLL_CLIENT_DISCONNECT);
-	// case TM_P_UNKNOWN:
-	// 	if (false == ps.group_request)
-	// 	{
-	// 		(void)this->send("Process is in an unknown state");
-	// 		(void)this->send(TM_CRLF);
-	// 	}
-	// 	return (TM_POLL_CLIENT_DISCONNECT);
 	}
 
 	ps.requested_state = TM_P_RUNNING;
@@ -583,41 +567,6 @@ UnixSocketServer::Client::_tail(struct tm_pollclient_process_handler& ps)
 		Logger::perror("read error");
 		return (TM_POLL_CLIENT_DISCONNECT);
 	}
-
-	// // 2. Suivre les nouvelles données
-	// int flags = fcntl(fd, F_GETFL, 0);
-	// if (flags == -1 || fcntl(fd, F_SETFL, flags | O_NONBLOCK) == -1)
-	// {
-	// 	Logger::perror("fcntl error");
-	// 	return (TM_POLL_CLIENT_DISCONNECT);
-	// }
-
-	// struct pollfd pfd = { fd, POLLIN, 0 };
-
-	// while (true)
-	// {
-	// 	int ret = ::poll(&pfd, 1, -1);
-	// 	if (ret == -1)
-	// 	{
-	// 		Logger::perror("poll error");
-	// 		break;
-	// 	}
-
-	// 	if (pfd.revents & POLLIN)
-	// 	{
-	// 		ssize_t len = read(fd, buf, TM_RECV_SIZE);
-	// 		if (len >= 0)
-	// 		{
-	// 			buf[len] = '\0';
-	// 			this->send(buf);
-	// 		}
-	// 		else if (errno != EAGAIN && errno != EWOULDBLOCK)
-	// 		{
-	// 			Logger::perror("read error");
-	// 			break;
-	// 		}
-	// 	}
-	// }
 
 	return (TM_POLL_CLIENT_DISCONNECT);
 }
