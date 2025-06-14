@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:53 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/30 16:13:47 by mgama            ###   ########.fr       */
+/*   Updated: 2025/06/14 17:33:51 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include "tm.hpp"
 #include "pcolors.hpp"
 
-#define TM_MAIN_LOG_FNAME TM_MAIN_LOG_DIR TM_PROJECTD ".log"
+#define TM_MAIN_LOG_FNAME TM_MAIN_LOG_DIR "/" TM_PROJECTD ".log"
 
 enum tm_log_file_channel {
 	TM_LOG_FILE_STDOUT	= 0x01,

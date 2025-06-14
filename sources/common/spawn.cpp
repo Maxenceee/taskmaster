@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:15:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/30 16:13:44 by mgama            ###   ########.fr       */
+/*   Updated: 2025/06/14 17:29:37 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,7 +138,7 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 		signal(SIGTERM, SIG_DFL);
 		signal(SIGPIPE, SIG_DFL);
 
-		if (uid != -1 && setuid(uid) == -1) {
+		if (uid != (uid_t)-1 && setuid(uid) == -1) {
 			Logger::perror("setuid");
 			exit(TM_FAILURE);
 		}

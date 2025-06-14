@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/06/14 10:59:43 by mgama            ###   ########.fr       */
+/*   Updated: 2025/06/14 17:23:14 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,8 @@ Taskmaster::Taskmaster(const std::string& config_file): _config_file(config_file
 
 	this->pid = getpid();
 }
+
+Taskmaster::Taskmaster(void): Taskmaster("") {}
 
 Taskmaster::~Taskmaster(void)
 {

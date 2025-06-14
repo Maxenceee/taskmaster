@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/06/14 15:55:14 by mgama            ###   ########.fr       */
+/*   Updated: 2025/06/14 17:26:04 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -472,10 +472,10 @@ _search_and_load_config(void)
 		return std::string(env_config);
 
 	static const std::vector<const char *> default_paths = {
-		"/etc/" TM_PROJECTD ".conf",
-		"/etc/taskmaster/" TM_PROJECTD ".conf",
-		"/usr/local/etc/taskmaster/" TM_PROJECTD ".conf",
-		TM_CURRENT_DIR TM_PROJECTD ".conf"
+		"/etc/" TM_PROJECT ".conf",
+		"/etc/taskmaster/" TM_PROJECT ".conf",
+		"/usr/local/etc/taskmaster/" TM_PROJECT ".conf",
+		TM_CURRENT_DIR TM_PROJECT ".conf"
 	};
 
 	for (const auto& path : default_paths)
