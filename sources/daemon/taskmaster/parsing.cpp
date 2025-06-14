@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/06/14 10:58:51 by mgama            ###   ########.fr       */
+/*   Updated: 2025/06/14 12:44:59 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -450,7 +450,7 @@ _search_and_load_config(void)
 	throw std::runtime_error("No valid configuration file found");
 }
 
-tm_Config
+static tm_Config
 _parseConfig(const std::string& filename)
 {
 	inipp::Ini<char> ini;

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 23:24:24 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 20:13:46 by mgama            ###   ########.fr       */
+/*   Updated: 2025/06/14 12:47:56 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,17 +83,19 @@
 #define TM_PROJECTD		TM_PROJECT "d"
 #define TM_PROJECTCTL	TM_PROJECT "ctl"
 #define TM_VERSION		"1.5"
-#define TM_AUTHOR		"mgama"
+#define TM_AUTHOR		"mgama and mbrement"
 
 #define TM_PREFIX TM_PROJECT ": "
 
 #define TM_CURRENT_DIR		"./"
-#define TM_MAIN_LOG_DIR		TM_CURRENT_DIR
-#define TM_CHILD_LOG_DIR	"/tmp"
+#define TM_TMP_DIR			"/tmp/taskmaster"
+#define TM_MAIN_LOG_DIR		TM_TMP_DIR
+#define TM_CHILD_LOG_DIR	TM_TMP_DIR
+#define TM_CHILD_RUN_DIR	TM_TMP_DIR
 
-#define TM_LOG_FILE		TM_MAIN_LOG_DIR TM_PROJECTD ".log"
-#define TM_PID_FILE		TM_MAIN_LOG_DIR TM_PROJECTD ".pid"
-#define TM_SOCKET_PATH	"unix://./taskmaster.sock"
+#define TM_LOG_FILE		TM_MAIN_LOG_DIR "/" TM_PROJECTD ".log"
+#define TM_PID_FILE		TM_CHILD_RUN_DIR "/" TM_PROJECTD ".pid"
+#define TM_SOCKET_PATH	"unix://" TM_CHILD_RUN_DIR "/" TM_PROJECT ".sock"
 
 #define TM_MAX_LOG_FILE_SIZE	(1024 * 1024 * 50) // 50 MB
 
