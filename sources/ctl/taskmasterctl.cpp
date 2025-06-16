@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/06/14 15:53:26 by mgama            ###   ########.fr       */
+/*   Updated: 2025/06/16 12:44:11 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,8 @@
 extern int tty_fd;
 
 extern const std::unordered_map<std::string, std::string (*)(const std::vector<std::string>&)> command_handler;
+
+std::string	socket_path = TM_SOCKET_PATH;
 
 static void
 usage(char const* exec)
@@ -52,7 +54,7 @@ get_process_avail_name(const char* text, int state)
 		len = strlen(text);
 		suggestions.clear();
 
-		UnixSocketClient client(TM_SOCKET_PATH);
+		UnixSocketClient client(socket_path.c_str());
 		if (client.connect() == TM_FAILURE)
 		{
 			return nullptr;
@@ -101,7 +103,7 @@ get_process_name(const char* text, int state)
 		len = strlen(text);
 		suggestions.clear();
 
-		UnixSocketClient client(TM_SOCKET_PATH);
+		UnixSocketClient client(socket_path.c_str());
 		if (client.connect() == TM_FAILURE)
 		{
 			return nullptr;
@@ -155,7 +157,7 @@ interruptHandlerWhenWorking(int sig_int)
 }
 
 static int
-send_cmd(const std::string& socket_path, const std::vector<std::string>& tokens)
+send_cmd(const std::vector<std::string>& tokens)
 {
 	if (tokens[0] == "help") {
 		if (tokens.size() == 2) {
@@ -191,7 +193,7 @@ send_cmd(const std::string& socket_path, const std::vector<std::string>& tokens)
 }
 
 static void
-attach_readline(const std::string& socket_path)
+attach_readline()
 {
 	rl_attempted_completion_function = autocomplete;
 
@@ -233,7 +235,7 @@ attach_readline(const std::string& socket_path)
 				break;
 			}
 
-			(void)send_cmd(socket_path, tokens);
+			(void)send_cmd(tokens);
 		}
 		catch(...)
 		{
@@ -251,12 +253,12 @@ main(int argc, char* const* argv)
 
 	int ch = 0;
 	bool interactive = false;
-	std::string socket_path = TM_SOCKET_PATH;
 
 	struct tm_getopt_list_s optlist[] = {
 		{"interactive", 'i', TM_OPTPARSE_NONE},
 		{"socket", 's', TM_OPTPARSE_REQUIRED},
 		{"help", 'h', TM_OPTPARSE_NONE},
+		{"version", 'v', TM_OPTPARSE_NONE},
 		{nullptr, 0, TM_OPTPARSE_NONE}
 	};
 	struct tm_getopt_s options;
@@ -277,6 +279,9 @@ main(int argc, char* const* argv)
 				}
 				socket_path = resolve_path(std::string(options.optarg), "unix://");
 				break;
+			case 'v':
+				std::cout << B_PINK << TM_PROJECTCTL " " B_CYAN TM_VERSION B_PINK " by " B_CYAN TM_AUTHOR RESET << std::endl;
+				exit(0);
 			case 'h':
 			default:
 				usage(argv[0]);
@@ -304,11 +309,11 @@ main(int argc, char* const* argv)
 	try {
 		if (false == remaining_args.empty())
 		{
-			(void)send_cmd(socket_path, remaining_args);
+			(void)send_cmd(remaining_args);
 		}
 		if (interactive)
 		{
-			attach_readline(socket_path);
+			attach_readline();
 		}
 	} catch (const std::exception& e) {
 		Logger::error(e.what());

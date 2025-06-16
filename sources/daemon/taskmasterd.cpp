@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/06/16 12:33:46 by mgama            ###   ########.fr       */
+/*   Updated: 2025/06/16 12:45:22 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,8 +100,6 @@ start_main_loop(const std::string& config_file)
 	(void)master.update();
 
 	auto pidfile = master.getDaemonConf().pidfile;
-
-	std::cout << master.getDaemonConf() << std::endl;
 
 	if (create_pid_file(pidfile.c_str()) == TM_FAILURE)
 	{
@@ -215,7 +213,7 @@ main(int argc, char* const* argv)
 				Logger::silent(true);
 				break;
 			case 'v':
-				std::cout << TM_PROJECTD " " TM_VERSION " - " TM_AUTHOR << std::endl;
+				std::cout << B_PINK << TM_PROJECTD " " B_CYAN TM_VERSION B_PINK " by " B_CYAN TM_AUTHOR RESET << std::endl;
 				exit(0);
 			case 'd':
 				Logger::setDebug(true);
