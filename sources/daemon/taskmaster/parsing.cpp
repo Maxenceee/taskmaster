@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/06/16 12:18:15 by mgama            ###   ########.fr       */
+/*   Updated: 2025/06/16 12:35:32 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -456,7 +456,12 @@ _parseConfig(const std::string& filename)
 	inipp::Ini<char> ini;
 	tm_Config new_conf;
 
+	Logger::debug("Using configuration file " + filename);
 	std::ifstream is(filename);
+	if (!is.is_open())
+	{
+		throw std::invalid_argument("Could not find file " + filename);
+	}
 	ini.parse(is);
 
 	new_conf.server = _parseUnixServerConfig(_get(ini.sections, "unix_server").value_or(std::map<std::string, std::string>{}));

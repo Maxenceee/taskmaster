@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/06/14 15:56:27 by mgama            ###   ########.fr       */
+/*   Updated: 2025/06/16 12:33:46 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,18 +95,13 @@ start_main_loop(const std::string& config_file)
 
 	if (master.readconfig() == TM_FAILURE)
 	{
-		if (deamonized)
-		{
-			Logger::error("An error occurred while reading the configuration file, using previous configuration.");
-		}
-		else
-		{
-			throw std::runtime_error("Could not start the daemon.");
-		}
+		throw std::runtime_error("Could not start the daemon.");
 	}
 	(void)master.update();
 
 	auto pidfile = master.getDaemonConf().pidfile;
+
+	std::cout << master.getDaemonConf() << std::endl;
 
 	if (create_pid_file(pidfile.c_str()) == TM_FAILURE)
 	{
