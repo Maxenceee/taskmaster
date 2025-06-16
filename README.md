@@ -23,6 +23,12 @@ Options:
   -v, --version            Display version information and exit
 ```
 
+If no configuration file is specified, **taskmasterd** will try to find a file named `taskmaster.conf` the following directories:
+- /etc
+- /etc/taskmaster
+- /usr/local/etc/taskmaster
+- current working directory
+
 **taskmasterctl**: control applications run by taskmasterd from the cmd line
 
 ```

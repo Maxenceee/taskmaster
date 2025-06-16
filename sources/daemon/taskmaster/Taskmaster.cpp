@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/06/14 17:23:14 by mgama            ###   ########.fr       */
+/*   Updated: 2025/06/16 12:18:51 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,45 @@
 #include "taskmaster/Taskmaster.hpp"
 #include "logger/Logger.hpp"
 
+inline static void
+_ensure_child_run_dir_exists(void)
+{
+	struct stat st;
+	if (stat(TM_RUN_DIR, &st) == -1)
+	{
+		switch (errno)
+		{
+		case ENOENT:
+			if (mkdir(TM_RUN_DIR, 0755) != -1)
+			{
+				break;
+			}
+			[[fallthrough]]; // Indicate to the compiler that we want to fallback to the next case
+		case EACCES:
+			Logger::warning("Permission denied for " TM_RUN_DIR);
+			[[fallthrough]];
+		default:
+			throw std::runtime_error("Invalid run directory path: " TM_RUN_DIR);
+		}
+	}
+	else if (!S_ISDIR(st.st_mode))
+	{
+		throw std::runtime_error("Invalid run directory path: " TM_RUN_DIR);
+	}
+	else if (access(TM_RUN_DIR, W_OK) == -1)
+	{
+		throw std::runtime_error("Invalid run directory path: " TM_RUN_DIR);
+	}
+}
+
 Taskmaster::Taskmaster(const std::string& config_file): _config_file(config_file)
 {
 	this->reload = false;
 	this->running = true;
 
 	this->pid = getpid();
+
+	_ensure_child_run_dir_exists();
 }
 
 Taskmaster::Taskmaster(void): Taskmaster("") {}

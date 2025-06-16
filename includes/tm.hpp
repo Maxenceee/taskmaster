@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 23:24:24 by mgama             #+#    #+#             */
-/*   Updated: 2025/06/14 12:47:56 by mgama            ###   ########.fr       */
+/*   Updated: 2025/06/16 12:16:39 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,11 +91,11 @@
 #define TM_TMP_DIR			"/tmp/taskmaster"
 #define TM_MAIN_LOG_DIR		TM_TMP_DIR
 #define TM_CHILD_LOG_DIR	TM_TMP_DIR
-#define TM_CHILD_RUN_DIR	TM_TMP_DIR
+#define TM_RUN_DIR			TM_TMP_DIR
 
 #define TM_LOG_FILE		TM_MAIN_LOG_DIR "/" TM_PROJECTD ".log"
-#define TM_PID_FILE		TM_CHILD_RUN_DIR "/" TM_PROJECTD ".pid"
-#define TM_SOCKET_PATH	"unix://" TM_CHILD_RUN_DIR "/" TM_PROJECT ".sock"
+#define TM_PID_FILE		TM_RUN_DIR "/" TM_PROJECTD ".pid"
+#define TM_SOCKET_PATH	"unix://" TM_RUN_DIR "/" TM_PROJECT ".sock"
 
 #define TM_MAX_LOG_FILE_SIZE	(1024 * 1024 * 50) // 50 MB
 
