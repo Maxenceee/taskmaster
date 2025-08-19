@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/06/14 17:35:35 by mgama            ###   ########.fr       */
+/*   Updated: 2025/08/19 11:19:07 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -371,6 +371,12 @@ Process::_monitor_starting(void)
 		return (0);
 	}
 
+	if (std::chrono::system_clock::now() - this->start_time > std::chrono::seconds(this->config.startsecs))
+	{
+		this->_state = TM_P_RUNNING;
+		Logger::info("success: " + this->_process_name + " entered RUNNING state, process has stayed up for > than " + std::to_string(this->config.startsecs) + " seconds (startsecs)");
+		return (1);
+	}
 	if (this->_wait())
 	{
 		this->_printStopInfo();
@@ -384,12 +390,6 @@ Process::_monitor_starting(void)
 			this->_state = TM_P_FATAL;
 			Logger::warning("gave up: " + this->_process_name + " entered FATAL state, too many start retries too quickly");
 		}
-		return (1);
-	}
-	else if (std::chrono::system_clock::now() - this->start_time > std::chrono::seconds(this->config.startsecs))
-	{
-		this->_state = TM_P_RUNNING;
-		Logger::info("success: " + this->_process_name + " entered RUNNING state, process has stayed up for > than " + std::to_string(this->config.startsecs) + " seconds (startsecs)");
 		return (1);
 	}
 
