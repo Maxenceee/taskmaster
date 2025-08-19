@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:59:19 by mgama             #+#    #+#             */
-/*   Updated: 2025/06/14 10:54:01 by mgama            ###   ########.fr       */
+/*   Updated: 2025/08/19 11:40:16 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,10 +59,11 @@ UnixSocketClient::send(const std::string& msg)
 }
 
 ssize_t
-UnixSocketClient::print(void)
+UnixSocketClient::print(bool forcenl)
 {
 	char buffer[1024];
 	ssize_t total_bytes = 0;
+	char last_char = '\0';
 
 	while (true)
 	{
@@ -92,12 +93,18 @@ UnixSocketClient::print(void)
 			buffer[n] = '\0';
 			std::cout << buffer << std::flush;
 			total_bytes += n;
+			last_char = buffer[n-1];
 		}
 		else if (this->poll_fds[0].revents & (POLLHUP | POLLERR | POLLNVAL))
 		{
 			break;
 		}
 	}
+
+	if (forcenl && total_bytes > 0 && last_char != '\n')
+    {
+        std::cout << std::endl;
+    }
 
 	return (total_bytes);
 }
