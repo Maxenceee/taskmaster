@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/06/16 12:44:11 by mgama            ###   ########.fr       */
+/*   Updated: 2025/08/19 11:45:50 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -188,7 +188,7 @@ send_cmd(const std::vector<std::string>& tokens)
 	}
 
 	(void)client.send(payload);
-	(void)client.print();
+	(void)client.print(true);
 	return (TM_SUCCESS);
 }
 
