@@ -6,12 +6,15 @@ CTL_SOURCES_DIR		=	$(SOURCES_DIR)/ctl
 
 COMMON_SRCS		=	$(shell find $(COMMON_SOURCES_DIR) -name "*.cpp")
 COMMON_OBJS		=	$(patsubst $(SOURCES_DIR)%.cpp, $(OBJ_DIR)%.o, $(COMMON_SRCS))
+COMMON_DEPS		=	$(COMMON_OBJS:.o=.d)
 
 D_SRCS			=	$(shell find $(D_SOURCES_DIR) -name "*.cpp")
 D_OBJS			=	$(patsubst $(SOURCES_DIR)%.cpp, $(OBJ_DIR)%.o, $(D_SRCS))
+D_DEPS			=	$(D_OBJS:.o=.d)
 
 CTL_SRCS		=	$(shell find $(CTL_SOURCES_DIR) -name "*.cpp")
 CTL_OBJS		=	$(patsubst $(SOURCES_DIR)%.cpp, $(OBJ_DIR)%.o, $(CTL_SRCS))
+CTL_DEPS		=	$(CTL_OBJS:.o=.d)
 
 HEADERS_DIR		=	includes
 HEADERS			=	$(shell find $(HEADERS_DIR) -name "*.hpp") $(shell find $(SOURCES_DIR) -name "*.hpp")
@@ -19,6 +22,7 @@ HEADERS			=	$(shell find $(HEADERS_DIR) -name "*.hpp") $(shell find $(SOURCES_DI
 RM				=	rm -f
 CC				=	g++
 CXXFLAGS		=	-Wall -Wextra -Werror
+DEPSFLAG		=	-MMD -MP
 CFLAGS			=	-g3 -std=c++20 -I $(HEADERS_DIR) -I $(COMMON_SOURCES_DIR) -I $(D_SOURCES_DIR) -I $(CTL_SOURCES_DIR) $(CXXFLAGS)
 
 RLIBS			=	-lreadline -lhistory
@@ -48,7 +52,7 @@ use_fork: $(NAME_D) $(NAME_CTL)
 $(OBJ_DIR)/%.o: $(SOURCES_DIR)/%.cpp $(HEADERS) Makefile
 	@mkdir -p $(@D)
 	@echo "$(YELLOW)Compiling [$<]$(DEFAULT)"
-	@$(CC) $(CFLAGS) -c $< -o $@
+	@$(CC) $(CFLAGS) $(DEPSFLAG) -c $< -o $@
 	@printf ${UP}${CUT}
 
 $(NAME_D): $(D_OBJS) $(COMMON_OBJS)
@@ -58,6 +62,10 @@ $(NAME_D): $(D_OBJS) $(COMMON_OBJS)
 $(NAME_CTL): $(CTL_OBJS) $(COMMON_OBJS)
 	@$(CC) $(CTL_OBJS) $(COMMON_OBJS) -o $(NAME_CTL) $(RLIBS)
 	@echo "$(GREEN)$(NAME_CTL) compiled!$(DEFAULT)"
+
+-include $(COMMON_DEPS)
+-include $(D_DEPS)
+-include $(CTL_DEPS)
 
 clean:
 	@echo "$(RED)Cleaning build folder$(DEFAULT)"
