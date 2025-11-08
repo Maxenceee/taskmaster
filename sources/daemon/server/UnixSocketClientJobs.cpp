@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/06/14 17:36:40 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/08 19:17:47 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -405,8 +405,6 @@ UnixSocketServer::Client::_start(struct tm_pollclient_process_handler& ps)
 	}
 
 	ps.success_message = tm_pollclient_delayed_success_message.at("start");
-
-	std::cout << "Process " << p->getProcessName() << " requested to start" << std::endl;
 
 	switch (p->getState())
 	{

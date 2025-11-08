@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/08/19 11:19:07 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/08 20:13:19 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "spawn.hpp"
 #include "utils/utils.hpp"
 #include "logger/Logger.hpp"
+#include "envstore.hpp"
 
 inline static std::string
 _getProcessName(const std::string& pgname, uint16_t numproc)
@@ -39,6 +40,7 @@ Process::Process(tm_Config::Program& config, uint16_t& gid, const std::string& p
 	this->_signal = 0;
 	this->_exit_code = 0;
 	this->_state = TM_P_STOPPED;
+	this->_desired_state = TM_P_STOPPED;
 	this->_retries = 0;
 	this->_dead = false;
 	this->_waiting_restart = false;
@@ -173,6 +175,7 @@ Process::_spawn(void)
 	this->_signal = 0;
 	this->_exit_code = 0;
 	this->_state = TM_P_STARTING;
+	Logger::debug("Process " + std::to_string(this->pid) + " state set to RUNNING");
 	this->_retries++;
 	this->start_time = std::chrono::system_clock::now();
 
@@ -180,6 +183,7 @@ Process::_spawn(void)
 	{
 		Logger::error("requested executable does not exist or is not executable");
 		this->_state = TM_P_FATAL;
+		Logger::debug("Process " + std::to_string(this->pid) + " state set to FATAL");
 		return (TM_FAILURE);
 	}
 
@@ -189,32 +193,51 @@ Process::_spawn(void)
 		argv.push_back(const_cast<char*>(s.c_str()));
 	argv.push_back(nullptr);
 
-	std::vector<char*> envp;
-	for (char **env = environ; *env != nullptr; ++env)
-		envp.push_back(*env);
-	for (const auto& env_var : this->config.environment)
-	{
-		if (env_var.find('=') == std::string::npos)
-		{
-			Logger::error("Invalid environment variable: " + env_var);
-			this->_state = TM_P_FATAL;
-			return (TM_FAILURE);
-		}
-		envp.push_back(const_cast<char*>(env_var.c_str()));
-	}
-	envp.push_back(nullptr);
+	EnvStore envp(environ);
+	envp.set(this->config.environment);
 
-	if ((this->pid = spawn_child(argv.data(), envp.data(), this->std_in_fd, this->std_out_fd, this->std_err_fd
+	if (Logger::isDebug())
+	{
+		std::ostringstream oss;
+		oss << "Spawning process: ";
+		for (size_t i = 0; argv[i] != nullptr; ++i)
+		{
+			oss << argv[i];
+			if (argv[i + 1] != nullptr)
+				oss << " ";
+		}
+		Logger::debug(oss.str());
+		oss.str("");
+		oss << "With environment:\n";
+		for (const auto& env : envp.entries())
+		{
+			oss << "  " << env.key << "=" << env.value;
+			if (&env != &envp.entries().back())
+				oss << "\n";
+		}
+		Logger::debug(oss.str());	
+	}
+
+	if ((this->pid = spawn_child(argv.data(), envp.toEnvpStrings(), this->std_in_fd, this->std_out_fd, this->std_err_fd,
 #ifdef TM_SPAWN_CHILD_USE_FORK
-		, this->config.user
+		this->config.user,
 #endif /* TM_SPAWN_CHILD_USE_FORK */
-	, 0, this->config.directory.c_str(), this->config.umask)) == -1)
+	0, this->config.directory.c_str(), this->config.umask)) == -1)
 	{
 		this->_state = TM_P_FATAL;
+		Logger::debug("Process " + std::to_string(this->pid) + " state set to FATAL");
 		return (TM_FAILURE);
 	}
 
 	Logger::info("spawned: " + this->_process_name + " with pid " + std::to_string(this->pid));
+
+	if (this->config.startsecs == 0)
+	{
+		this->_desired_state = TM_P_RUNNING;
+		Logger::debug("Process " + std::to_string(this->pid) + " desired state set to RUNNING");
+		this->_state = TM_P_RUNNING;
+		Logger::debug("Process " + std::to_string(this->pid) + " state set to RUNNING");
+	}
 
 	return (TM_SUCCESS);
 }
@@ -227,6 +250,7 @@ Process::start(void)
 		return (TM_FAILURE);
 	}
 	this->_desired_state = TM_P_RUNNING;
+	Logger::debug("Process " + std::to_string(this->pid) + " desired state set to RUNNING");
 
 	this->_retries = 0;
 	return (this->_spawn());
@@ -238,10 +262,12 @@ Process::restart(void)
 	this->_waiting_restart = true;
 
 	this->_desired_state = TM_P_RUNNING;
+	Logger::debug("Process " + std::to_string(this->pid) + " desired state set to RUNNING");
 
 	if (this->_state == TM_P_STOPPED || this->_state == TM_P_EXITED || this->_state == TM_P_FATAL)
 	{
 		this->_state = TM_P_EXITED;
+		Logger::debug("Process " + std::to_string(this->pid) + " state set to EXITED");
 		return (TM_SUCCESS);
 	}
 
@@ -258,8 +284,10 @@ Process::stop(void)
 	if (false == this->_waiting_restart)
 	{
 		this->_desired_state = TM_P_EXITED;
+		Logger::debug("Process " + std::to_string(this->pid) + " desired state set to EXITED");
 	}
 	this->_state = TM_P_STOPPING;
+	Logger::debug("Process " + std::to_string(this->pid) + " state set to STOPPING");
 	this->request_stop_time = std::chrono::steady_clock::now();
 
 	pid_t pid = this->pid;
@@ -289,9 +317,11 @@ Process::kill(void)
 		return (TM_SUCCESS);
 	}
 	this->_state = TM_P_EXITED;
+	Logger::debug("Process " + std::to_string(this->pid) + " state set to EXITED");
 	if (false == this->_waiting_restart)
 	{
 		this->_desired_state = TM_P_EXITED;
+		Logger::debug("Process " + std::to_string(this->pid) + " desired state set to EXITED");
 	}
 
 	pid_t pid = this->pid;
@@ -374,6 +404,7 @@ Process::_monitor_starting(void)
 	if (std::chrono::system_clock::now() - this->start_time > std::chrono::seconds(this->config.startsecs))
 	{
 		this->_state = TM_P_RUNNING;
+		Logger::debug("Process " + std::to_string(this->pid) + " state set to RUNNING");
 		Logger::info("success: " + this->_process_name + " entered RUNNING state, process has stayed up for > than " + std::to_string(this->config.startsecs) + " seconds (startsecs)");
 		return (1);
 	}
@@ -383,11 +414,13 @@ Process::_monitor_starting(void)
 		if (this->_retries < this->config.startretries)
 		{
 			this->_state = TM_P_BACKOFF;
+			Logger::debug("Process " + std::to_string(this->pid) + " state set to BACKOFF");
 			return (this->_spawn());
 		}
 		else
 		{
 			this->_state = TM_P_FATAL;
+			Logger::debug("Process " + std::to_string(this->pid) + " state set to FATAL");
 			Logger::warning("gave up: " + this->_process_name + " entered FATAL state, too many start retries too quickly");
 		}
 		return (1);
@@ -403,11 +436,13 @@ Process::_monitor_running(void)
 	{
 		this->_printStopInfo();
 		this->_state = TM_P_EXITED;
+		Logger::debug("Process " + std::to_string(this->pid) + " state set to EXITED");
 		if (this->config.autorestart == TM_CONF_AUTORESTART_TRUE
 			|| (this->config.autorestart == TM_CONF_AUTORESTART_UNEXPECTED && false == _isExitCodeSuccessful(this->config.exitcodes, this->_exit_code))
 			|| this->_signal != 0)
 		{
 			this->_desired_state = TM_P_RUNNING;
+			Logger::debug("Process " + std::to_string(this->pid) + " desired state set to RUNNING");
 			this->_waiting_restart = true;
 		}
 		return (1);
@@ -423,6 +458,7 @@ Process::_monitor_stopping(void)
 	{
 		this->_printStopInfo();
 		this->_state = TM_P_EXITED;
+		Logger::debug("Process " + std::to_string(this->pid) + " state set to EXITED");
 		return (1);
 	}
 	else if (std::chrono::steady_clock::now() - this->request_stop_time > std::chrono::seconds(this->config.stopwaitsecs))
