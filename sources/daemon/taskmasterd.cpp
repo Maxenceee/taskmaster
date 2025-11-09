@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/11/08 19:29:31 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/09 15:51:55 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -213,7 +213,7 @@ main(int argc, char* const* argv)
 				Logger::silent(true);
 				break;
 			case 'v':
-				std::cout << B_PINK << TM_PROJECTD " " B_CYAN TM_VERSION B_PINK " by " B_CYAN TM_AUTHOR RESET << std::endl;
+				std::cout << B_PINK TM_PROJECTD " " B_CYAN TM_VERSION B_PINK " by " B_CYAN TM_AUTHOR RESET << std::endl;
 				exit(0);
 			case 'd':
 				Logger::setDebug(true);
