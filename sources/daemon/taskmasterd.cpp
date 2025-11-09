@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/11/09 15:51:55 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/09 16:03:02 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,7 @@ ignore_signals(void)
 	setup_signal(SIGTERM, SIG_IGN);
 	setup_signal(SIGHUP, SIG_IGN);
 	setup_signal(SIGUSR2, SIG_IGN);
+	setup_signal(SIGPIPE, SIG_IGN);
 }
 
 inline static void
@@ -228,7 +229,6 @@ main(int argc, char* const* argv)
 	Logger::init("Starting daemon");
 
 	ignore_signals();
-	setup_signal(SIGPIPE, SIG_IGN);
 
 	try
 	{
