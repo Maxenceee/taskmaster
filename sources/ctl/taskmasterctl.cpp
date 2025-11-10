@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/08/19 11:45:50 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/10 15:37:33 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,9 @@ usage(char const* exec)
 	std::cout << TM_PROJECTCTL " -- control applications run by taskmasterd from the cmd line" << "\n\n";
 	std::cout << "Usage: " << exec << " [options] [action [arguments]]" << "\n\n";
 	std::cout << "Options:" << "\n";
-	std::cout << "  " << "-i" << ", " << std::left << std::setw(20) << "--interactive" << " start an interactive shell after executing commands" << "\n";
 	std::cout << "  " << "-h" << ", " << std::left << std::setw(20) << "--help" << " Display this help and exit" << "\n";
+	std::cout << "  " << "-i" << ", " << std::left << std::setw(20) << "--interactive" << " start an interactive shell after executing commands" << "\n";
+	std::cout << "  " << "-s" << ", " << std::left << std::setw(20) << "--socket <path>" << " Specify the unix socket path to connect to" << "\n";
 	std::cout << "\n" << "action [arguments] -- see below" << "\n\n";
 	std::cout << "Actions are commands like \"tail\" or \"stop\".  If -i is specified or no action is\n";
 	std::cout << "specified on the command line, a \"shell\" interpreting actions typed\n";

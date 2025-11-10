@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/11/09 16:03:02 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/10 15:26:10 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,7 +100,7 @@ start_main_loop(const std::string& config_file)
 	}
 	(void)master.update();
 
-	auto pidfile = master.getDaemonConf().pidfile;
+	std::string pidfile = master.getDaemonConf().pidfile;
 
 	if (create_pid_file(pidfile.c_str()) == TM_FAILURE)
 	{

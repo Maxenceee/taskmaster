@@ -36,6 +36,7 @@ Usage: ./taskmasterctl [options] [action [arguments]]
 
 Options:
   -i, --interactive        start an interactive shell after executing commands
+  -s, --socket <path>      Specify the unix socket path to connect to
   -h, --help               Display this help and exit
 
 action [arguments] -- see below
