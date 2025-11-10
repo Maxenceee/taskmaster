@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:40:23 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 20:32:39 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/10 19:31:08 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -180,13 +180,13 @@ UnixSocketServer::Client::exec(void)
 
 	for (const auto& line : this->input)
 	{
-		if (line.empty()) // fin du bloc
+		if (line.empty())
 			break;
 
 		if (line.rfind("Name:", 0) == 0)
 		{
 			this->name = line.substr(5);
-			this->name.erase(0, this->name.find_first_not_of(" \t")); // trim left
+			this->name.erase(0, this->name.find_first_not_of(" \t"));
 		}
 		else if (line.rfind("Args:", 0) == 0)
 		{
@@ -217,13 +217,13 @@ UnixSocketServer::Client::exec(void)
 		return (TM_POLL_CLIENT_ERROR);
 	}
 
-	auto itg = this->general_command_map.find(name);
+	auto itg = this->general_command_map.find(this->name);
 	if (itg != this->general_command_map.end())
 	{
 		return ((this->*(itg->second))());
 	}
 
-	auto itp = this->process_command_map.find(name);
+	auto itp = this->process_command_map.find(this->name);
 	if (itp != this->process_command_map.end())
 	{
 		if (this->args.empty())
@@ -253,11 +253,16 @@ UnixSocketServer::Client::exec(void)
 		{
 			if (this->opts[0] == "procs")
 			{
-				auto a = this->_master.all();
-				for (const auto& p : a)
+				auto g = this->_master.getGroups();
+				for (const auto& group : g)
 				{
-					(void)this->send(p->getProcessName());
+					(void)this->send(group->getName());
 					(void)this->send(TM_CRLF);
+					for (const auto& process : group->getReplicas())
+					{
+						(void)this->send(process->getProcessName());
+						(void)this->send(TM_CRLF);
+					}
 				}
 			}
 			else if (this->opts[0] == "avail")

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/11/08 20:13:19 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/10 18:08:22 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -196,27 +196,27 @@ Process::_spawn(void)
 	EnvStore envp(environ);
 	envp.set(this->config.environment);
 
-	if (Logger::isDebug())
-	{
-		std::ostringstream oss;
-		oss << "Spawning process: ";
-		for (size_t i = 0; argv[i] != nullptr; ++i)
-		{
-			oss << argv[i];
-			if (argv[i + 1] != nullptr)
-				oss << " ";
-		}
-		Logger::debug(oss.str());
-		oss.str("");
-		oss << "With environment:\n";
-		for (const auto& env : envp.entries())
-		{
-			oss << "  " << env.key << "=" << env.value;
-			if (&env != &envp.entries().back())
-				oss << "\n";
-		}
-		Logger::debug(oss.str());	
-	}
+	// if (Logger::isDebug())
+	// {
+	// 	std::ostringstream oss;
+	// 	oss << "Spawning process: ";
+	// 	for (size_t i = 0; argv[i] != nullptr; ++i)
+	// 	{
+	// 		oss << argv[i];
+	// 		if (argv[i + 1] != nullptr)
+	// 			oss << " ";
+	// 	}
+	// 	Logger::debug(oss.str());
+	// 	oss.str("");
+	// 	oss << "With environment:\n";
+	// 	for (const auto& env : envp.entries())
+	// 	{
+	// 		oss << "  " << env.key << "=" << env.value;
+	// 		if (&env != &envp.entries().back())
+	// 			oss << "\n";
+	// 	}
+	// 	Logger::debug(oss.str());	
+	// }
 
 	if ((this->pid = spawn_child(argv.data(), envp.toEnvpStrings(), this->std_in_fd, this->std_out_fd, this->std_err_fd,
 #ifdef TM_SPAWN_CHILD_USE_FORK

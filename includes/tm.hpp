@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 23:24:24 by mgama             #+#    #+#             */
-/*   Updated: 2025/06/16 12:16:39 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/10 17:46:23 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,10 @@
 #include <utility>
 #include <queue>
 #include <deque>
+
+#ifndef __APPLE__
+#define __unused __attribute__((unused))
+#endif
 
 // 
 

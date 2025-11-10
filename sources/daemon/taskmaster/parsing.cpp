@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/11/08 19:32:31 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/10 19:38:41 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -388,6 +388,8 @@ _parseProgramConfig(const std::string& section_name, const std::map<std::string,
 {
 	tm_Config::Program config;
 
+	config.cid = u_uint16();
+
 	size_t colpos = section_name.find(":");
 	if (colpos == std::string::npos)
 	{
@@ -455,6 +457,8 @@ _parseConfig(const std::string& filename)
 {
 	inipp::Ini<char> ini;
 	tm_Config new_conf;
+
+	new_conf.cid = u_uint16();
 
 	Logger::debug("Using configuration file " + filename);
 	std::ifstream is(filename);
@@ -575,26 +579,31 @@ _diff_process_vs_config(
 
 inline static void
 _diff_conf_programs(
-    const std::vector<tm_Config::Program>& old_programs,
-    const std::vector<tm_Config::Program>& new_programs,
+	const std::vector<tm_Config::Program>& old_programs,
+	const std::vector<tm_Config::Program>& new_programs,
 	std::unordered_set<std::string>& old_names,
 	std::unordered_set<std::string>& new_names
 )
 {
-    for (const auto& prog : old_programs)
+	for (const auto& prog : old_programs)
 	{
-        old_names.insert(prog.name);
-    }
+		old_names.insert(prog.name);
+	}
 
-    for (const auto& prog : new_programs)
+	for (const auto& prog : new_programs)
 	{
-        new_names.insert(prog.name);
-    }
+		new_names.insert(prog.name);
+	}
 }
 
 std::string
 Taskmaster::update(void)
 {
+	if (this->_active_config.cid == this->_read_config.cid)
+	{
+		return ("No config updates to processes\n");
+	}
+
 	this->_active_config = this->_read_config;
 
 	/** Daemon **/
@@ -690,14 +699,18 @@ Taskmaster::getConfChanges(void) const
 		return ("No config updates to processes\n");
 	}
 
-    for (const auto& name : old_names) {
-        if (new_names.find(name) == new_names.end()) {
+    for (const auto& name : old_names)
+	{
+        if (new_names.find(name) == new_names.end())
+		{
             oss << name << ": disappeared\n";
         }
     }
 
-    for (const auto& name : new_names) {
-        if (old_names.find(name) == old_names.end()) {
+    for (const auto& name : new_names)
+	{
+        if (old_names.find(name) == old_names.end())
+		{
             oss << name << ": available\n";
         }
     }

@@ -23,7 +23,7 @@ RM				=	rm -f
 CC				=	g++
 CXXFLAGS		=	-Wall -Wextra -Werror
 DEPSFLAG		=	-MMD -MP
-CFLAGS			=	-g3 -std=c++20 -I $(HEADERS_DIR) -I $(COMMON_SOURCES_DIR) -I $(D_SOURCES_DIR) -I $(CTL_SOURCES_DIR) $(CXXFLAGS)
+CFLAGS			=	-std=c++20 -I $(HEADERS_DIR) -I $(COMMON_SOURCES_DIR) -I $(D_SOURCES_DIR) -I $(CTL_SOURCES_DIR) $(CXXFLAGS)
 
 RLIBS			=	-lreadline -lhistory
 ifeq ($(shell uname), Darwin)

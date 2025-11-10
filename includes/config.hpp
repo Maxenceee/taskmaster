@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 09:47:45 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/30 18:04:35 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/10 19:38:54 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ enum tm_config_stop_signal {
 };
 
 struct tm_Config {
+	uint16_t	cid;
 	struct UnixServer {
 		std::string	file;
 		uint16_t	chmod;
@@ -55,6 +56,7 @@ struct tm_Config {
 		std::vector<std::string> environment;
 	} daemon;
 	struct Program {
+		uint16_t	cid;
 		std::string name;
 		std::string	raw_command;
 		std::vector<std::string>	command;

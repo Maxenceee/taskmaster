@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/06/16 12:18:51 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/10 19:30:06 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,12 +113,22 @@ Taskmaster::stop(void)
 int
 Taskmaster::add(const std::string& progname)
 {
-	auto it = std::find_if(this->_active_config.programs.begin(), this->_active_config.programs.end(),
-		[&progname](const tm_Config::Program& prog) { return prog.name == progname; });
+	auto it = std::find_if(
+		this->_active_config.programs.begin(),
+		this->_active_config.programs.end(),
+		[&progname](const tm_Config::Program& prog) {
+			return prog.name == progname;
+		}
+	);
 	if (it != this->_active_config.programs.end())
 	{
-		auto group = std::find_if(this->_processes.begin(), this->_processes.end(),
-			[&progname](const ProcessGroup* group) { return *group == progname; });
+		auto group = std::find_if(
+			this->_processes.begin(),
+			this->_processes.end(),
+			[&progname](const ProcessGroup* group) {
+				return *group == progname;
+			}
+		);
 		if (group == this->_processes.end())
 		{
 			auto newp = new ProcessGroup(*it);
@@ -169,6 +179,17 @@ Taskmaster::all(void) const
 		}
 	}
 	return (res);
+}
+
+ProcessGroup*
+Taskmaster::findGroup(const std::string& progname) const
+{
+	for (auto* group : this->_processes)
+	{
+		if (*group == progname)
+			return (group);
+	}
+	return (nullptr);
 }
 
 Process*

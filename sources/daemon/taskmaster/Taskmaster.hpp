@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:51 by mgama             #+#    #+#             */
-/*   Updated: 2025/06/14 17:22:45 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/10 19:23:55 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,8 +61,9 @@ public:
 	std::string	getConfChanges(void) const;
 
 	const std::vector<Process*>	all(void) const;
-	Process*	find(const std::string& progname) const;
-	Process*	get(uint32_t uid) const;
+	Process*		find(const std::string& progname) const;
+	ProcessGroup*	findGroup(const std::string& progname) const;
+	Process*		get(uint32_t uid) const;
 };
 
 #endif /* TASKMASTER_HPP */

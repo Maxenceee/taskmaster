@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/11/10 15:26:10 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/10 17:48:51 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ usage(char const* exec)
 	std::cout << "  " << "-n" << ", " << std::left << std::setw(20) << "--nodaemon" << " Run in foreground (do not daemonize)" << "\n";
 	std::cout << "  " << "-s" << ", " << std::left << std::setw(20) << "--silent" << " Suppress output to stdout/stderr" << "\n";
 	std::cout << "  " << "-h" << ", " << std::left << std::setw(20) << "--help" << " Display this help and exit" << "\n";
+	std::cout << "  " << "-d" << ", " << std::left << std::setw(20) << "--debug" << " Enable debug mode" << "\n";
 	std::cout << "  " << "-v" << ", " << std::left << std::setw(20) << "--version" << " Display version information and exit" << "\n";
 	exit(64);
 }
@@ -52,17 +53,15 @@ interruptHandler(int sig_int)
 }
 
 static void
-interruptReopen(int sig_int)
+interruptReopen(int sig_int __unused)
 {
-	(void)sig_int;
 	Logger::info("Reopening log files");
 	Logger::reopenFileLogging();
 }
 
 static void
-interruptReload(int sig_int)
+interruptReload(int sig_int __unused)
 {
-	(void)sig_int;
 	Logger::print("Reloading the daemon...");
 	Taskmaster::running = false;
 	Taskmaster::reload = true;

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/30 18:04:38 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/10 18:28:40 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,7 @@ std::ostream& operator<<(std::ostream& os, const tm_Config::Daemon& daemon) {
 }
 std::ostream& operator<<(std::ostream& os, const tm_Config::Program& program) {
 	os << "Program: " << program.name << "\n";
+	os << "  cid: " << program.cid << "\n";
 	os << "  raw_command: " << program.raw_command << "\n";
 	os << "  command: ";
 	_print_list(os, program.command, 2);
@@ -81,6 +82,7 @@ std::ostream& operator<<(std::ostream& os, const tm_Config::Program& program) {
 }
 
 std::ostream& operator<<(std::ostream& os, const tm_Config& config) {
+	os << "Config ID: " << config.cid << "\n";
 	os << config.server;
 	os << config.daemon;
 	os << "Programs:\n";

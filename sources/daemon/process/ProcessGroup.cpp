@@ -6,12 +6,13 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 19:54:32 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/30 17:02:04 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/10 19:14:46 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "process/Process.hpp"
 #include "utils/utils.hpp"
+#include "logger/Logger.hpp"
 
 ProcessGroup::ProcessGroup(const tm_Config::Program &config): gid(u_uint16()), _config(config)
 {
@@ -39,6 +40,7 @@ ProcessGroup::enque(void)
 	auto newId = this->_replicas.size();
 
 	auto p = new Process(this->_config, this->gid, this->_config.name, newId);
+	Logger::debug("Enqueuing new process " + p->getProcessName() + " in group " + this->_config.name);
 	this->_replicas.push_back(p);
 	return (this->_replicas.size());
 }
@@ -47,6 +49,7 @@ size_t
 ProcessGroup::deque(void)
 {
 	auto last = this->_replicas.back();
+	Logger::debug("Dequeuing process " + last->getProcessName() + " from group " + this->_config.name);
 	last->markAsDead();
 	this->_transitioning.push_back(last);
 	this->_replicas.pop_back();
@@ -81,6 +84,8 @@ void
 ProcessGroup::update(tm_Config::Program &new_conf)
 {
 	bool shouldrestartprocs = false;
+	const uint16_t old_numprocs = _config.numprocs;
+    const uint16_t new_numprocs = new_conf.numprocs;
 
 	if (
 		this->_config.raw_command != new_conf.raw_command
@@ -108,11 +113,11 @@ ProcessGroup::update(tm_Config::Program &new_conf)
 		}
 	}
 
-	uint16_t old_numprocs = this->_config.numprocs; 
 	this->_config = new_conf;
 
 	if (shouldrestartprocs)
 	{
+		Logger::debug("ProcessGroup " + this->_config.name + " should be restarted due to config changes");
 		for (const auto& p : this->_replicas)
 		{
 			if (!(p->stopped() || p->exited() || p->fatal()))
@@ -122,16 +127,18 @@ ProcessGroup::update(tm_Config::Program &new_conf)
 		}
 	}
 
-	if (old_numprocs < new_conf.numprocs)
+	if (old_numprocs < new_numprocs)
 	{
-		for (int i = new_conf.numprocs - old_numprocs; i < new_conf.numprocs; i++)
+		Logger::debug("ProcessGroup " + this->_config.name + " increasing number of processes from " + std::to_string(old_numprocs) + " to " + std::to_string(new_numprocs));
+		for (int i = old_numprocs; i < new_numprocs; i++)
 		{
 			(void)this->enque();
 		}
 	}
-	else if (old_numprocs > new_conf.numprocs)
+	else if (old_numprocs > new_numprocs)
 	{
-		for (int i = old_numprocs - new_conf.numprocs; i < new_conf.numprocs; i++)
+		Logger::debug("ProcessGroup " + this->_config.name + " decreasing number of processes from " + std::to_string(old_numprocs) + " to " + std::to_string(new_numprocs));
+		for (int i = old_numprocs; i > new_numprocs; i--)
 		{
 			(void)this->deque();
 		}

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/11/10 16:07:33 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/10 19:27:06 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,16 @@ UnixSocketServer::Client::_find_processes(const std::vector<std::string>& progs)
 		if (seen.find(prog) != seen.end())
 			continue;
 		seen.insert(prog);
+
+		auto g = this->_master.findGroup(prog);
+		if (g)
+		{
+			for (const auto& p : g->getReplicas())
+			{
+				this->handlers.push_back({p->getPuid(), p->getState(), -1, false, true, nullptr});
+			}
+			continue;
+		}
 
 		auto p = this->_master.find(prog);
 		if (!p)
@@ -452,6 +462,16 @@ UnixSocketServer::Client::_status(void)
 
 	for (auto it = this->args.begin(); it != this->args.end(); ++it)
 	{
+		auto g = this->_master.findGroup(*it);
+		if (g)
+		{
+			for (const auto& p : g->getReplicas())
+			{
+				(void)this->send(p->getStatus());
+			}
+			continue;
+		}
+
 		auto p = this->_master.find(*it);
 		if (!p)
 		{
@@ -581,12 +601,12 @@ UnixSocketServer::Client::_update(void)
 		return (TM_POLL_CLIENT_ERROR);
 	}
 
-	if (this->_master.readconfig() == TM_FAILURE)
-	{
-		(void)this->send("Failed to read config file");
-		(void)this->send(TM_CRLF);
-		return (TM_POLL_CLIENT_DISCONNECT);
-	}
+	// if (this->_master.readconfig() == TM_FAILURE)
+	// {
+	// 	(void)this->send("Failed to read config file");
+	// 	(void)this->send(TM_CRLF);
+	// 	return (TM_POLL_CLIENT_DISCONNECT);
+	// }
 
 	(void)this->send(this->_master.update());
 

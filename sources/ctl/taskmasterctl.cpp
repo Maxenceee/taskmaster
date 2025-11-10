@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/11/10 15:37:33 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/10 17:46:41 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,9 +141,8 @@ get_process_name(const char* text, int state)
 }
 
 static void
-interruptHandler(int sig_int)
+interruptHandler(int sig_int __unused)
 {
-	(void)sig_int;
 	std::cout << "\n";
 	rl_on_new_line();
     rl_replace_line("", 0);
@@ -151,9 +150,8 @@ interruptHandler(int sig_int)
 }
 
 static void
-interruptHandlerWhenWorking(int sig_int)
+interruptHandlerWhenWorking(int sig_int __unused)
 {
-	(void)sig_int;
 	rl_on_new_line();
 }
 
