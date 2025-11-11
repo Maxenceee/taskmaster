@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 19:54:32 by mgama             #+#    #+#             */
-/*   Updated: 2025/11/11 13:33:26 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/11 14:27:54 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ ProcessGroup::ProcessGroup(const tm_Config::Program &config): gid(u_uint16()), _
 {
 	for (int i = 0; i < config.numprocs; i++)
 	{
-		this->enque();
+		(void)this->enque();
 	}
 }
 
