@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:40:49 by mgama             #+#    #+#             */
-/*   Updated: 2025/11/10 19:30:06 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/11 13:55:29 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,8 +142,13 @@ Taskmaster::add(const std::string& progname)
 int
 Taskmaster::remove(const std::string& progname)
 {
-	auto it = std::find_if(this->_processes.begin(), this->_processes.end(),
-		[&progname](const ProcessGroup* group) { return *group == progname; });
+	auto it = std::find_if(
+		this->_processes.begin(),
+		this->_processes.end(),
+		[&progname](const ProcessGroup* group) {
+			return *group == progname;
+		}
+	);
 	if (it != this->_processes.end())
 	{
 		this->_remove(*it);

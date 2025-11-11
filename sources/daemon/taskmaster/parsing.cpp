@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/11/11 12:22:36 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/11 13:52:30 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,8 @@ _or_throw(const std::optional<T>& opt, const U& msg)
 	throw std::invalid_argument(msg);
 }
 
-inline static int
-_integer(const std::optional<std::string>& str, const int _default)
+inline static int32_t
+_integer32(const std::optional<std::string>& str, const int32_t _default)
 {
 	if (!str.has_value() || str->empty())
 		return (_default);
@@ -51,6 +51,29 @@ _integer(const std::optional<std::string>& str, const int _default)
 	catch(...)
 	{
 		throw std::invalid_argument("Invalid integer value: " + *str);
+	}
+}
+
+inline static uint16_t
+_uinteger16(const std::optional<std::string>& str, const uint16_t _default)
+{
+	if (!str.has_value() || str->empty())
+		return (_default);
+
+	if (!is_digits(*str))
+		throw std::invalid_argument("Invalid integer value: " + *str);
+
+	try
+	{
+		auto val = std::stol(*str);
+		if (std::stol(*str) < 0 || std::stol(*str) > UINT16_MAX)
+			throw std::out_of_range("Integer value out of range: " + *str);
+
+		return (val);
+	}
+	catch(...)
+	{
+		throw std::invalid_argument("Invalid unsigned integer value: " + *str);
 	}
 }
 
@@ -404,14 +427,14 @@ _parseProgramConfig(const std::string& section_name, const std::map<std::string,
 	config.name = section_name.substr(1 + colpos);
 	config.command = _exec(_get(section, "command"));
 	config.raw_command = _or_throw(_get(section, "command"), "");
-	config.numprocs = _integer(_get(section, "numprocs"), 1);
+	config.numprocs = _uinteger16(_get(section, "numprocs"), 1);
 	config.autostart = _boolean(_get(section, "autostart"), true);
-	config.startsecs = _integer(_get(section, "startsecs"), 1);
-	config.startretries = _integer(_get(section, "startretries"), 3);
+	config.startsecs = _uinteger16(_get(section, "startsecs"), 1);
+	config.startretries = _uinteger16(_get(section, "startretries"), 3);
 	config.autorestart = _auto_restart(_get(section, "autorestart"), TM_CONF_AUTORESTART_UNEXPECTED);
 	config.exitcodes = _exit_codes(_get(section, "exitcodes"), { 0 });
 	config.stopsignal = _signal_number(_get(section, "stopsignal"), SIGTERM);
-	config.stopwaitsecs = _integer(_get(section, "stopwaitsecs"), 10);
+	config.stopwaitsecs = _uinteger16(_get(section, "stopwaitsecs"), 10);
 	config.stopasgroup = _boolean(_get(section, "stopasgroup"), false);
 	config.killasgroup = _boolean(_get(section, "killasgroup"), false);
 	config.user = _name_to_uid(_get(section, "user"));
