@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 17:12:53 by mgama             #+#    #+#             */
-/*   Updated: 2025/06/14 10:51:31 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/11 14:20:17 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,19 +29,22 @@ uuid_v4()
 	ss << std::hex;
 
 	// Première partie : 8 caractères hexadécimaux
-	for (i = 0; i < 8; i++) {
+	for (i = 0; i < 8; i++)
+	{
 		ss << dis(gen);
 	}
 
 	ss << "-";
 
 	// Deuxième partie : 4 caractères hexadécimaux
-	for (i = 0; i < 4; i++) {
+	for (i = 0; i < 4; i++)
+	{
 		ss << dis(gen);
 	}
 
 	ss << "-4"; // Indique que c'est un UUID version 4
-	for (i = 0; i < 3; i++) {
+	for (i = 0; i < 3; i++)
+	{
 		ss << dis(gen);
 	}
 
@@ -49,14 +52,16 @@ uuid_v4()
 
 	// Quatrième partie : un nombre hexadécimal entre 8 et 11
 	ss << dis2(gen);
-	for (i = 0; i < 3; i++) {
+	for (i = 0; i < 3; i++)
+	{
 		ss << dis(gen);
 	}
 
 	ss << "-";
 
 	// Cinquième partie : 12 caractères hexadécimaux
-	for (i = 0; i < 12; i++) {
+	for (i = 0; i < 12; i++)
+	{
 		ss << dis(gen);
 	}
 

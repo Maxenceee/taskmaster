@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:59:19 by mgama             #+#    #+#             */
-/*   Updated: 2025/08/19 11:40:16 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/11 14:20:58 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,9 +102,9 @@ UnixSocketClient::print(bool forcenl)
 	}
 
 	if (forcenl && total_bytes > 0 && last_char != '\n')
-    {
-        std::cout << std::endl;
-    }
+	{
+		std::cout << std::endl;
+	}
 
 	return (total_bytes);
 }

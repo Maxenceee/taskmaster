@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 13:34:11 by mgama             #+#    #+#             */
-/*   Updated: 2025/06/14 10:54:33 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/11 14:21:39 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,8 @@ signal_pid(int fd)
 
 static int lock_pid(int fd)
 {
-	if (flock(fd, LOCK_EX | LOCK_NB) == -1) {
+	if (flock(fd, LOCK_EX | LOCK_NB) == -1)
+	{
 		if (errno == EWOULDBLOCK)
 		{
 			if (signal_pid(fd) == TM_SUCCESS)

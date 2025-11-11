@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/20 11:57:13 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 18:22:27 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/11 14:18:19 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,8 @@ tempfile(const char channel[3])
 	snprintf(tmpname, sizeof(tmpname) - 1, TM_CHILD_LOG_DIR "/taskmaster.child.%s.XXXXXX", channel);
 
 	int fd = mkstemp(tmpname);
-	if (fd == -1) {
+	if (fd == -1)
+	{
 		perror("mkstemp failed");
 		return -1;
 	}

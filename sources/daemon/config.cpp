@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/11/10 18:28:40 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/11 14:21:22 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,9 +22,11 @@ _print_list(std::ostream& os, const std::vector<T>& list, size_t padding = 0)
 	{
 		os << "\n" << std::string(padding, ' ');
 	}
-	for (auto it = list.begin(); it != list.end(); ++it) {
+	for (auto it = list.begin(); it != list.end(); ++it)
+	{
 		os << "  " << *it;
-		if (std::next(it) != list.end()) {
+		if (std::next(it) != list.end())
+		{
 			os << ", ";
 		}
 		os << "\n" << std::string(padding, ' ');
@@ -32,7 +34,8 @@ _print_list(std::ostream& os, const std::vector<T>& list, size_t padding = 0)
 	os << "]\n";
 }
 
-std::ostream& operator<<(std::ostream& os, const tm_Config::UnixServer& server) {
+std::ostream& operator<<(std::ostream& os, const tm_Config::UnixServer& server)
+{
 	os << "UnixServer:\n";
 	os << "  file: " << server.file << "\n";
 	os << "  chmod: " << std::oct << std::setfill('0') << std::setw(3) << server.chmod << std::dec << "\n";
@@ -40,7 +43,8 @@ std::ostream& operator<<(std::ostream& os, const tm_Config::UnixServer& server) 
 	return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const tm_Config::Daemon& daemon) {
+std::ostream& operator<<(std::ostream& os, const tm_Config::Daemon& daemon)
+{
 	os << "Daemon:\n";
 	os << "  logfile: " << daemon.logfile << "\n";
 	os << "  pidfile: " << daemon.pidfile << "\n";
@@ -54,7 +58,9 @@ std::ostream& operator<<(std::ostream& os, const tm_Config::Daemon& daemon) {
 	_print_list(os, daemon.environment, 2);
 	return os;
 }
-std::ostream& operator<<(std::ostream& os, const tm_Config::Program& program) {
+
+std::ostream& operator<<(std::ostream& os, const tm_Config::Program& program)
+{
 	os << "Program: " << program.name << "\n";
 	os << "  cid: " << program.cid << "\n";
 	os << "  raw_command: " << program.raw_command << "\n";
@@ -81,12 +87,14 @@ std::ostream& operator<<(std::ostream& os, const tm_Config::Program& program) {
 	return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const tm_Config& config) {
+std::ostream& operator<<(std::ostream& os, const tm_Config& config)
+{
 	os << "Config ID: " << config.cid << "\n";
 	os << config.server;
 	os << config.daemon;
 	os << "Programs:\n";
-	for (auto it = config.programs.begin(); it != config.programs.end(); ++it) {
+	for (auto it = config.programs.begin(); it != config.programs.end(); ++it)
+	{
 		os << *it;
 	}
 	return os;

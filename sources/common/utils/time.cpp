@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 13:25:34 by mgama             #+#    #+#             */
-/*   Updated: 2025/06/10 14:09:05 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/11 14:19:34 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,8 @@ format_duration(time_duration duration)
 	int seconds = static_cast<int>(secs % 60);
 
 	std::ostringstream oss;
-	if (days > 0) {
+	if (days > 0)
+	{
 		oss << days << "d ";
 	}
 	oss << std::setfill('0') << std::setw(2) << hours << ":"

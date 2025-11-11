@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/11/11 13:52:30 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/11 14:22:09 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -192,9 +192,14 @@ _max_bytes(const std::optional<std::string>& str, const size_t _default)
 	};
 
 	std::string input = *str;
-	std::transform(input.begin(), input.end(), input.begin(), [](unsigned char c) {
-		return std::tolower(c);
-	});
+	std::transform(
+		input.begin(),
+		input.end(),
+		input.begin(),
+		[](unsigned char c) {
+			return std::tolower(c);
+		}
+	);
 
 	for (const auto& [suffix, multiplier] : suffixes)
 	{

@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/11/11 12:04:31 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/11 14:20:44 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,11 +79,13 @@ get_process_avail_name(const char* text, int state)
 		}
 	}
 
-	while (index < suggestions.size()) {
+	while (index < suggestions.size())
+	{
 		const std::string& cmd = suggestions[index];
 		index++;
 
-		if (cmd.compare(0, len, text) == 0) {
+		if (cmd.compare(0, len, text) == 0)
+		{
 			return strdup(cmd.c_str());
 		}
 	}
@@ -128,11 +130,13 @@ get_process_name(const char* text, int state)
 		}
 	}
 
-	while (index < suggestions.size()) {
+	while (index < suggestions.size())
+	{
 		const std::string& cmd = suggestions[index];
 		index++;
 
-		if (cmd.compare(0, len, text) == 0) {
+		if (cmd.compare(0, len, text) == 0)
+		{
 			return strdup(cmd.c_str());
 		}
 	}
@@ -158,10 +162,14 @@ interruptHandlerWhenWorking(int sig_int __unused)
 static int
 send_cmd(const std::vector<std::string>& tokens)
 {
-	if (tokens[0] == "help") {
-		if (tokens.size() == 2) {
+	if (tokens[0] == "help")
+	{
+		if (tokens.size() == 2)
+		{
 			show_command_info(tokens[1]);
-		} else {
+		}
+		else
+		{
 			show_help();
 		}
 		return (TM_SUCCESS);
@@ -215,7 +223,8 @@ attach_readline()
 
 		// Check if the current input is the same as the last history entry
 		HIST_ENTRY *last_entry = history_get(history_length);
-		if (!last_entry || strcmp(last_entry->line, rl_in) != 0) {
+		if (!last_entry || strcmp(last_entry->line, rl_in) != 0)
+		{
 			add_history(rl_in);
 		}
 
@@ -225,7 +234,8 @@ attach_readline()
 		{
 			std::vector<std::string> tokens = tokenize(rl_in);
 			free(rl_in);
-			if (tokens.empty()) {
+			if (tokens.empty())
+			{
 				continue;
 			}
 
@@ -298,14 +308,16 @@ main(int argc, char* const* argv)
 			remaining_args.push_back(options.argv[i]);
 	}
 
-	if (reopenstds() == -1) {
+	if (reopenstds() == -1)
+	{
 		Logger::perror("Failed to reopen stds");
 		return (TM_FAILURE);
 	}
 
 	Logger::init("Starting " TM_PROJECTCTL);
 
-	try {
+	try
+	{
 		if (false == remaining_args.empty())
 		{
 			(void)send_cmd(remaining_args);
@@ -314,7 +326,9 @@ main(int argc, char* const* argv)
 		{
 			attach_readline();
 		}
-	} catch (const std::exception& e) {
+	}
+	catch (const std::exception& e)
+	{
 		Logger::error(e.what());
 		return (TM_FAILURE);
 	}

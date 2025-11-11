@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 13:18:00 by mgama             #+#    #+#             */
-/*   Updated: 2025/06/14 10:51:14 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/11 14:19:20 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,17 +43,24 @@ std::vector<std::string>	parseQuotedAndSplit(const std::string &input)
 	std::string current;
 	bool inQuotes = false;
 
-	for (size_t i = 0; i < input.size(); ++i) {
+	for (size_t i = 0; i < input.size(); ++i)
+	{
 		char c = input[i];
 
-		if (c == '"') {
+		if (c == '"')
+		{
 			inQuotes = !inQuotes;
-		} else if (c == ' ' && !inQuotes) {
-			if (!current.empty()) {
+		}
+		else if (c == ' ' && !inQuotes)
+		{
+			if (!current.empty())
+			{
 				result.push_back(current);
 				current.clear();
 			}
-		} else {
+		}
+		else
+		{
 			current += c;
 		}
 	}
@@ -74,25 +81,35 @@ std::vector<std::string>	tokenize(const std::string &line)
 	std::string token;
 	bool inQuotes = false;
 
-	for (size_t i = 0; i < line.length(); ++i) {
+	for (size_t i = 0; i < line.length(); ++i)
+	{
 		char c = line[i];
 
-		if (c == '"') {
+		if (c == '"')
+		{
 			inQuotes = !inQuotes; // Toggle quote state
 			token += c;
-		} else if (c == '#' && !inQuotes) {
+		}
+		else if (c == '#' && !inQuotes)
+		{
             // Ignore the rest of the line after a '#' if not inside quotes
             break;
-        } else if ((isspace(c) || c == '\t') && !inQuotes) {
-			if (!token.empty()) {
+        }
+		else if ((isspace(c) || c == '\t') && !inQuotes)
+		{
+			if (!token.empty())
+			{
 				trim(token, ' ');
 				trim(token, '\t');
 				trim(token, '\r');
 				tokens.push_back(token);
 				token.clear();
 			}
-		} else if ((c == '{' || c == '}' || c == ';') && !inQuotes) {
-			if (!token.empty()) {
+		}
+		else if ((c == '{' || c == '}' || c == ';') && !inQuotes)
+		{
+			if (!token.empty())
+			{
 				trim(token, ' ');
 				trim(token, '\t');
 				trim(token, '\r');
@@ -100,16 +117,20 @@ std::vector<std::string>	tokenize(const std::string &line)
 				token.clear();
 			}
 			tokens.push_back(std::string(1, c)); // Add the '{', '}', or ';' as a token
-		} else {
+		}
+		else
+		{
 			token += c;
 		}
 	}
 
-	if (!token.empty()) {
+	if (!token.empty())
+	{
 		tokens.push_back(token);
 	}
 
-	if (inQuotes) {
+	if (inQuotes)
+	{
 		throw std::runtime_error("Unterminated quote");
 	}
 
@@ -121,14 +142,16 @@ struct StringConcatenator {
 
 	StringConcatenator(const std::string& sep) : separator(sep) {}
 
-	std::string operator()(const std::string& acc, const std::string& element) const {
+	std::string operator()(const std::string& acc, const std::string& element) const
+	{
 		return acc + separator + element;
 	}
 };
 
 std::string		join(const std::vector<std::string> &list, const std::string &c)
 {
-	if (list.empty()) {
+	if (list.empty())
+	{
 		return ("");
 	}
 	auto nextElement = list.cbegin();
@@ -261,10 +284,12 @@ std::string		&replace(std::string &buffer, const std::string &searchValue, const
 std::string &replaceAll(std::string &buffer, char searchValue, char replaceValue)
 {
 	size_t pos = 0;
-	while ((pos = buffer.find(searchValue, pos)) != std::string::npos) {
+	while ((pos = buffer.find(searchValue, pos)) != std::string::npos)
+	{
 		size_t end_pos = pos;
 		// Find the end of the successive occurrences
-		while (end_pos < buffer.size() && buffer[end_pos] == searchValue) {
+		while (end_pos < buffer.size() && buffer[end_pos] == searchValue)
+		{
 			++end_pos;
 		}
 		// Replace all occurrences with a single one
@@ -358,7 +383,8 @@ std::string	getTime(time_t time)
 	return (ret);
 }
 
-std::ostream& operator<<(std::ostream& os, struct cropoutput value) {
+std::ostream& operator<<(std::ostream& os, struct cropoutput value)
+{
 	if (value.value.size() > 1000)
 		os << value.value.substr(0, 1000) << "... " << getSize(value.value.size() - 1000) << " more";
 	else

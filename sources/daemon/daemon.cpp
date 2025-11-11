@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 15:39:02 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/30 18:34:47 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/11 14:21:28 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,8 @@ become_daemon(int flags)
 	 * et il sera le chef de groupe de processus dans un nouveau
 	 * groupe de processus.
 	 */
-	if(setsid() == -1) {               // devenir le leader de la nouvelle session
+	if(setsid() == -1)
+	{               // devenir le leader de la nouvelle session
 		Logger::perror("setsid");
 		return (-1);
 	}

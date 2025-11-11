@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:15:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/06/14 17:29:37 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/11 14:18:13 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,16 +69,19 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 		return (-1);
 	}
 
-	if (dir) {
+	if (dir)
+	{
 		// Vérifie si le dossier existe avant
-		if (access(dir, X_OK) != 0) {
+		if (access(dir, X_OK) != 0)
+		{
 			Logger::perror("invalid working directory");
 			(void)posix_spawn_file_actions_destroy(&actions);
 			(void)posix_spawnattr_destroy(&attr);
 			return (-1);
 		}
 
-		if (posix_spawn_file_actions_addchdir_np(&actions, dir) != 0) {
+		if (posix_spawn_file_actions_addchdir_np(&actions, dir) != 0)
+		{
 			Logger::perror("posix_spawn_file_actions_addchdir_np failed");
 			(void)posix_spawn_file_actions_destroy(&actions);
 			(void)posix_spawnattr_destroy(&attr);
@@ -106,28 +109,33 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 
 #else
 
-	if ((pid = fork()) < 0) {
+	if ((pid = fork()) < 0)
+	{
 		Logger::perror("fork");
 		return (-1);
 	}
 
-	if (pid == 0) {
+	if (pid == 0)
+	{
 		// In child process
 
 		// Redirect stdin
-		if (stdin_fd != -1 && dup2(stdin_fd, STDIN_FILENO) == -1) {
+		if (stdin_fd != -1 && dup2(stdin_fd, STDIN_FILENO) == -1)
+		{
 			Logger::perror("dup2 stdin failed");
 			exit(TM_FAILURE);
 		}
 
 		// Redirect stdout
-		if (stdout_fd != -1 && dup2(stdout_fd, STDOUT_FILENO) == -1) {
+		if (stdout_fd != -1 && dup2(stdout_fd, STDOUT_FILENO) == -1)
+		{
 			Logger::perror("dup2 stdout failed");
 			exit(TM_FAILURE);
 		}
 
 		// Redirect stderr
-		if (stderr_fd != -1 && dup2(stderr_fd, STDERR_FILENO) == -1) {
+		if (stderr_fd != -1 && dup2(stderr_fd, STDERR_FILENO) == -1)
+		{
 			Logger::perror("dup2 stderr failed");
 			exit(TM_FAILURE);
 		}
@@ -138,23 +146,28 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 		signal(SIGTERM, SIG_DFL);
 		signal(SIGPIPE, SIG_DFL);
 
-		if (uid != (uid_t)-1 && setuid(uid) == -1) {
+		if (uid != (uid_t)-1 && setuid(uid) == -1)
+		{
 			Logger::perror("setuid");
 			exit(TM_FAILURE);
 		}
 
-		if (setpgid(0, pgid) == -1) {
+		if (setpgid(0, pgid) == -1)
+		{
 			Logger::perror("setpgid");
 			exit(TM_FAILURE);
 		}
 
-		if (dir) {
-			if (access(dir, X_OK) != 0) {
+		if (dir)
+		{
+			if (access(dir, X_OK) != 0)
+			{
 				Logger::perror("invalid working directory");
 				exit(TM_FAILURE);
 			}
 
-			if (chdir(dir) != 0) {
+			if (chdir(dir) != 0)
+			{
 				Logger::perror("chdir failed");
 				exit(TM_FAILURE);
 			}
@@ -163,7 +176,8 @@ spawn_child(char* const* argv, char* const* envp, int stdin_fd, int stdout_fd, i
 		(void)umask(mode);
 
 		// Execute the child process
-		if (execve(argv[0], argv, envp) == -1) {
+		if (execve(argv[0], argv, envp) == -1)
+		{
 			Logger::perror("execve");
 			exit(TM_FAILURE);
 		}

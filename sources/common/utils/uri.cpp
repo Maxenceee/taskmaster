@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/02 13:35:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/13 19:28:49 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/11 14:20:05 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,29 +23,36 @@ resolve_path(const std::string& url, const std::string& scheme)
 	std::string path;
 
 	// Vérifier si l'URL commence par `scheme`
-	if (url.rfind(scheme, 0) == 0) {
+	if (url.rfind(scheme, 0) == 0)
+	{
 		path = url.substr(scheme.length()); // Supprimer `scheme`
-	} else {
+	}
+	else
+	{
 		path = url; // Déjà un chemin
 	}
 
 	// Vérifier si le chemin est absolu
-	if (!path.empty() && path[0] == '/') {
+	if (!path.empty() && path[0] == '/')
+	{
 		return path; // Déjà un chemin absolu
 	}
 
 	char resolved_path[PATH_MAX];
 
 	// Convertir en chemin absolu si c'est un chemin relatif
-	if (realpath(path.c_str(), resolved_path)) {
+	if (realpath(path.c_str(), resolved_path))
+	{
 		return std::string(resolved_path);
 	}
 
 	// Si realpath échoue, on tente de préfixer avec le répertoire courant
-	if (path.rfind("./", 0) == 0) {
+	if (path.rfind("./", 0) == 0)
+	{
 		path = path.substr(2); // Supprimer `./` du début
 	}
-	if (getcwd(resolved_path, sizeof(resolved_path))) {
+	if (getcwd(resolved_path, sizeof(resolved_path)))
+	{
 		return std::string(resolved_path) + "/" + path;
 	}
 
