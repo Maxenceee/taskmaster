@@ -63,6 +63,7 @@ actions.
 	- [directory](#directory)
 	- [environment](#environment)
 - [program:*](#program)
+	- [command](#command)
 	- [numprocs](#numprocs)
 	- [autostart](#autostart)
 	- [startsecs](#startsecs)

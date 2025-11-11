@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 20:07:36 by mgama             #+#    #+#             */
-/*   Updated: 2025/06/14 10:50:07 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/11 11:07:23 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,17 @@
 #include "utils/utils.hpp"
 
 int tty_fd = open("/dev/ttys010", O_RDWR);
+
+/**
+ * INFO:
+ * 
+ * This file is experimental code and is not used in the current project.
+ * It implements a simple readline-like functionality with basic features
+ * such as line editing, history navigation, and autocompletion.
+ * 
+ * The main problem is the non-support of the multi-line support, which makes
+ * it unusable for now.
+ */
 
 enum tm_rl_ev {
 	TM_RL_NEW_LINE = 0,

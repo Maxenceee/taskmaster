@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 19:54:32 by mgama             #+#    #+#             */
-/*   Updated: 2025/11/10 19:14:46 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/11 12:26:00 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,7 @@ ProcessGroup::update(tm_Config::Program &new_conf)
     const uint16_t new_numprocs = new_conf.numprocs;
 
 	if (
-		this->_config.raw_command != new_conf.raw_command
+		this->_config.raw_command != new_conf.raw_command // CKC il fo le reparer
 		|| this->_config.environment != new_conf.environment
 		|| this->_config.directory != new_conf.directory
 		|| this->_config.umask != new_conf.umask
