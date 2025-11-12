@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 18:45:28 by mgama             #+#    #+#             */
-/*   Updated: 2025/11/10 18:08:22 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/12 11:18:42 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ Process::_setupstds(void)
 {
 	if (!this->config.stdout_logfile.empty())
 	{
-		if ((this->std_out_fd = open(this->config.stdout_logfile.c_str(), O_WRONLY | O_CREAT | O_APPEND, 0644)) == -1)
+		if ((this->std_out_fd = open(this->config.stdout_logfile.c_str(), O_RDWR | O_CREAT | O_APPEND, 0644)) == -1)
 		{
 			Logger::perror("could not open stdout logfile");
 		}
@@ -77,7 +77,7 @@ Process::_setupstds(void)
 	}
 	if (!this->config.stderr_logfile.empty())
 	{
-		if ((this->std_err_fd = open(this->config.stderr_logfile.c_str(), O_WRONLY | O_CREAT | O_APPEND, 0644)) == -1)
+		if ((this->std_err_fd = open(this->config.stderr_logfile.c_str(), O_RDWR | O_CREAT | O_APPEND, 0644)) == -1)
 		{
 			Logger::perror("could not open stderr logfile");
 		}

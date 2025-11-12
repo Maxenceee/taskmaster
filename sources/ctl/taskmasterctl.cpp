@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 13:14:35 by mgama             #+#    #+#             */
-/*   Updated: 2025/11/11 14:20:44 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/12 11:06:00 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,6 @@
 #include "logger/Logger.hpp"
 #include "utils/utils.hpp"
 #include "client/UnixSocketClient.hpp"
-
-extern int tty_fd;
 
 extern const std::unordered_map<std::string, std::string (*)(const std::vector<std::string>&)> command_handler;
 
@@ -34,6 +32,7 @@ usage(char const* exec)
 	std::cout << "  " << "-h" << ", " << std::left << std::setw(20) << "--help" << " Display this help and exit" << "\n";
 	std::cout << "  " << "-i" << ", " << std::left << std::setw(20) << "--interactive" << " start an interactive shell after executing commands" << "\n";
 	std::cout << "  " << "-s" << ", " << std::left << std::setw(20) << "--socket <path>" << " Specify the unix socket path to connect to" << "\n";
+	std::cout << "  " << "-n" << ", " << std::left << std::setw(20) << "--no-tty" << " Do not attempt to reopen stds" << "\n";
 	std::cout << "\n" << "action [arguments] -- see below" << "\n\n";
 	std::cout << "Actions are commands like \"tail\" or \"stop\".  If -i is specified or no action is\n";
 	std::cout << "specified on the command line, a \"shell\" interpreting actions typed\n";
@@ -262,10 +261,12 @@ main(int argc, char* const* argv)
 
 	int ch = 0;
 	bool interactive = false;
+	bool force_tty = true;
 
 	struct tm_getopt_list_s optlist[] = {
 		{"interactive", 'i', TM_OPTPARSE_NONE},
 		{"socket", 's', TM_OPTPARSE_REQUIRED},
+		{"no-tty", 'n', TM_OPTPARSE_NONE},
 		{"help", 'h', TM_OPTPARSE_NONE},
 		{"version", 'v', TM_OPTPARSE_NONE},
 		{nullptr, 0, TM_OPTPARSE_NONE}
@@ -288,6 +289,9 @@ main(int argc, char* const* argv)
 				}
 				socket_path = resolve_path(std::string(options.optarg), "unix://");
 				break;
+			case 'n':
+				force_tty = false;
+				break;
 			case 'v':
 				std::cout << B_PINK << TM_PROJECTCTL " " B_CYAN TM_VERSION B_PINK " by " B_CYAN TM_AUTHOR RESET << std::endl;
 				exit(0);
@@ -308,7 +312,7 @@ main(int argc, char* const* argv)
 			remaining_args.push_back(options.argv[i]);
 	}
 
-	if (reopenstds() == -1)
+	if (force_tty && reopenstds() == -1)
 	{
 		Logger::perror("Failed to reopen stds");
 		return (TM_FAILURE);

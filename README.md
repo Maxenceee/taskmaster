@@ -24,10 +24,10 @@ Options:
 ```
 
 If no configuration file is specified, **taskmasterd** will try to find a file named `taskmaster.conf` the following directories:
-- /etc
-- /etc/taskmaster
-- /usr/local/etc/taskmaster
 - current working directory
+- /usr/local/etc/taskmaster
+- /etc/taskmaster
+- /etc
 
 **taskmasterctl**: control applications run by taskmasterd from the cmd line
 
@@ -37,6 +37,7 @@ Usage: ./taskmasterctl [options] [action [arguments]]
 Options:
   -i, --interactive        start an interactive shell after executing commands
   -s, --socket <path>      Specify the unix socket path to connect to
+  -n, --no-tty             Do not attempt to reopen stds
   -h, --help               Display this help and exit
 
 action [arguments] -- see below

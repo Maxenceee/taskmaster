@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 15:45:59 by mgama             #+#    #+#             */
-/*   Updated: 2025/05/29 19:02:51 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/12 11:23:18 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,8 @@ struct tm_pollclient_process_handler {
 	bool		group_request;
 	const char*	success_message;
 };
+
+#define TM_TAIL_SEEK_OFFSET	2400
 
 class UnixSocketServer: public UnixSocket
 {

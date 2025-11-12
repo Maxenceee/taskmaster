@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 16:46:05 by mgama             #+#    #+#             */
-/*   Updated: 2025/11/10 19:27:06 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/12 11:22:12 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -569,7 +569,7 @@ UnixSocketServer::Client::_tail(struct tm_pollclient_process_handler& ps)
 		return (TM_POLL_CLIENT_DISCONNECT);
 	}
 
-	off_t startPos = std::max(static_cast<off_t>(0), fileSize - 1600);
+	off_t startPos = std::max(static_cast<off_t>(0), fileSize - TM_TAIL_SEEK_OFFSET);
 	if (lseek(fd, startPos, SEEK_SET) == -1)
 	{
 		Logger::perror("lseek error");

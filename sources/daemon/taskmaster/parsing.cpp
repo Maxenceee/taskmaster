@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/11/11 14:22:09 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/12 11:09:00 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -403,7 +403,6 @@ _parseDaemonConfig(const std::map<std::string, std::string>& section)
 	config.logfile_maxbytes = _max_bytes(_get(section, "logfile_maxbytes"), 1024 * 1024);
 	config.umask = _octal_type(_get(section, "umask"), 022);
 	config.nodaemon = _boolean(_get(section, "nodaemon"), false);
-	config.childlogdir = _existring_dirpath(_get(section, "childlogdir"), TM_MAIN_LOG_DIR);
 	config.user = _name_to_uid(_get(section, "user"));
 	config.directory = _existring_dirpath(_get(section, "directory"), TM_CURRENT_DIR);
 	config.environment = _env(_get(section, "environment"));
@@ -474,7 +473,10 @@ _search_and_load_config(void)
 	for (const auto& path : default_paths)
 	{
 		if (access(path, R_OK) == 0)
+		{
+			Logger::debug("Configuration file found at " + std::string(path));
 			return (path);
+		}
 	}
 
 	throw std::runtime_error("No valid configuration file found");

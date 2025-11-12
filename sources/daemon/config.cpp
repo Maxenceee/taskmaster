@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 07:59:30 by mgama             #+#    #+#             */
-/*   Updated: 2025/11/11 14:21:22 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/12 11:08:57 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,6 @@ std::ostream& operator<<(std::ostream& os, const tm_Config::Daemon& daemon)
 	os << "  logfile_maxbytes: " << daemon.logfile_maxbytes << "\n";
 	os << "  umask: " << std::oct << std::setfill('0') << std::setw(3) << daemon.umask << std::dec << "\n";
 	os << "  nodaemon: " << (daemon.nodaemon ? "true" : "false") << "\n";
-	os << "  childlogdir: " << daemon.childlogdir << "\n";
 	os << "  user: " << daemon.user << "\n";
 	os << "  directory: " << daemon.directory << "\n";
 	os << "  environment: ";
