@@ -6,7 +6,7 @@
 /*   By: mgama <mgama@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 20:48:56 by mgama             #+#    #+#             */
-/*   Updated: 2025/06/14 11:31:03 by mgama            ###   ########.fr       */
+/*   Updated: 2025/11/12 11:43:21 by mgama            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -180,6 +180,7 @@ Logger::silent(bool mode)
 {
 	Logger::_silent = mode;
 }
+
 std::ifstream
 Logger::dump(tm_log_file_channel channel)
 {
