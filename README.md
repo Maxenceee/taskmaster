@@ -2,6 +2,8 @@
 
 My **Taskmaster** projet for the 42 School cursus, a [`Supervisord`](https://supervisord.org) like process manager make in C++ 20.
 
+Final grade : `125/100` & `Outstanding Project`
+
 ## Getting started
 
 You need to compile the project with `make`.
