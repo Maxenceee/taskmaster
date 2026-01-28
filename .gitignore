@@ -11,3 +11,4 @@ output.txt
 *.lock
 *.pid
 *.out
+.DS_Store
