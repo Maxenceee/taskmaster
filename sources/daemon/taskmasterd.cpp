@@ -24,6 +24,7 @@ bool	Taskmaster::running = false;
 bool	Taskmaster::reload = false;
 static bool	nodaemon = false;
 static bool	deamonized = false;
+static Taskmaster* g_master = NULL;
 
 static void
 usage(char const* exec)
@@ -65,6 +66,26 @@ interruptReload(int sig_int __unused)
 	Logger::print("Reloading the daemon...");
 	Taskmaster::running = false;
 	Taskmaster::reload = true;
+}
+
+static void
+handleDeadChild(int sig __unused, siginfo_t *info, void *context __unused)
+{
+	pid_t dead_pid = info->si_pid;
+	if (NULL != g_master)
+	{
+		for (const auto* process : g_master->all())
+		{
+			if (*process == dead_pid)
+				// If the dead child is part of our minitored
+				// children, it il be handled later 
+				return ;
+		}
+	}
+
+	// If the dead child is unknown, just discard it to prevent to
+	// stay as zombie process
+	(void)waitpid(dead_pid, NULL, 0);
 }
 
 inline static void
@@ -133,6 +154,7 @@ start_main_loop(const std::string& config_file)
 
 	(void)server.listen();
 	setup_signals();
+	g_master = &master;
 
 	Logger::print("Daemon started with pid: " + std::to_string(getpid()));
 
@@ -160,6 +182,7 @@ start_main_loop(const std::string& config_file)
 	(void)server.stop();
 
 	ignore_signals();
+	g_master = NULL;
 
 	remove_pid_file(pidfile.c_str());
 
@@ -228,6 +251,7 @@ main(int argc, char* const* argv)
 	Logger::init("Starting daemon");
 
 	ignore_signals();
+	setup_info_signal(SIGCHLD, handleDeadChild);
 
 	try
 	{

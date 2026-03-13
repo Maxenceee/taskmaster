@@ -17,9 +17,9 @@
 UnixSocket::UnixSocket(const char* path): unix_domain_path(path), socket_path(resolve_path(path, "unix://")), sockfd(-1) {}
 
 int
-UnixSocket::poll(void)
+UnixSocket::poll(int timeout)
 {
-	if (::poll(this->poll_fds.data(), this->poll_fds.size(), TM_POLL_TIMEOUT) == -1)
+	if (::poll(this->poll_fds.data(), this->poll_fds.size(), timeout) == -1)
 	{
 		return (TM_FAILURE);
 	}

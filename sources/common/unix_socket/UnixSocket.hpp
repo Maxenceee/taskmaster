@@ -49,7 +49,7 @@ protected:
 
 	std::vector<pollfd>	poll_fds;
 
-	int	poll(void);
+	int	poll(int timeout = TM_POLL_TIMEOUT);
 
 public:
 	explicit UnixSocket(const char* path);

@@ -22,3 +22,13 @@ setup_signal(int sig, void (*handler)(int))
 	sa.sa_handler = handler;
 	(void)sigaction(sig, &sa, NULL);
 }
+
+void
+setup_info_signal(int sig, void (*handler)(int, siginfo_t*, void*))
+{
+	struct sigaction sa;
+	sa.sa_sigaction = advanced_handler;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = SA_SIGINFO | SA_RESTART;
+	sigaction(SIGCHLD, &sa, NULL);
+}

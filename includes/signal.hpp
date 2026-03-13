@@ -14,5 +14,6 @@
 #define SIGNAL_HPP
 
 void	setup_signal(int sig, void (*handler)(int));
+void    setup_info_signal(int sig, void (*handler)(int, siginfo_t*, void*));
 
 #endif /* SIGNAL_HPP */
