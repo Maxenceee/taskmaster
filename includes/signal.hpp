@@ -13,6 +13,10 @@
 #ifndef SIGNAL_HPP
 #define SIGNAL_HPP
 
+#define _POSIX_C_SOURCE 200809L
+#include <signal.h>
+#include <sys/wait.h>
+
 void	setup_signal(int sig, void (*handler)(int));
 void    setup_info_signal(int sig, void (*handler)(int, siginfo_t*, void*));
 

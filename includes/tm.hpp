@@ -21,7 +21,6 @@
 #include <string.h>
 #include <limits.h>
 #include <spawn.h>
-#include <signal.h>
 #include <errno.h>
 #include <syslog.h>
 

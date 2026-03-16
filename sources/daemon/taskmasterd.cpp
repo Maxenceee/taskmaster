@@ -72,17 +72,19 @@ static void
 handleDeadChild(int sig __unused, siginfo_t *info, void *context __unused)
 {
 	pid_t dead_pid = info->si_pid;
+	Logger::debug("A child with pid " + std::to_string(dead_pid) + " is dead.");
 	if (NULL != g_master)
 	{
 		for (const auto* process : g_master->all())
 		{
-			if (*process == dead_pid)
+			if (process->getPid() == dead_pid)
 				// If the dead child is part of our minitored
 				// children, it il be handled later 
 				return ;
 		}
 	}
 
+	Logger::debug("Dead child was not part of managed children.");
 	// If the dead child is unknown, just discard it to prevent to
 	// stay as zombie process
 	(void)waitpid(dead_pid, NULL, 0);
